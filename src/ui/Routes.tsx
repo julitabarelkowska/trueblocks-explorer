@@ -15,13 +15,13 @@ export const RootLocation = '/';
 export const DashboardLocation = '/dashboard';
 export const DashboardMonitorsLocation = '/dashboard/monitors';
 export const DashboardAccountsLocation = '/dashboard/accounts';
+export const DashboardAccountsAssetsLocation = '/dashboard/accounts/assets';
 export const DashboardAccountsHistoryLocation = '/dashboard/accounts/history';
 export const DashboardAccountsHistoryReconsLocation = '/dashboard/accounts/history/recons';
 export const DashboardAccountsHistoryFunctionsLocation = '/dashboard/accounts/history/functions';
 export const DashboardAccountsHistoryEventsLocation = '/dashboard/accounts/history/events';
 export const DashboardAccountsHistoryTracesLocation = '/dashboard/accounts/history/traces';
 export const DashboardAccountsHistoryCustomLocation = '/dashboard/accounts/history/custom';
-export const DashboardAccountsAssetsLocation = '/dashboard/accounts/assets';
 export const DashboardAccountsNeighborsLocation = '/dashboard/accounts/neighbors';
 export const DashboardAccountsGasLocation = '/dashboard/accounts/gas';
 export const DashboardAccountsChartsLocation = '/dashboard/accounts/charts';
@@ -103,6 +103,12 @@ export const routes = [
     helpText: 'View the transactional history of an account.',
   },
   {
+    path: DashboardAccountsAssetsLocation,
+    exact: true,
+    component: DashboardView,
+    helpText: 'See all assets for a given address.',
+  },
+  {
     path: DashboardAccountsHistoryLocation,
     exact: true,
     component: DashboardView,
@@ -137,12 +143,6 @@ export const routes = [
     exact: true,
     component: DashboardView,
     helpText: 'View the logo of the to address for the transaction.',
-  },
-  {
-    path: DashboardAccountsAssetsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'See all assets for a given address.',
   },
   {
     path: DashboardAccountsNeighborsLocation,

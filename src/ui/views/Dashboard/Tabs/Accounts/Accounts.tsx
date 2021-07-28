@@ -87,14 +87,14 @@ export const AccountsView = ({
 
   const leftSideTabs: ViewTab[] = [
     {
-      name: 'History',
-      location: DashboardAccountsHistoryLocation,
-      component: <History theData={theData} loading={loading} accountAddress={accountAddress} />,
-    },
-    {
       name: 'Assets',
       location: DashboardAccountsChartsLocation,
       component: <Assets theData={theData} loading={loading} accountAddress={accountAddress} />,
+    },
+    {
+      name: 'History',
+      location: DashboardAccountsHistoryLocation,
+      component: <History theData={theData} loading={loading} accountAddress={accountAddress} />,
     },
     {
       name: 'Events',
@@ -133,7 +133,7 @@ export const AccountsView = ({
       <Divider style={{ height: '1px' }} />
       <div style={{ display: 'grid', gridTemplateColumns: '20fr 1fr' }}>
         <BaseView
-          defaultActive={DashboardAccountsHistoryLocation}
+          defaultActive={DashboardAccountsChartsLocation}
           baseActive={DashboardAccountsLocation}
           cookieName={cookieVars.dashboard_account_sub_tab}
           tabs={leftSideTabs}

@@ -3,13 +3,13 @@ path                                   ,hotKey ,helpText
 /dashboard                             ,       ,The dashboard overview page gives you an overview of your holdings among other things.
 /dashboard/monitors                    ,s m    ,Monitors are named addresses that you have indicated are of interest and should be monitored by the scrapers.
 /dashboard/accounts                    ,s a    ,View the transactional history of an account.
+/dashboard/accounts/assets             ,       ,See all assets for a given address.
 /dashboard/accounts/history            ,       ,View the transactional history of an account.
 /dashboard/accounts/history/recons     ,       ,View the reconciliation history of an account.
 /dashboard/accounts/history/functions  ,       ,View the functions for a transaction.
 /dashboard/accounts/history/events     ,       ,View the events in transaction.
 /dashboard/accounts/history/traces     ,       ,View the history of traces for the transaction.
 /dashboard/accounts/history/custom     ,       ,View the logo of the to address for the transaction.
-/dashboard/accounts/assets             ,       ,See all assets for a given address.
 /dashboard/accounts/neighbors          ,       ,See all assets for a given address.
 /dashboard/accounts/gas                ,       ,Analyze gas usage.
 /dashboard/accounts/charts             ,       ,See all assets for a given address.
