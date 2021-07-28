@@ -79,9 +79,10 @@ export const Assets = ({
         <small>
           ({asset.history.length} txs){' '}
           <small>
-            [
-            <a target='_blank' href={'https://etherscan.io/'}>
-              Analysis
+            [<a href={'/dashboard/accounts/history'}>Analysis</a>
+            {'] ['}
+            <a target='_blank' href={'http://localhost:8080/names?autoname=' + asset.assetAddr}>
+              AutoName
             </a>
             {'] ['}
             <a target='_blank' href={'https://etherscan.io/token/' + asset.assetAddr + '?a=' + accountAddress}>

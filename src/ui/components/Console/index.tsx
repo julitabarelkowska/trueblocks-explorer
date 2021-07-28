@@ -38,9 +38,8 @@ export const Console = (props: any) => {
           style={{
             backgroundColor: 'black',
             color: 'yellow',
-            borderRadius: '8px',
-            height: '40px',
-            padding: '8px',
+            borderRadius: '4px',
+            padding: '4px',
             minWidth: '600px',
             width: '50%',
             display: 'flex',

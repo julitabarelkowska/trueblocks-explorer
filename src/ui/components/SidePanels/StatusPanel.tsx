@@ -173,17 +173,20 @@ const ScraperProgress = ({
   color: string;
 }) => {
   const styles = useStyles();
-  const st: string = styles.itemIcon;
+  const cn: string = styles.itemIcon;
+  const dist = Intl.NumberFormat().format(Math.abs(client - value));
+  const style = client > value ? { display: 'inline' } : { display: 'inline', color: 'red' };
+  const msg = <div style={style}>{client > value ? dist + ' behind head' : <i>{dist + ' ahead'}</i>}</div>;
   return (
     <div>
-      <ApiFilled className={st} style={{ color: `${color}` }} />
+      <ApiFilled className={cn} style={{ color: `${color}` }} />
       {Intl.NumberFormat().format(value)}
       <span className={styles.statusItem}>
         {word}
         <br />
       </span>
       <ApiFilled className={styles.itemIcon} style={{ color: 'white' }} />
-      <div style={{ display: 'inline' }}>{Intl.NumberFormat().format(client - value)} behind head</div>
+      <div style={{ display: 'inline' }}>{msg}</div>
     </div>
   );
 };
