@@ -6,13 +6,12 @@ import {
   DashboardAccountsHistoryReconsLocation,
   DashboardAccountsHistoryTracesLocation,
 } from '../../../../../Routes';
-import { cookieVars } from '../../../../../Utilities';
 import { transactionSchema } from '../Accounts';
 import { HistoryEvents } from './HistoryEvents';
 import { HistoryFunctions } from './HistoryFunctions';
 import { HistoryRecons } from './HistoryRecons';
 import { BaseView } from '@components/BaseView';
-import { BaseTable, SelectedRow } from '@components/Table';
+import { BaseTable } from '@components/Table';
 import { TransactionArray } from '@modules/types';
 import React from 'react';
 
@@ -25,9 +24,7 @@ export const History = ({
   loading: boolean;
   accountAddress: string;
 }) => {
-  const siderRender = (record: any, selectedRow: SelectedRow) => (
-    <AccountHistorySider key='account-transactions' record={record} selectedRow={selectedRow} />
-  );
+  const siderRender = (record: any) => <AccountHistorySider key='account-transactions' record={record} />;
 
   return (
     <BaseTable
@@ -40,7 +37,7 @@ export const History = ({
   );
 };
 
-export const AccountHistorySider = ({ record, selectedRow }: { record: any; selectedRow: SelectedRow }) => {
+export const AccountHistorySider = ({ record }: { record: any }) => {
   const tabs = [
     {
       name: 'Recons',
@@ -73,7 +70,7 @@ export const AccountHistorySider = ({ record, selectedRow }: { record: any; sele
     <BaseView
       defaultActive={DashboardAccountsHistoryReconsLocation}
       baseActive={DashboardAccountsHistoryLocation}
-      cookieName={cookieVars.dashboard_account_history_sub_tab}
+      cookieName={'COOKIE_DASHBOARD_ACCOUNT_HISTORY_SUB_TAB'}
       tabs={tabs}
       subBase={true}
     />

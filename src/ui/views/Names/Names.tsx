@@ -6,7 +6,6 @@ import {
   NamesLocation,
   NamesTagsLocation,
 } from '../../Routes';
-import { cookieVars } from '../../Utilities';
 import { Addresses } from './Tabs/Addresses';
 import { EventSignatures } from './Tabs/EventSignatures';
 import { FunctionSignatures } from './Tabs/FunctionSignatures';
@@ -30,7 +29,7 @@ export const NamesView = () => {
       title={title}
       defaultActive={NamesAddressesLocation}
       baseActive={NamesLocation}
-      cookieName={cookieVars.names_current_tab}
+      cookieName={'COOKIE_NAMES_CURRENT_TAB'}
       tabs={tabs}
     />
   );

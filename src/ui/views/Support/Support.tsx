@@ -6,7 +6,6 @@ import {
   SupportLicensingLocation,
   SupportLocation,
 } from '../../Routes';
-import { cookieVars } from '../../Utilities';
 import { About } from './Tabs/About';
 import { Contact } from './Tabs/Contact';
 import { Documentation } from './Tabs/Documentation';
@@ -30,7 +29,7 @@ export const SupportView = () => {
       title={title}
       defaultActive={SupportContactUsLocation}
       baseActive={SupportLocation}
-      cookieName={cookieVars.support_current_tab}
+      cookieName={'COOKIE_SUPPORT_CURRENT_TAB'}
       tabs={tabs}
     />
   );

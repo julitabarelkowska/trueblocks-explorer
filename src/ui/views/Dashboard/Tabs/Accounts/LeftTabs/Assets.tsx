@@ -1,4 +1,5 @@
 // import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 import { useGlobalNames } from '../../../../../State';
 import { chartColors } from '../../../../../Utilities';
 import { MyAreaChart } from '@components/MyAreaChart';
@@ -6,6 +7,7 @@ import { addColumn } from '@components/Table';
 import { AssetHistory, Reconciliation, Transaction, TransactionArray } from '@modules/types';
 import dayjs from 'dayjs';
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 export const Assets = ({
   theData,
@@ -67,6 +69,34 @@ export const Assets = ({
   });
 
   const getTitle = (asset: AssetHistory, index: number) => {
+    const links: any = [];
+    links.push(<NavLink to={DashboardAccountsHistoryLocation}>History</NavLink>);
+    if (!names[asset.assetAddr]) {
+      links.push(
+        <a target='_blank' href={'http://localhost:8080/names?autoname=' + asset.assetAddr}>
+          AutoName
+        </a>
+      );
+    }
+    if (asset.assetSymbol === 'ETH') {
+      links.push(
+        <a target='_blank' href={'https://etherscan.io/address/' + asset.assetAddr}>
+          Token
+        </a>
+      );
+    } else {
+      links.push(
+        <a target='_blank' href={'https://etherscan.io/token/' + asset.assetAddr + '?a=' + accountAddress}>
+          Holdings
+        </a>
+      );
+      links.push(
+        <a target='_blank' href={'https://etherscan.io/address/' + asset.assetAddr}>
+          Token
+        </a>
+      );
+    }
+
     return (
       <div key={index + 'd1'} style={{ overflowX: 'hidden' }}>
         {asset.assetSymbol === 'ETH'
@@ -79,20 +109,9 @@ export const Assets = ({
         <small>
           ({asset.history.length} txs){' '}
           <small>
-            [<a href={'/dashboard/accounts/history'}>Analysis</a>
-            {'] ['}
-            <a target='_blank' href={'http://localhost:8080/names?autoname=' + asset.assetAddr}>
-              AutoName
-            </a>
-            {'] ['}
-            <a target='_blank' href={'https://etherscan.io/token/' + asset.assetAddr + '?a=' + accountAddress}>
-              Holdings
-            </a>
-            {'] ['}
-            <a target='_blank' href={'https://etherscan.io/address/' + asset.assetAddr}>
-              Token
-            </a>
-            ]
+            {links.map((link: any) => {
+              return <div style={{ display: 'inline' }}>[{link}] </div>;
+            })}
           </small>
         </small>
       </div>

@@ -6,7 +6,6 @@ import {
   SettingsScrapersLocation,
   SettingsSkinsLocation,
 } from '../../Routes';
-import { cookieVars } from '../../Utilities';
 import { Caches } from './Tabs/Caches';
 import { IndexesView } from './Tabs/Indexes/Indexes';
 import { Schemas } from './Tabs/Schemas';
@@ -30,7 +29,7 @@ export const SettingsView = () => {
       title={title}
       defaultActive={SettingsScrapersLocation}
       baseActive={SettingsLocation}
-      cookieName={cookieVars.settings_current_tab}
+      cookieName={'COOKIE_SETTINGS_CURRENT_TAB'}
       tabs={tabs}
     />
   );

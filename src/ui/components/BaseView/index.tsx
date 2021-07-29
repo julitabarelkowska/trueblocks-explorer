@@ -19,6 +19,7 @@ export interface ViewParams {
   baseActive: string;
   cookieName: string;
   tabs: ViewTab[];
+  extraContent?: any;
   position?: TabsPosition;
   subBase?: boolean;
 }
@@ -30,6 +31,7 @@ export const BaseView = ({
   baseActive,
   cookieName,
   tabs,
+  extraContent,
   position = 'top',
   subBase,
 }: ViewParams) => {
@@ -63,7 +65,11 @@ export const BaseView = ({
   return (
     <>
       {titleComponent}
-      <Tabs tabPosition={position} defaultActiveKey={currentTab} onChange={(key) => onTabChange(key)}>
+      <Tabs
+        tabBarExtraContent={extraContent}
+        tabPosition={position}
+        defaultActiveKey={currentTab}
+        onChange={(key) => onTabChange(key)}>
         {tabs.map((tab) => (
           <TabPane tab={tab.name} key={tab.location} disabled={tab.disabled}>
             {tab.component}

@@ -5,7 +5,6 @@ import {
   SettingsIndexesManifestLocation,
   SettingsIndexesTableLocation,
 } from '../../../../Routes';
-import { cookieVars } from '../../../../Utilities';
 import { IndexCharts } from './SubTabs/IndexCharts';
 import { IndexGrid } from './SubTabs/IndexGrid';
 import { IndexManifest } from './SubTabs/IndexManifest';
@@ -57,7 +56,7 @@ export const IndexesView = () => {
     <BaseView
       defaultActive={SettingsIndexesGridLocation}
       baseActive={SettingsIndexesLocation}
-      cookieName={cookieVars.dashboard_indexes_sub_tab}
+      cookieName={'COOKIE_DASHBOARD_INDEXES_SUB_TAB'}
       tabs={tabs}
       position='left'
       subBase={true}

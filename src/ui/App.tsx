@@ -1,6 +1,5 @@
 import { ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation } from './Routes';
 import useGlobalState from './State';
-import { cookieVars } from './Utilities';
 import './app.css';
 import { Console } from './components/Console';
 import { MainMenu, MenuItems } from './components/MainMenu';
@@ -118,7 +117,7 @@ export const App = () => {
         <SidePanel
           header='Menu'
           dir={PanelDirection.Left}
-          cookieName={cookieVars.menu_expanded}
+          cookieName={'COOKIE_MENU_EXPANDED'}
           collapsibleContent={false}>
           <MainMenu items={menuItems} />
         </SidePanel>
@@ -132,12 +131,12 @@ export const App = () => {
               }}>
               <Routes />
             </Content>
-            <SidePanel header='Status' cookieName={cookieVars.status_expanded} dir={PanelDirection.Right}>
+            <SidePanel header='Status' cookieName={'COOKIE_STATUS_EXPANDED'} dir={PanelDirection.Right}>
               <StatusPanel status={status} loading={loadingStatus} />
             </SidePanel>
             <SidePanel
               header='Help'
-              cookieName={cookieVars.help_expanded}
+              cookieName={'COOKIE_HELP_EXPANDED'}
               dir={PanelDirection.Right}
               customCollapseIcon={<QuestionCircleFilled className={styles.help_icon} />}
               customExpandIcon={<QuestionCircleFilled className={styles.help_icon} />}>

@@ -8,7 +8,6 @@ import {
   DashboardAccountsNeighborsLocation,
 } from '../../../../Routes';
 import { useGlobalNames } from '../../../../State';
-import { cookieVars } from '../../../../Utilities';
 import { Assets } from './LeftTabs/Assets';
 import { Events } from './LeftTabs/Events';
 import { Functions } from './LeftTabs/Functions';
@@ -84,6 +83,37 @@ export const AccountsView = ({
     );
   };
 
+  const viewOptions = (): JSX.Element => {
+    return (
+      <div>
+        <b>
+          <u>asset: </u>
+        </b>
+        <br />
+        <Checkbox
+          checked={staging}
+          onChange={(event) => {
+            return;
+          }}>
+          asset
+        </Checkbox>
+        <p />
+        <b>
+          <u>options: </u>
+        </b>
+        <Checkbox checked={staging} onChange={(event) => onStaging()}>
+          staging
+        </Checkbox>
+        <Checkbox checked={denom === 'ether'} onChange={(event) => onEther()}>
+          ether
+        </Checkbox>
+        <Checkbox checked={denom === 'dollars'} onChange={(event) => onDollars()}>
+          dollars
+        </Checkbox>
+      </div>
+    );
+  };
+
   const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
   const theData = getData(transactions);
   const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
@@ -123,27 +153,18 @@ export const AccountsView = ({
 
   return (
     <div>
-      <Checkbox checked={staging} onChange={(event) => onStaging()}>
-        staging
-      </Checkbox>
-      <Checkbox checked={denom === 'ether'} onChange={(event) => onEther()}>
-        ether
-      </Checkbox>
-      <Checkbox checked={denom === 'dollars'} onChange={(event) => onDollars()}>
-        dollars
-      </Checkbox>
       <AddressBar input={addressInput} progress={progressBar()} />
       <Divider style={{ height: '1px' }} />
       <div style={{ display: 'grid', gridTemplateColumns: '20fr 1fr' }}>
         <BaseView
           defaultActive={DashboardAccountsChartsLocation}
           baseActive={DashboardAccountsLocation}
-          cookieName={cookieVars.dashboard_account_sub_tab}
+          cookieName={'COOKIE_DASHBOARD_ACCOUNT_SUB_TAB'}
           tabs={leftSideTabs}
           position='left'
           subBase={true}
         />
-        <div></div>
+        <div>{viewOptions()}</div>
       </div>
     </div>
   );

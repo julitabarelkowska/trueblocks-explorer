@@ -5,7 +5,6 @@ import {
   DashboardMonitorsLocation,
 } from '../../Routes';
 import useGlobalState, { useGlobalNames } from '../../State';
-import { cookieVars } from '../../Utilities';
 import { AccountsView } from './Tabs/Accounts/Accounts';
 import { Collections } from './Tabs/Collections';
 import { Monitors } from './Tabs/Monitors';
@@ -18,12 +17,13 @@ import { pipe } from 'fp-ts/lib/function';
 import React, { useEffect, useState } from 'react';
 
 export const DashboardView = ({ match }: { match?: any }) => {
-  const { accountAddress, setAccountAddress, transactions, setTransactions, totalRecords, setTotalRecords } =
-    useGlobalState();
+  const { accountAddress, setAccountAddress } = useGlobalState();
+  const { transactions, setTransactions } = useGlobalState();
+  const { totalRecords, setTotalRecords } = useGlobalState();
   const { names } = useGlobalNames();
+  const [loading, setLoading] = useState(false);
   const [named, setNamed] = useState('');
   const [denom, setDenom] = useState('ether');
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const name = names && names[accountAddress];
@@ -127,7 +127,7 @@ export const DashboardView = ({ match }: { match?: any }) => {
       title={title}
       defaultActive={DashboardMonitorsLocation}
       baseActive={DashboardLocation}
-      cookieName={cookieVars.dashboard_current_tab}
+      cookieName={'COOKIE_DASHBOARD_CURRENT_TAB'}
       tabs={tabs}
     />
   );

@@ -6,7 +6,6 @@ import {
   ExplorerTracesLocation,
   ExplorerTransactionsLocation,
 } from '../../Routes';
-import { cookieVars } from '../../Utilities';
 import { Blocks } from './Tabs/Blocks';
 import { Logs } from './Tabs/Logs';
 import { Receipts } from './Tabs/Receipts';
@@ -32,7 +31,7 @@ export const ExplorerView = () => {
         title={title}
         defaultActive={ExplorerBlocksLocation}
         baseActive={ExplorerLocation}
-        cookieName={cookieVars.explorer_current_tab}
+        cookieName={'COOKIE_EXPLORER_CURRENT_TAB'}
         tabs={tabs}
       />
     </div>

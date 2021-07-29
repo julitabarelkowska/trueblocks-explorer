@@ -3,7 +3,7 @@
 //   else return <tr {...props} tabIndex={0} />;
 // };
 
-// export type SelectedRow = {
+// export type Selected Row = {
 //   curRow: number;
 //   curPage: number;
 //   pageSize: number;
@@ -15,14 +15,14 @@
 //   loading,
 //   extraData,
 //   expandRender = undefined,
-//   siderRender = undefined,
+//   sider Render = undefined,
 // }: {
 //   dataSource: JsonResponse;
 //   columns: ColumnsType<any>;
 //   loading: boolean;
 //   extraData?: string;
 //   expandRender?: (row: any) => JSX.Element;
-//   siderRender?: (record: any, selectedRow: SelectedRow) => JSX.Element;
+//   sider Render?: (record: any, selectedRow: Selected Row) => JSX.Element;
 // }) => {
 //   const { debug } = useGlobalState();
 //   const [expandedRowKeys, setExpandedRowKeys] = useState<readonly React.ReactText[]>([]);
@@ -129,10 +129,10 @@
 //     expandRender !== undefined ? expandRender : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
 //   let sider = <></>;
 //   let style = { display: 'grid', gridTemplateColumns: '20fr 1fr' };
-//   if (dataSrc && siderRender) {
+//   if (dataSrc && sider Render) {
 //     let dataRow = pageSize * (curPage - 1) + curRow;
 //     const record = dataSrc[Math.max(0, dataRow)];
-//     sider = siderRender(record, { pageSize, curPage, curRow });
+//     sider = sider Render(record, { pageSize, curPage, curRow });
 //     style = { display: 'grid', gridTemplateColumns: '10fr 4fr' };
 //   }
 

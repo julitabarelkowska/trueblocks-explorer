@@ -3,12 +3,6 @@ import Table, { ColumnsType } from 'antd/lib/table';
 import Mousetrap from 'mousetrap';
 import React, { useEffect, useState } from 'react';
 
-export type SelectedRow = {
-  curRow: number;
-  curPage: number;
-  pageSize: number;
-};
-
 type JsonResponse = Record<string, any>;
 
 export const BaseTable = ({
@@ -25,7 +19,7 @@ export const BaseTable = ({
   loading: boolean;
   extraData?: string;
   expandRender?: (row: any) => JSX.Element;
-  siderRender?: (record: any, selectedRow: SelectedRow) => JSX.Element;
+  siderRender?: (record: any) => JSX.Element;
   defPageSize?: number;
 }) => {
   const [displayedRow, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
@@ -112,7 +106,7 @@ export const BaseTable = ({
         }}
       />
       <div></div>
-      {siderRender ? siderRender(displayedRow, { curRow, curPage, pageSize }) : <></>}
+      {siderRender ? siderRender(displayedRow) : <></>}
       <div></div>
     </div>
   );
