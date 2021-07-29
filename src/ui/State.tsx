@@ -128,3 +128,8 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export default useGlobalState;
+
+export const useGlobalNames = () => {
+  const { names, setNames } = useGlobalState();
+  return { names, setNames };
+};

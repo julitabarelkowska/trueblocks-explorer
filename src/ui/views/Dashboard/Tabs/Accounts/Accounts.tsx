@@ -7,7 +7,7 @@ import {
   DashboardAccountsLocation,
   DashboardAccountsNeighborsLocation,
 } from '../../../../Routes';
-import useGlobalState from '../../../../State';
+import { useGlobalNames } from '../../../../State';
 import { cookieVars } from '../../../../Utilities';
 import { Assets } from './LeftTabs/Assets';
 import { Events } from './LeftTabs/Events';
@@ -37,6 +37,8 @@ export const AccountsView = ({
   totalRecords,
   transactions,
   setTransactions,
+  denom,
+  setDenom,
 }: {
   loading: boolean;
   setLoading: any;
@@ -45,9 +47,10 @@ export const AccountsView = ({
   totalRecords: number | null;
   transactions: Result | null;
   setTransactions: any;
+  denom: string;
+  setDenom: any;
 }) => {
   const [staging, setStaging] = useState(false);
-  const [denom, setDenom] = useState('ether');
 
   const onStaging = () => setStaging(!staging);
   const onEther = () => {
@@ -157,7 +160,7 @@ const AddressBar = ({ input, progress }: { input: JSX.Element; progress: JSX.Ele
 };
 
 export const renderAsNamedAddress = (address: string, acctFor: string) => {
-  const { names } = useGlobalState();
+  const { names } = useGlobalNames();
 
   const isCurrent = address === acctFor;
   const isSpecial = address === '0xPrefund' || address === '0xBlockReward' || address === '0xUncleReward';

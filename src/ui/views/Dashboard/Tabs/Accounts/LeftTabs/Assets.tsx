@@ -1,5 +1,5 @@
 // import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import useGlobalState from '../../../../../State';
+import { useGlobalNames } from '../../../../../State';
 import { chartColors } from '../../../../../Utilities';
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
@@ -16,7 +16,7 @@ export const Assets = ({
   loading: boolean;
   accountAddress: string;
 }) => {
-  const { names } = useGlobalState();
+  const { names } = useGlobalNames();
 
   if (!theData) return <></>;
 

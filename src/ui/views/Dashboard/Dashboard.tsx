@@ -4,7 +4,7 @@ import {
   DashboardLocation,
   DashboardMonitorsLocation,
 } from '../../Routes';
-import useGlobalState from '../../State';
+import useGlobalState, { useGlobalNames } from '../../State';
 import { cookieVars } from '../../Utilities';
 import { AccountsView } from './Tabs/Accounts/Accounts';
 import { Collections } from './Tabs/Collections';
@@ -20,8 +20,9 @@ import React, { useEffect, useState } from 'react';
 export const DashboardView = ({ match }: { match?: any }) => {
   const { accountAddress, setAccountAddress, transactions, setTransactions, totalRecords, setTotalRecords } =
     useGlobalState();
-  const { names } = useGlobalState();
+  const { names } = useGlobalNames();
   const [named, setNamed] = useState('');
+  const [denom, setDenom] = useState('ether');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -112,6 +113,8 @@ export const DashboardView = ({ match }: { match?: any }) => {
           totalRecords={totalRecords}
           transactions={transactions}
           setTransactions={setTransactions}
+          denom={denom}
+          setDenom={setDenom}
         />
       ),
       disabled: false,
