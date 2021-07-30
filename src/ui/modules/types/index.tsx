@@ -13,7 +13,7 @@ export declare type double = number;
 export declare type bytes32 = string;
 export declare type TopicArray = string[];
 export { Accountname, AccountnameArray } from '@modules/types/Accountname';
-export { AssetHistory } from '@modules/types/AssetHistory';
+export { AssetHistory, AssetHistoryArray } from '@modules/types/AssetHistory';
 export { Balance, BalanceArray } from '@modules/types/Balance';
 export { Block, BlockArray } from '@modules/types/Block';
 export { Chunk, ChunkArray } from '@modules/types/Chunk';
