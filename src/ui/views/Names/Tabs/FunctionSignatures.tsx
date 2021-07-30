@@ -1,22 +1,21 @@
 import { addActionsColumn, addColumn, BaseTable, TableActions } from '@components/Table';
-import { useCommand } from '@hooks/useCommand';
+import { useFetchData } from '@hooks/useCommand';
 import { createErrorNotification } from '@modules/error_notification';
 import { Function } from '@modules/types';
 import { ColumnsType } from 'antd/lib/table';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 export const FunctionSignatures = () => {
-  const [signatures, loading] = useCommand('abis', { known: true, source: true, verbose: 2 });
-  if (signatures.status === 'fail') {
+  const filterFunc = (item: Function) => item.type !== 'event';
+  const { theData, loading, status } = useFetchData('abis', { known: true, source: true, verbose: 2 }, filterFunc);
+
+  if (status === 'fail') {
     createErrorNotification({
-      description: 'Could not fetch signatures',
+      description: 'Could not fetch function signature data',
     });
   }
 
-  const getData = useCallback((response) => {
-    return response.status === 'fail' ? [] : response.data.filter((item: Function) => item.type === 'function');
-  }, []);
-  return <BaseTable dataSource={getData(signatures)} columns={signatureSchema} loading={loading} />;
+  return <BaseTable dataSource={theData} columns={signatureSchema} loading={loading} />;
 };
 
 const signatureSchema: ColumnsType<Function> = [
