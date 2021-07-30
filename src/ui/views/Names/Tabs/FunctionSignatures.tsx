@@ -1,5 +1,5 @@
 import { addActionsColumn, addColumn, BaseTable, TableActions } from '@components/Table';
-import { useFetchData } from '@hooks/useCommand';
+import { useFetchData } from '@hooks/useFetchData';
 import { createErrorNotification } from '@modules/error_notification';
 import { Function } from '@modules/types';
 import { ColumnsType } from 'antd/lib/table';

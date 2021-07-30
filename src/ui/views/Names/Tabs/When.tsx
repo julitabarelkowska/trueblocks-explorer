@@ -1,20 +1,20 @@
 import { addActionsColumn, addColumn, addNumColumn, BaseTable, TableActions } from '@components/Table';
-import { useCommand } from '@hooks/useCommand';
+import { useFetchData } from '@hooks/useFetchData';
 import { createErrorNotification } from '@modules/error_notification';
 import { Block } from '@modules/types';
 import { ColumnsType } from 'antd/lib/table';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 export const When = () => {
-  const [when, loading] = useCommand('when', { list: true });
-  if (when.status === 'fail') {
+  const { theData, loading, status } = useFetchData('when', { list: true });
+
+  if (status === 'fail') {
     createErrorNotification({
-      description: 'Could not fetch when blocks',
+      description: 'Could not fetch named blocks',
     });
   }
 
-  const getData = useCallback((response) => (response.status === 'fail' ? [] : response.data), []);
-  return <BaseTable dataSource={getData(when)} columns={whenSchema} loading={loading} />;
+  return <BaseTable dataSource={theData} columns={whenSchema} loading={loading} />;
 };
 
 const whenSchema: ColumnsType<Block> = [

@@ -1,21 +1,21 @@
-import { useCommand } from '../../../hooks/useCommand';
 import { addColumn, addNumColumn, BaseTable, TableActions } from '@components/Table';
+import { useFetchData } from '@hooks/useFetchData';
 import { createErrorNotification } from '@modules/error_notification';
 import { Block } from '@modules/types';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 export const Blocks = () => {
-  const [blocks, loading] = useCommand('blocks', { list: 0, list_count: 12, cache: true });
-  if (blocks.status === 'fail') {
+  const { theData, loading, status } = useFetchData('blocks', { list: 0, list_count: 12, cache: true });
+
+  if (status === 'fail') {
     createErrorNotification({
       description: 'Could not fetch blocks',
     });
   }
 
-  const getData = useCallback((response) => (response.status === 'fail' ? [] : response.data), []);
-  return <BaseTable dataSource={getData(blocks)} columns={blockListSchema} loading={loading} />;
+  return <BaseTable dataSource={theData} columns={blockListSchema} loading={loading} />;
 };
 
 const blockListSchema: ColumnsType<Block> = [

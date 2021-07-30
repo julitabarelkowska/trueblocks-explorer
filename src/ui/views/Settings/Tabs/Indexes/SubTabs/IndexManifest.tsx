@@ -1,24 +1,21 @@
 import { addColumn, BaseTable } from '@components/Table';
-import { useCommand } from '@hooks/useCommand';
+import { useFetchData } from '@hooks/useFetchData';
 import { createErrorNotification } from '@modules/error_notification';
 import { ColumnsType } from 'antd/lib/table';
-import React, { useCallback } from 'react';
+import React from 'react';
 
-export const IndexManifest = ({ theData, loading }: { theData: any[]; loading: boolean }) => {
-  const [manifest, loadMan] = useCommand('pins', { list: true });
-  if (manifest.status === 'fail') {
+export const IndexManifest = () => {
+  const { theData, loading, status } = useFetchData('pins', { list: true });
+
+  if (status === 'fail') {
     createErrorNotification({
       description: 'Could not fetch manifest',
     });
   }
 
-  const getData = useCallback((response) => {
-    return response.status === 'fail' || !response.data ? [] : response.data;
-  }, []);
-
   return (
     <div style={{ width: '70%' }}>
-      <BaseTable dataSource={getData(manifest)} columns={manifestSchema} loading={false} />
+      <BaseTable dataSource={theData} columns={manifestSchema} loading={false} />
     </div>
   );
 };

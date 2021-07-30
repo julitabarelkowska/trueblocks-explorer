@@ -48,7 +48,7 @@ export const IndexesView = () => {
     {
       name: 'Manifest',
       location: SettingsIndexesManifestLocation,
-      component: <IndexManifest key={'manifest'} theData={getData(indexes)} loading={loading} />,
+      component: <IndexManifest key={'manifest'} />,
     },
   ];
 

@@ -1,20 +1,20 @@
 import { addActionsColumn, addColumn, BaseTable, TableActions } from '@components/Table';
-import { useCommand } from '@hooks/useCommand';
+import { useFetchData } from '@hooks/useFetchData';
 import { createErrorNotification } from '@modules/error_notification';
 import { Tag } from '@modules/types/Tag';
 import { ColumnsType } from 'antd/lib/table';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 export const Tags = () => {
-  const [tags, loading] = useCommand('names', { tags: true });
-  if (tags.status === 'fail') {
+  const { theData, loading, status } = useFetchData('names', { tags: true });
+
+  if (status === 'fail') {
     createErrorNotification({
       description: 'Could not fetch tags',
     });
   }
 
-  const getData = useCallback((response) => (response.status === 'fail' ? [] : response.data), []);
-  return <BaseTable dataSource={getData(tags)} columns={tagSchema} loading={loading} />;
+  return <BaseTable dataSource={theData} columns={tagSchema} loading={loading} />;
 };
 
 const tagSchema: ColumnsType<Tag> = [
