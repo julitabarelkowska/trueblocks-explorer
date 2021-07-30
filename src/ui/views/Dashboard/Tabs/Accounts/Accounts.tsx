@@ -18,8 +18,7 @@ import { Neighbors } from './LeftTabs/Neighbors';
 import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
 import { BaseView, ViewTab } from '@components/BaseView';
 import { addColumn } from '@components/Table';
-import { emptyData, toSuccessfulData } from '@hooks/useCommand';
-import { Reconciliation, ReconciliationArray, Transaction } from '@modules/types';
+import { AssetHistoryArray, Reconciliation, ReconciliationArray, Transaction } from '@modules/types';
 import { Checkbox, Divider, Dropdown, Input, Menu, message, Progress } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
@@ -91,50 +90,17 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
 
   const onEther = () => {
     denom === 'ether' ? setDenom('') : setDenom('ether');
-    setTransactions(toSuccessfulData(emptyData));
+    setTransactions({ status: 'success' }); // empty
   };
 
   const onDollars = useCallback(() => {
     denom === 'dollars' ? setDenom('') : setDenom('dollars');
-    setTransactions(toSuccessfulData(emptyData));
+    setTransactions({ status: 'success' }); // empty
   }, []);
-
-  const onClick = ({ key }: { key: any }) => {
-    message.info(`Click on item ${key}`);
-  };
-
-  const menu = (
-    <Menu onClick={onClick}>
-      <Menu.Item key='1'>1st menu item</Menu.Item>
-      <Menu.Item key='2'>2nd menu item</Menu.Item>
-      <Menu.Item key='3'>3rd menu item</Menu.Item>
-    </Menu>
-  );
-  const assetDropdown = (
-    <Dropdown overlay={menu}>
-      <a className='ant-dropdown-link' onClick={(e) => e.preventDefault()}>
-        Hover me, Click menu item <DownOutlined />
-      </a>
-    </Dropdown>
-  );
-  // const assetDropdown = uniqAssets.map((asset: AssetHistory) => {
-  //   return <div>{asset.assetSymbol}</div>;
-  // });
 
   return (
     <div>
-      <b>
-        <u>asset: </u>
-      </b>
-      <br />
-      {assetDropdown}
-      <Checkbox
-        checked={false}
-        onChange={() => {
-          return;
-        }}>
-        asset
-      </Checkbox>
+      <AssetSelector uniqAssets={uniqAssets} />
       <p />
       <b>
         <u>options: </u>
@@ -154,6 +120,70 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   );
 };
 
+const AssetSelector = ({ uniqAssets }: { uniqAssets: AssetHistoryArray }) => {
+  const styles = useStyles();
+
+  const onClick = ({ key }: { key: any }) => {
+    message.info(`Click on item ${uniqAssets[key].assetAddr}`);
+  };
+
+  const menu = (
+    <Menu onClick={onClick}>
+      {uniqAssets.map((item, index) => {
+        return <Menu.Item key={index}>{item.assetSymbol}</Menu.Item>;
+      })}
+    </Menu>
+  );
+
+  return (
+    <>
+      <div className={styles.smallHeader}>asset: </div>
+      <Dropdown overlay={menu} trigger={['click']}>
+        <a className='ant-dropdown-link' onClick={(e) => e.preventDefault()}>
+          Filter <DownOutlined />
+        </a>
+      </Dropdown>
+    </>
+  );
+};
+/*
+ import { Select } from 'antd';
+
+const OPTIONS = ['Apples', 'Nails', 'Bananas', 'Helicopters'];
+
+class SelectWithHiddenSelectedOptions extends React.Component {
+  state = {
+    selectedItems: [],
+  };
+
+  handleChange = selectedItems => {
+    this.setState({ selectedItems });
+  };
+
+  render() {
+    const { selectedItems } = this.state;
+    const filteredOptions = OPTIONS.filter(o => !selectedItems.includes(o));
+    return (
+      <Select
+        mode="multiple"
+        placeholder="Inserted are removed"
+        value={selectedItems}
+        onChange={this.handleChange}
+        style={{ width: '100%' }}
+      >
+        {filteredOptions.map(item => (
+          <Select.Option key={item} value={item}>
+            {item}
+          </Select.Option>
+        ))}
+      </Select>
+    );
+  }
+}
+
+ReactDOM.render(<SelectWithHiddenSelectedOptions />, mountNode);
+*/
+
 const AddressInput = ({ params }: { params: AccountViewParams }) => {
   const { loading, setTransactions } = params;
   const { accountAddress, setAccountAddress } = useGlobalState();
@@ -163,7 +193,7 @@ const AddressInput = ({ params }: { params: AccountViewParams }) => {
       placeholder={'Input an address'}
       value={accountAddress}
       onChange={(e) => {
-        setTransactions(toSuccessfulData(emptyData));
+        setTransactions({ status: 'success' }); // empty
         setAccountAddress(e.target.value);
       }}
     />
@@ -394,5 +424,9 @@ const useStyles = createUseStyles({
   col: {
     textAlign: 'right',
     backgroundColor: '#fff7e6',
+  },
+  smallHeader: {
+    fontWeight: 800,
+    textDecoration: 'underlined',
   },
 });
