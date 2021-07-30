@@ -18,7 +18,7 @@ import { Neighbors } from './LeftTabs/Neighbors';
 import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
 import { BaseView, ViewTab } from '@components/BaseView';
 import { addColumn } from '@components/Table';
-import { AssetHistoryArray, Reconciliation, ReconciliationArray, Transaction } from '@modules/types';
+import { Reconciliation, ReconciliationArray, Transaction } from '@modules/types';
 import { Checkbox, Divider, Dropdown, Input, Menu, message, Progress } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
@@ -84,7 +84,8 @@ export const AccountsView = ({ params }: { params: AccountViewParams }) => {
 };
 
 const ViewOptions = ({ params }: { params: AccountViewParams }) => {
-  const { setStaging, denom, setDenom, setTransactions, staging, uniqAssets } = params;
+  const styles = useStyles();
+  const { setStaging, denom, setDenom, setTransactions, staging } = params;
 
   const onStaging = () => setStaging(!staging);
 
@@ -100,11 +101,7 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
 
   return (
     <div>
-      <AssetSelector uniqAssets={uniqAssets} />
-      <p />
-      <b>
-        <u>options: </u>
-      </b>
+      <div className={styles.smallHeader}>options: </div>
       <Checkbox checked={staging} onChange={() => onStaging()}>
         staging
       </Checkbox>
@@ -120,8 +117,9 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   );
 };
 
-const AssetSelector = ({ uniqAssets }: { uniqAssets: AssetHistoryArray }) => {
+const AssetSelector = ({ params }: { params: AccountViewParams }) => {
   const styles = useStyles();
+  const { uniqAssets } = params;
 
   const onClick = ({ key }: { key: any }) => {
     message.info(`Click on item ${uniqAssets[key].assetAddr}`);
@@ -137,12 +135,14 @@ const AssetSelector = ({ uniqAssets }: { uniqAssets: AssetHistoryArray }) => {
 
   return (
     <>
-      <div className={styles.smallHeader}>asset: </div>
-      <Dropdown overlay={menu} trigger={['click']}>
-        <a className='ant-dropdown-link' onClick={(e) => e.preventDefault()}>
-          Filter <DownOutlined />
-        </a>
-      </Dropdown>
+      <div className={styles.smallHeader} style={{ display: 'inline' }}>
+        asset:{' '}
+        <Dropdown className='' overlay={menu} trigger={['click']}>
+          <a className='ant-dropdown-link' onClick={(e) => e.preventDefault()}>
+            Filter <DownOutlined />
+          </a>
+        </Dropdown>
+      </div>
     </>
   );
 };
@@ -206,19 +206,23 @@ const ProgressBar = ({ params }: { params: AccountViewParams }): JSX.Element => 
   if (!totalRecords) return <></>;
   if (theData.length === totalRecords) return <></>;
   const pct = Math.floor((theData.length / (totalRecords || 1)) * 100);
-  return (
-    <Progress style={{ width: '200px', position: 'absolute', right: '8px' }} percent={pct} strokeLinecap='square' />
-  );
+  return <Progress style={{ display: 'inline' }} percent={pct} strokeLinecap='square' />;
 };
 
 const AddressBar = ({ params }: { params: AccountViewParams }) => {
   const input = <AddressInput params={params} />;
   const progress = <ProgressBar params={params} />;
+  const dropdown = <AssetSelector params={params} />;
   return (
-    <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', position: 'relative' }}>
-      <h3 style={{ marginRight: '12px', flexShrink: 0 }}>Accounting for </h3>
+    <div style={{ display: 'grid', gridTemplateColumns: '2fr 10fr 20fr 3fr 1fr' }}>
+      <h3>Accounting for </h3>
       {input}
-      {progress}
+      <div></div>
+      <div>
+        {progress}
+        {dropdown}
+      </div>
+      <div></div>
     </div>
   );
 };
@@ -427,6 +431,6 @@ const useStyles = createUseStyles({
   },
   smallHeader: {
     fontWeight: 800,
-    textDecoration: 'underlined',
+    textDecoration: 'underline',
   },
 });
