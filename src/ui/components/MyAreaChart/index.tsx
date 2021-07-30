@@ -27,7 +27,7 @@ export const MyAreaChart = ({
         key={index + '-d2'}
         style={
           table
-            ? { display: 'grid', gridTemplateColumns: '1fr 3fr' }
+            ? { display: 'grid', gridTemplateColumns: '15fr 25fr' }
             : { width: '100%', height: '200px', minWidth: '1' }
         }>
         {table ? <BaseTable dataSource={items} columns={columns} loading={false} defPageSize={10} /> : <></>}
@@ -46,8 +46,8 @@ export const MyAreaChart = ({
 };
 
 const margins = {
-  top: 10,
+  top: 5,
   right: 30,
   left: 0,
-  bottom: 0,
+  bottom: 5,
 };

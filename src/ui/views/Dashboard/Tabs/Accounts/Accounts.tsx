@@ -7,153 +7,67 @@ import {
   DashboardAccountsLocation,
   DashboardAccountsNeighborsLocation,
 } from '../../../../Routes';
-import { useGlobalNames } from '../../../../State';
+import useGlobalState, { useGlobalNames } from '../../../../State';
+import { AccountViewParams } from '../../Dashboard';
 import { Assets } from './LeftTabs/Assets';
 import { Events } from './LeftTabs/Events';
 import { Functions } from './LeftTabs/Functions';
 import { Gas } from './LeftTabs/Gas';
 import { History } from './LeftTabs/History';
 import { Neighbors } from './LeftTabs/Neighbors';
-import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
 import { BaseView, ViewTab } from '@components/BaseView';
 import { addColumn } from '@components/Table';
-import { emptyData, Result, toSuccessfulData } from '@hooks/useCommand';
+import { emptyData, toSuccessfulData } from '@hooks/useCommand';
 import { Reconciliation, ReconciliationArray, Transaction } from '@modules/types';
-import { Checkbox, Divider, Input, Progress, Tabs } from 'antd';
+import { Checkbox, Divider, Dropdown, Input, Menu, message, Progress } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { createUseStyles } from 'react-jss';
 import style from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark';
 
-const { TabPane } = Tabs;
+export const AccountsView = ({ params }: { params: AccountViewParams }) => {
+  const { theData, uniqAssets, loading } = params;
 
-export const AccountsView = ({
-  loading,
-  setLoading,
-  accountAddress,
-  setAccountAddress,
-  totalRecords,
-  transactions,
-  setTransactions,
-  denom,
-  setDenom,
-}: {
-  loading: boolean;
-  setLoading: any;
-  accountAddress: string;
-  setAccountAddress: any;
-  totalRecords: number | null;
-  transactions: Result | null;
-  setTransactions: any;
-  denom: string;
-  setDenom: any;
-}) => {
-  const [staging, setStaging] = useState(false);
-
-  const onStaging = () => setStaging(!staging);
-  const onEther = () => {
-    denom === 'ether' ? setDenom('') : setDenom('ether');
-    setTransactions(toSuccessfulData(emptyData));
-  };
-  const onDollars = useCallback(() => {
-    denom === 'dollars' ? setDenom('') : setDenom('dollars');
-    setTransactions(toSuccessfulData(emptyData));
-  }, []);
-
-  const addressInput = (
-    <Input
-      disabled={loading}
-      placeholder={'Input an address'}
-      value={accountAddress}
-      onChange={(e) => {
-        setTransactions(toSuccessfulData(emptyData));
-        setAccountAddress(e.target.value);
-      }}
-    />
-  );
-
-  const progressBar = (): JSX.Element => {
-    if (!transactions || !transactions.data) return <></>;
-    if (!totalRecords) return <></>;
-    if (transactions.data.length === totalRecords) return <></>;
-    const pct = Math.floor((transactions.data.length / (totalRecords || 1)) * 100);
-    return (
-      <Progress style={{ width: '200px', position: 'absolute', right: '8px' }} percent={pct} strokeLinecap='square' />
-    );
-  };
-
-  const viewOptions = (): JSX.Element => {
-    return (
-      <div>
-        <b>
-          <u>asset: </u>
-        </b>
-        <br />
-        <Checkbox
-          checked={staging}
-          onChange={(event) => {
-            return;
-          }}>
-          asset
-        </Checkbox>
-        <p />
-        <b>
-          <u>options: </u>
-        </b>
-        <Checkbox checked={staging} onChange={(event) => onStaging()}>
-          staging
-        </Checkbox>
-        <Checkbox checked={denom === 'ether'} onChange={(event) => onEther()}>
-          ether
-        </Checkbox>
-        <Checkbox checked={denom === 'dollars'} onChange={(event) => onDollars()}>
-          dollars
-        </Checkbox>
-      </div>
-    );
-  };
-
-  const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
-  const theData = getData(transactions);
-  const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
+  if (!theData || !uniqAssets) return <></>;
 
   const leftSideTabs: ViewTab[] = [
     {
       name: 'Assets',
       location: DashboardAccountsChartsLocation,
-      component: <Assets theData={theData} loading={loading} accountAddress={accountAddress} />,
+      component: <Assets params={params} />,
     },
     {
       name: 'History',
       location: DashboardAccountsHistoryLocation,
-      component: <History theData={theData} loading={loading} accountAddress={accountAddress} />,
+      component: <History theData={theData} loading={loading} />,
     },
     {
       name: 'Events',
       location: DashboardAccountsEventsLocation,
-      component: <Events theData={theData} loading={loading} accountAddress={accountAddress} />,
+      component: <Events theData={theData} loading={loading} />,
     },
     {
       name: 'Functions',
       location: DashboardAccountsFunctionsLocation,
-      component: <Functions theData={theData} loading={loading} accountAddress={accountAddress} />,
+      component: <Functions theData={theData} loading={loading} />,
     },
     {
       name: 'Gas',
       location: DashboardAccountsGasLocation,
-      component: <Gas theData={theData} loading={loading} accountAddress={accountAddress} />,
+      component: <Gas theData={theData} loading={loading} />,
     },
     {
       name: 'Neighbors',
       location: DashboardAccountsNeighborsLocation,
-      component: <Neighbors theData={theData} loading={loading} accountAddress={accountAddress} />,
+      component: <Neighbors theData={theData} loading={loading} />,
     },
   ];
 
   return (
     <div>
-      <AddressBar input={addressInput} progress={progressBar()} />
+      <AddressBar params={params} />
       <Divider style={{ height: '1px' }} />
       <div style={{ display: 'grid', gridTemplateColumns: '20fr 1fr' }}>
         <BaseView
@@ -164,13 +78,112 @@ export const AccountsView = ({
           position='left'
           subBase={true}
         />
-        <div>{viewOptions()}</div>
+        <ViewOptions params={params} />
       </div>
     </div>
   );
 };
 
-const AddressBar = ({ input, progress }: { input: JSX.Element; progress: JSX.Element }) => {
+const ViewOptions = ({ params }: { params: AccountViewParams }) => {
+  const { setStaging, denom, setDenom, setTransactions, staging, uniqAssets } = params;
+
+  const onStaging = () => setStaging(!staging);
+
+  const onEther = () => {
+    denom === 'ether' ? setDenom('') : setDenom('ether');
+    setTransactions(toSuccessfulData(emptyData));
+  };
+
+  const onDollars = useCallback(() => {
+    denom === 'dollars' ? setDenom('') : setDenom('dollars');
+    setTransactions(toSuccessfulData(emptyData));
+  }, []);
+
+  const onClick = ({ key }: { key: any }) => {
+    message.info(`Click on item ${key}`);
+  };
+
+  const menu = (
+    <Menu onClick={onClick}>
+      <Menu.Item key='1'>1st menu item</Menu.Item>
+      <Menu.Item key='2'>2nd menu item</Menu.Item>
+      <Menu.Item key='3'>3rd menu item</Menu.Item>
+    </Menu>
+  );
+  const assetDropdown = (
+    <Dropdown overlay={menu}>
+      <a className='ant-dropdown-link' onClick={(e) => e.preventDefault()}>
+        Hover me, Click menu item <DownOutlined />
+      </a>
+    </Dropdown>
+  );
+  // const assetDropdown = uniqAssets.map((asset: AssetHistory) => {
+  //   return <div>{asset.assetSymbol}</div>;
+  // });
+
+  return (
+    <div>
+      <b>
+        <u>asset: </u>
+      </b>
+      <br />
+      {assetDropdown}
+      <Checkbox
+        checked={false}
+        onChange={() => {
+          return;
+        }}>
+        asset
+      </Checkbox>
+      <p />
+      <b>
+        <u>options: </u>
+      </b>
+      <Checkbox checked={staging} onChange={() => onStaging()}>
+        staging
+      </Checkbox>
+      <br />
+      <Checkbox checked={denom === 'ether'} onChange={() => onEther()}>
+        ether
+      </Checkbox>
+      <br />
+      <Checkbox checked={denom === 'dollars'} onChange={() => onDollars()}>
+        dollars
+      </Checkbox>
+    </div>
+  );
+};
+
+const AddressInput = ({ params }: { params: AccountViewParams }) => {
+  const { loading, setTransactions } = params;
+  const { accountAddress, setAccountAddress } = useGlobalState();
+  return (
+    <Input
+      disabled={loading}
+      placeholder={'Input an address'}
+      value={accountAddress}
+      onChange={(e) => {
+        setTransactions(toSuccessfulData(emptyData));
+        setAccountAddress(e.target.value);
+      }}
+    />
+  );
+};
+
+const ProgressBar = ({ params }: { params: AccountViewParams }): JSX.Element => {
+  const { theData, totalRecords } = params;
+  if (!theData) return <></>;
+  if (!totalRecords) return <></>;
+  if (theData.length === totalRecords) return <></>;
+  const pct = Math.floor((theData.length / (totalRecords || 1)) * 100);
+  return (
+    <Progress style={{ width: '200px', position: 'absolute', right: '8px' }} percent={pct} strokeLinecap='square' />
+  );
+};
+
+const AddressBar = ({ params }: { params: AccountViewParams }) => {
+  const input = <AddressInput params={params} />;
+  const progress = <ProgressBar params={params} />;
   return (
     <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', position: 'relative' }}>
       <h3 style={{ marginRight: '12px', flexShrink: 0 }}>Accounting for </h3>

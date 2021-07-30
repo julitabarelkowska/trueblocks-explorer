@@ -6,6 +6,7 @@ import {
   DashboardAccountsHistoryReconsLocation,
   DashboardAccountsHistoryTracesLocation,
 } from '../../../../../Routes';
+import useGlobalState from '../../../../../State';
 import { transactionSchema } from '../Accounts';
 import { HistoryEvents } from './HistoryEvents';
 import { HistoryFunctions } from './HistoryFunctions';
@@ -15,15 +16,8 @@ import { BaseTable } from '@components/Table';
 import { TransactionArray } from '@modules/types';
 import React from 'react';
 
-export const History = ({
-  theData,
-  loading,
-  accountAddress,
-}: {
-  theData: TransactionArray;
-  loading: boolean;
-  accountAddress: string;
-}) => {
+export const History = ({ theData, loading }: { theData: TransactionArray; loading: boolean }) => {
+  const { accountAddress } = useGlobalState();
   const siderRender = (record: any) => <AccountHistorySider key='account-transactions' record={record} />;
 
   return (

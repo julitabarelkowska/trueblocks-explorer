@@ -4,15 +4,7 @@ import { Transaction, TransactionArray } from '@modules/types';
 import { ColumnsType } from 'antd/lib/table';
 import React from 'react';
 
-export const Functions = ({
-  theData,
-  loading,
-  accountAddress,
-}: {
-  theData: TransactionArray;
-  loading: boolean;
-  accountAddress: string;
-}) => {
+export const Functions = ({ theData, loading }: { theData: TransactionArray; loading: boolean }) => {
   if (!theData) return <></>;
 
   const counts = Object.create(null);
