@@ -1,4 +1,4 @@
-import { useAcctStyles } from '../AccountStyles';
+import { useAcctStyles } from '../Accounts';
 import { Transaction } from '@modules/types';
 import { Card } from 'antd';
 import React from 'react';
