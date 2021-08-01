@@ -19,10 +19,10 @@ import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/
 import { BaseView, ViewTab } from '@components/BaseView';
 import { addColumn } from '@components/Table';
 import { Reconciliation, ReconciliationArray, Transaction } from '@modules/types';
-import { Checkbox, Divider, Dropdown, Input, Menu, message, Progress } from 'antd';
+import { Checkbox, Divider, Dropdown, Menu, message, Progress } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { createUseStyles } from 'react-jss';
 import style from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark';
 
@@ -85,32 +85,65 @@ export const AccountsView = ({ params }: { params: AccountViewParams }) => {
 
 const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   const styles = useStyles();
-  const { setStaging, denom, setDenom, setTransactions, staging } = params;
-
-  const onStaging = () => setStaging(!staging);
+  const { prefs, setTransactions } = params;
 
   const onEther = () => {
-    denom === 'ether' ? setDenom('') : setDenom('ether');
+    prefs.setDenom('ether');
     setTransactions({ status: 'success' }); // empty
   };
 
-  const onDollars = useCallback(() => {
-    denom === 'dollars' ? setDenom('') : setDenom('dollars');
+  const onDollars = () => {
+    prefs.setDenom('dollars');
     setTransactions({ status: 'success' }); // empty
-  }, []);
+  };
+
+  const onHideZero = () => {
+    prefs.setHideZero(prefs.hideZero === 'hide' ? 'all' : 'hide');
+  };
+  const onShowZero = () => {
+    prefs.setHideZero(prefs.hideZero === 'show' ? 'all' : 'show');
+  };
+  const onShowAll = () => {
+    prefs.setHideZero(prefs.hideZero === 'all' ? 'hide' : 'all');
+  };
 
   return (
-    <div>
-      <div className={styles.smallHeader}>options: </div>
-      <Checkbox checked={staging} onChange={() => onStaging()}>
+    <div style={{ marginLeft: '2px' }}>
+      <h3 className={styles.smallHeader}>options: </h3>
+      <div className={styles.smallHeader}>head: </div>
+      <Checkbox checked={prefs.staging} onChange={() => prefs.setStaging(!prefs.staging)}>
         staging
       </Checkbox>
       <br />
-      <Checkbox checked={denom === 'ether'} onChange={() => onEther()}>
+      {/* TODO(tjayrush): should be unripe... */}
+      <Checkbox checked={prefs.staging} onChange={() => prefs.setStaging(!prefs.staging)}>
+        unripe
+      </Checkbox>
+      <p />
+      <div className={styles.smallHeader}>unnamed: </div>
+      <Checkbox checked={prefs.hideNamed} onChange={() => prefs.setHideNamed(!prefs.hideNamed)}>
+        show only
+      </Checkbox>
+      <p />
+      <div className={styles.smallHeader}>zero balance: </div>
+      <Checkbox checked={prefs.hideZero === 'hide'} onChange={() => onHideZero()}>
+        hide
+      </Checkbox>
+      <br />
+      <Checkbox checked={prefs.hideZero === 'show'} onChange={() => onShowZero()}>
+        show
+      </Checkbox>
+      <br />
+      <Checkbox checked={prefs.hideZero === 'all'} onChange={() => onShowAll()}>
+        show all
+      </Checkbox>
+      <p />
+      <div className={styles.smallHeader}>denomination: </div>
+      <Checkbox checked={prefs.denom === 'ether'} onChange={() => onEther()}>
         ether
       </Checkbox>
       <br />
-      <Checkbox checked={denom === 'dollars'} onChange={() => onDollars()}>
+      <Checkbox checked={prefs.denom === 'dollars'} onChange={() => onDollars()}>
         dollars
       </Checkbox>
     </div>
@@ -184,22 +217,6 @@ class SelectWithHiddenSelectedOptions extends React.Component {
 ReactDOM.render(<SelectWithHiddenSelectedOptions />, mountNode);
 */
 
-const AddressInput = ({ params }: { params: AccountViewParams }) => {
-  const { loading, setTransactions } = params;
-  const { accountAddress, setAccountAddress } = useGlobalState();
-  return (
-    <Input
-      disabled={loading}
-      placeholder={'Input an address'}
-      value={accountAddress}
-      onChange={(e) => {
-        setTransactions({ status: 'success' }); // empty
-        setAccountAddress(e.target.value);
-      }}
-    />
-  );
-};
-
 const ProgressBar = ({ params }: { params: AccountViewParams }): JSX.Element => {
   const { theData, totalRecords } = params;
   if (!theData) return <></>;
@@ -210,17 +227,23 @@ const ProgressBar = ({ params }: { params: AccountViewParams }): JSX.Element => 
 };
 
 const AddressBar = ({ params }: { params: AccountViewParams }) => {
-  const input = <AddressInput params={params} />;
-  const progress = <ProgressBar params={params} />;
-  const dropdown = <AssetSelector params={params} />;
+  const { accountAddress } = useGlobalState();
+  const { names } = useGlobalNames();
+
+  if (!names || !accountAddress) return <></>;
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '2fr 10fr 20fr 3fr 1fr' }}>
-      <h3>Accounting for </h3>
-      {input}
+    <div style={{ display: 'grid', gridTemplateColumns: '2fr 20fr 10fr 3fr 1fr' }}>
+      <h3 style={{ marginTop: '2px' }}>Accounting for:</h3>
+      <h2 style={{ display: 'inline', marginBottom: -5 }}>
+        {accountAddress}
+        <br />
+        {names[accountAddress]?.name}
+      </h2>
       <div></div>
       <div>
-        {progress}
-        {dropdown}
+        <ProgressBar params={params} />
+        <AssetSelector params={params} />
       </div>
       <div></div>
     </div>

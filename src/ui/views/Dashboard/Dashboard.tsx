@@ -17,13 +17,21 @@ import { either as Either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 import React, { useCallback, useEffect, useState } from 'react';
 
-export declare type AccountViewParams = {
-  loading: boolean;
-  setLoading: any;
+export declare type UserPrefs = {
   denom: string;
   setDenom: any;
   staging: boolean;
   setStaging: any;
+  hideZero: string;
+  setHideZero: any;
+  hideNamed: boolean;
+  setHideNamed: any;
+};
+
+export declare type AccountViewParams = {
+  prefs: UserPrefs;
+  loading: boolean;
+  setLoading: any;
   totalRecords: number | null;
   theData: any;
   setTransactions: any;
@@ -31,14 +39,25 @@ export declare type AccountViewParams = {
 };
 
 export const DashboardView = () => {
-  const { accountAddress } = useGlobalState();
-  const { transactions, setTransactions } = useGlobalState();
-  const { totalRecords, setTotalRecords } = useGlobalState();
-  const { names } = useGlobalNames();
   const [loading, setLoading] = useState(false);
   const [staging, setStaging] = useState(false);
   const [denom, setDenom] = useState('ether');
   const [named, setNamed] = useState('');
+  const [hideZero, setHideZero] = useState('all');
+  const [hideNamed, setHideNamed] = useState(false);
+  const { accountAddress } = useGlobalState();
+  const { names } = useGlobalNames();
+  const { totalRecords, setTotalRecords } = useGlobalState();
+
+  const { transactions, setTransactions } = useGlobalState();
+  if (transactions?.status === 'fail') {
+    createErrorNotification({
+      description: 'Could not fetch transactions',
+    });
+  }
+  const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
+  let theData: TransactionArray = getData(transactions);
+  let uniqAssets: any = [];
 
   useEffect(() => {
     const name = names && names[accountAddress];
@@ -67,7 +86,7 @@ export const DashboardView = () => {
 
   useEffect(() => {
     (async () => {
-      if (totalRecords && (transactions?.data.length || 0) < totalRecords) {
+      if (totalRecords && (transactions?.data?.length || 0) < totalRecords) {
         const eitherResponse = await runCommand('export', {
           addrs: accountAddress,
           fmt: 'json',
@@ -104,18 +123,6 @@ export const DashboardView = () => {
     })();
   }, [totalRecords, transactions, denom, staging]);
 
-  if (transactions?.status === 'fail') {
-    createErrorNotification({
-      description: 'Could not fetch transactions',
-    });
-  }
-
-  const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
-  // const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
-
-  let theData: TransactionArray = getData(transactions);
-  let uniqAssets: any = [];
-
   if (theData) {
     theData.map((tx: Transaction) => {
       tx.statements?.map((statement: Reconciliation) => {
@@ -149,37 +156,36 @@ export const DashboardView = () => {
       return b.balHistory.length - a.balHistory.length;
     });
 
-    // uniqAssets = uniqAssets.filter((asset: AssetHistory) => {
-    //   return asset.balHistory.length > 1 || (asset.balHistory.length === 1 && Number(asset.balHistory[0].balance) > 0);
-    // });
-    // uniqAssets = uniqAssets.filter((asset: AssetHistory) => {
-    //   return asset.balHistory.length > 2 || Number(asset.balHistory[asset.balHistory.length - 1].balance) > 0;
-    // });
-    // uniqAssets = uniqAssets.filter((asset: AssetHistory) => {
-    //   return asset.balHistory.length > 3;
-    // });
-    // const showUnnamed = false; //true;
-    // if (showUnnamed) {
-    //   uniqAssets = uniqAssets.filter((asset: AssetHistory) => {
-    //     return !names[asset.assetAddr];
-    //   });
-    // }
+    uniqAssets = uniqAssets.filter((asset: AssetHistory) => {
+      if (asset.balHistory.length === 0) return false;
+      const show =
+        hideZero === 'all' ||
+        (hideZero === 'show' && Number(asset.balHistory[asset.balHistory.length - 1].balance) === 0) ||
+        (hideZero === 'hide' && Number(asset.balHistory[asset.balHistory.length - 1].balance) > 0);
+      return show && (!hideNamed || !names[asset.assetAddr]);
+    });
   }
 
   const params: AccountViewParams = {
     loading: loading,
     setLoading: setLoading,
-    denom: denom,
-    setDenom: setDenom,
-    staging: staging,
-    setStaging: setStaging,
+    prefs: {
+      denom: denom,
+      setDenom: setDenom,
+      staging: staging,
+      setStaging: setStaging,
+      hideZero: hideZero,
+      setHideZero: setHideZero,
+      hideNamed: hideNamed,
+      setHideNamed: setHideNamed,
+    },
     totalRecords: totalRecords,
     theData: theData,
     setTransactions: setTransactions,
     uniqAssets: uniqAssets,
   };
 
-  const title = `Dashboard [${accountAddress ? accountAddress : ''} ${accountAddress ? named : ''}]`;
+  const title = 'Dashboard';
   const tabs = [
     { name: 'Monitors', location: DashboardMonitorsLocation, component: <Monitors /> },
     {

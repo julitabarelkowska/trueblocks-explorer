@@ -12,7 +12,6 @@ import { ColumnsType } from 'antd/lib/table';
 import React, { useCallback, useRef, useState } from 'react';
 
 export const Monitors = () => {
-  const [monitors, loading] = useCommand('status', { mode: 'monitors', details: true });
   const [searchText, setSearchText] = useState('');
   const [_, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -24,12 +23,12 @@ export const Monitors = () => {
   const [selectedNameTags, setSelectedNameTags] = useState('');
   const [loadingEdit, setLoadingEdit] = useState(false);
 
+  const [monitors, loading] = useCommand('status', { mode: 'monitors', details: true });
   if (monitors.status === 'fail') {
     createErrorNotification({
       description: 'Could not fetch monitors',
     });
   }
-
   const getData = useCallback((response) => {
     return response.status === 'fail' || !response.data[0].caches
       ? []
@@ -41,6 +40,7 @@ export const Monitors = () => {
           };
         });
   }, []);
+  const theData = getData(monitors);
 
   const getColumnSearchProps = (dataIndex: any) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
@@ -245,7 +245,7 @@ export const Monitors = () => {
           ))}
         </div>
         <BaseTable
-          dataSource={getData(monitors)}
+          dataSource={theData}
           columns={monitorSchema.map((item) => {
             //@ts-ignore
             return { ...item, ...getColumnSearchProps(item.dataIndex) };

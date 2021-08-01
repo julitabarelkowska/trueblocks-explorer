@@ -28,22 +28,23 @@ export const IndexesView = () => {
   const getData = useCallback((response) => {
     return response.status === 'fail' || !response.data[0].caches ? [] : response.data[0].caches[0].items;
   }, []);
+  const theData = getData(indexes);
 
   const tabs = [
     {
       name: 'Grid',
       location: SettingsIndexesGridLocation,
-      component: <IndexGrid key={'grid'} theData={getData(indexes)} loading={loading} />,
+      component: <IndexGrid key={'grid'} theData={theData} loading={loading} />,
     },
     {
       name: 'Table',
       location: SettingsIndexesTableLocation,
-      component: <IndexTable key={'table'} theData={getData(indexes)} loading={loading} />,
+      component: <IndexTable key={'table'} theData={theData} loading={loading} />,
     },
     {
       name: 'Charts',
       location: SettingsIndexesChartsLocation,
-      component: <IndexCharts key={'chart'} theData={getData(indexes)} loading={loading} />,
+      component: <IndexCharts key={'chart'} theData={theData} loading={loading} />,
     },
     {
       name: 'Manifest',

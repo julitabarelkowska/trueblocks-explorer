@@ -23,16 +23,26 @@ export const Addresses = () => {
   const [selectedNameDescription, setSelectedNameDescription] = useState(namesEditModal.description);
   const [selectedNameSource, setSelectedNameSource] = useState(namesEditModal.source);
   const [selectedNameTags, setSelectedNameTags] = useState(namesEditModal.tags);
-  const [addresses, setAddresses] = useState<Result>({ status: 'success', data: [], meta: {} });
-  const [loading, setLoading] = useState(false);
   const [loadingEdit, setLoadingEdit] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  const [addresses, setAddresses] = useState<Result>({ status: 'success', data: [], meta: {} });
   if (addresses.status === 'fail') {
     createErrorNotification({
       description: 'Could not fetch addresses',
     });
   }
-
+  const getData = useCallback((response) => {
+    if (response.status === 'fail') return [];
+    return response.data?.map((item: any, i: number) => {
+      return {
+        id: (i + 1).toString(),
+        namedAddress: item.name + ' ' + item.address,
+        ...item,
+      };
+    });
+  }, []);
+  const theData = getData(addresses);
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -47,26 +57,6 @@ export const Addresses = () => {
       setLoading(false);
       setAddresses(result);
     })();
-  }, []);
-
-  useEffect(() => {
-    if (namesEditModal) {
-      setSelectedNameName(namesEditModal.name);
-      setSelectedNameDescription(namesEditModal.description);
-      setSelectedNameSource(namesEditModal.source);
-      setSelectedNameTags(namesEditModal.tags);
-    }
-  }, [namesEditModal]);
-
-  const getData = useCallback((response) => {
-    if (response.status === 'fail') return [];
-    return response.data?.map((item: any, i: number) => {
-      return {
-        id: (i + 1).toString(),
-        namedAddress: item.name + ' ' + item.address,
-        ...item,
-      };
-    });
   }, []);
 
   const getColumnSearchProps = (dataIndex: any) => ({
@@ -127,6 +117,15 @@ export const Addresses = () => {
     setSearchText('');
   };
 
+  useEffect(() => {
+    if (namesEditModal) {
+      setSelectedNameName(namesEditModal.name);
+      setSelectedNameDescription(namesEditModal.description);
+      setSelectedNameSource(namesEditModal.source);
+      setSelectedNameTags(namesEditModal.tags);
+    }
+  }, [namesEditModal]);
+
   const onEditItem = () => {
     setLoadingEdit(true);
     fetch(`${process.env.CORE_URL}/names`, {
@@ -149,6 +148,7 @@ export const Addresses = () => {
     })
       .then((result) => result.json())
       .then((response) => {
+        // TODO(tjayrush): Does this check for backend error?
         let newAddresses = { ...addresses };
         //@ts-ignore
         let foundAddress = newAddresses.data.map((item) => item.address).indexOf(namesEditModal.address);
@@ -169,51 +169,22 @@ export const Addresses = () => {
 
   return (
     <>
-      <Modal visible={namesEditModal} onCancel={() => setNamesEditModal(false)} onOk={() => onEditItem()}>
-        {loadingEdit ? (
-          <div style={{ padding: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <Spin />
-          </div>
-        ) : (
-          <div style={{ marginTop: '24px' }}>
-            <h2>Editing {namesEditModal.name || namesEditModal.address}</h2>
-            <div style={{ marginTop: '16px' }}>
-              <div style={{ marginBottom: '6px' }}>Name</div>
-              <Input
-                placeholder={'Name'}
-                value={selectedNameName}
-                onChange={(e) => setSelectedNameName(e.target.value)}
-              />
-            </div>
-            <div style={{ marginTop: '16px' }}>
-              <div style={{ marginBottom: '6px' }}>Description</div>
-              <Input
-                placeholder={'Description'}
-                value={selectedNameDescription}
-                onChange={(e) => setSelectedNameDescription(e.target.value)}
-              />
-            </div>
-            <div style={{ marginTop: '16px' }}>
-              <div style={{ marginBottom: '6px' }}>Source</div>
-              <Input
-                placeholder={'Source'}
-                value={selectedNameSource}
-                onChange={(e) => setSelectedNameSource(e.target.value)}
-              />
-            </div>
-            <div style={{ marginTop: '16px' }}>
-              <div style={{ marginBottom: '6px' }}>Tags</div>
-              <Input
-                placeholder={'Tags'}
-                value={selectedNameTags}
-                onChange={(e) => setSelectedNameTags(e.target.value)}
-              />
-            </div>
-          </div>
-        )}
-      </Modal>
+      <NameEditModal
+        namesEditModal={namesEditModal}
+        setNamesEditModal={setNamesEditModal}
+        loadingEdit={loadingEdit}
+        selectedNameName={selectedNameName}
+        setSelectedNameName={setSelectedNameName}
+        selectedNameDescription={selectedNameDescription}
+        setSelectedNameDescription={setSelectedNameDescription}
+        selectedNameSource={selectedNameSource}
+        setSelectedNameSource={setSelectedNameSource}
+        selectedNameTags={selectedNameTags}
+        setSelectedNameTags={setSelectedNameTags}
+        onEditItem={onEditItem}
+      />
       <BaseTable
-        dataSource={getData(addresses)}
+        dataSource={theData}
         columns={addressSchema.map((item) => {
           //@ts-ignore
           return { ...item, ...getColumnSearchProps(item.dataIndex) };
@@ -221,6 +192,69 @@ export const Addresses = () => {
         loading={loading}
       />
     </>
+  );
+};
+
+const NameEditModal = ({
+  namesEditModal,
+  setNamesEditModal,
+  loadingEdit,
+  selectedNameName,
+  setSelectedNameName,
+  selectedNameDescription,
+  setSelectedNameDescription,
+  selectedNameSource,
+  setSelectedNameSource,
+  selectedNameTags,
+  setSelectedNameTags,
+  onEditItem,
+}: {
+  namesEditModal: any;
+  setNamesEditModal: any;
+  loadingEdit: any;
+  selectedNameName: any;
+  setSelectedNameName: any;
+  selectedNameDescription: any;
+  setSelectedNameDescription: any;
+  selectedNameSource: any;
+  setSelectedNameSource: any;
+  selectedNameTags: any;
+  setSelectedNameTags: any;
+  onEditItem: any;
+}) => {
+  const fields = [
+    { name: 'Name', value: selectedNameName, type: '', onChange: setSelectedNameName },
+    { name: 'Description', value: selectedNameDescription, type: '', onChange: setSelectedNameDescription },
+    { name: 'Source', value: selectedNameSource, type: '', onChange: setSelectedNameSource },
+    { name: 'Tags', value: selectedNameTags, type: '', onChange: setSelectedNameTags },
+  ];
+
+  return (
+    <Modal visible={namesEditModal} onCancel={() => setNamesEditModal(false)} onOk={() => onEditItem()}>
+      {loadingEdit ? (
+        <div style={{ padding: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Spin />
+        </div>
+      ) : (
+        <div style={{ marginTop: '24px' }}>
+          <h2>Editing {namesEditModal.name || namesEditModal.address}</h2>
+          {fields.map((item: any, index: number) => {
+            return (
+              <ModalEditRow key={index} name={item.name} value={item.value} type={item.type} onChange={item.onChange} />
+            );
+          })}
+        </div>
+      )}
+    </Modal>
+  );
+};
+
+const ModalEditRow = ({ name, value, type, onChange }: { name: any; value: any; type: any; onChange: any }) => {
+  return (
+    <div style={{ marginTop: '16px' }}>
+      <div style={{ marginBottom: '6px' }}>{name}</div>
+      <Input placeholder={name} value={value} onChange={(e) => onChange(e.target.value)} />
+    </div>
   );
 };
 

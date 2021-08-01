@@ -35,7 +35,7 @@ const useStyles = createUseStyles({
 export const App = () => {
   dayjs.extend(relativeTime);
 
-  const { debug, setDebug, setNames, names } = useGlobalState();
+  const { debug, setDebug, names, setNames } = useGlobalState();
   const [status, setStatus] = useState<Result>(toSuccessfulData({ data: [{}], meta: {} }) as Result);
   const [loadingStatus, setLoadingStatus] = useState(false);
   const styles = useStyles();
