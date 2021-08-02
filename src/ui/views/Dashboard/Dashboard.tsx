@@ -26,6 +26,8 @@ export declare type UserPrefs = {
   setHideZero: any;
   hideNamed: boolean;
   setHideNamed: any;
+  period: string;
+  setPeriod: any;
 };
 
 export declare type AccountViewParams = {
@@ -45,6 +47,8 @@ export const DashboardView = () => {
   const [named, setNamed] = useState('');
   const [hideZero, setHideZero] = useState('all');
   const [hideNamed, setHideNamed] = useState(false);
+  const [period, setPeriod] = useState('by tx');
+
   const { accountAddress } = useGlobalState();
   const { names } = useGlobalNames();
   const { totalRecords, setTotalRecords } = useGlobalState();
@@ -178,6 +182,8 @@ export const DashboardView = () => {
       setHideZero: setHideZero,
       hideNamed: hideNamed,
       setHideNamed: setHideNamed,
+      period: period,
+      setPeriod: setPeriod,
     },
     totalRecords: totalRecords,
     theData: theData,

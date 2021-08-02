@@ -19,7 +19,7 @@ import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/
 import { BaseView, ViewTab } from '@components/BaseView';
 import { addColumn } from '@components/Table';
 import { Reconciliation, ReconciliationArray, Transaction } from '@modules/types';
-import { Checkbox, Divider, Dropdown, Menu, message, Progress } from 'antd';
+import { Button, Checkbox, Divider, Dropdown, Menu, message, Progress, Select } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
 import React from 'react';
@@ -107,6 +107,8 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
     prefs.setHideZero(prefs.hideZero === 'all' ? 'hide' : 'all');
   };
 
+  const repOptions = ['by year', 'by month', 'by week', 'by day', 'by hour', 'by tx'];
+
   return (
     <div style={{ marginLeft: '2px' }}>
       <h3 className={styles.smallHeader}>options: </h3>
@@ -120,9 +122,22 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
         unripe
       </Checkbox>
       <p />
-      <div className={styles.smallHeader}>unnamed: </div>
+      <div className={styles.smallHeader}>display: </div>
+      <Select
+        placeholder='Inserted are removed'
+        value={prefs.period}
+        onChange={(newValue) => prefs.setPeriod(newValue)}
+        style={{ width: '100%' }}>
+        {repOptions.map((item, index) => {
+          return (
+            <Select.Option key={index} value={item}>
+              {item}
+            </Select.Option>
+          );
+        })}
+      </Select>
       <Checkbox checked={prefs.hideNamed} onChange={() => prefs.setHideNamed(!prefs.hideNamed)}>
-        show only
+        unnamed
       </Checkbox>
       <p />
       <div className={styles.smallHeader}>zero balance: </div>
@@ -146,6 +161,13 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
       <Checkbox checked={prefs.denom === 'dollars'} onChange={() => onDollars()}>
         dollars
       </Checkbox>
+      <p />
+      <div className={styles.smallHeader}>export: </div>
+      <Button className={styles.exportBtn}>CSV...</Button>
+      <Button className={styles.exportBtn}>TXT...</Button>
+      <Button className={styles.exportBtn}>QB...</Button>
+      {/* <br />
+      <pre>{JSON.stringify(prefs, null, 2)}</pre> */}
     </div>
   );
 };
@@ -455,6 +477,15 @@ const useStyles = createUseStyles({
   smallHeader: {
     fontWeight: 800,
     textDecoration: 'underline',
+  },
+  exportBtn: {
+    margin: '0',
+    padding: '1',
+    paddingLeft: '8px',
+    height: '30px',
+    width: '70px',
+    fontSize: '10pt',
+    textAlign: 'left',
   },
 });
 
