@@ -268,13 +268,19 @@ const AddressBar = ({ params }: { params: AccountViewParams }) => {
   if (!names || !accountAddress) return <></>;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '2fr 20fr 10fr 3fr 1fr' }}>
-      <h3 style={{ marginTop: '2px' }}>Accounting for:</h3>
-      <h2 style={{ display: 'inline', marginBottom: -5 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '2fr 25fr 5fr 3fr 1fr' }}>
+      <h3 style={{ marginTop: '2px' }}>
+        Collection:
+        <br />
+        Address:
+      </h3>
+      <h3 style={{ display: 'inline', marginBottom: -5, backgroundColor: '#f2f2f2' }}>
+        NONE
+        <br />
         {accountAddress}
         <br />
         {names[accountAddress]?.name}
-      </h2>
+      </h3>
       <div></div>
       <div>
         <ProgressBar params={params} />
