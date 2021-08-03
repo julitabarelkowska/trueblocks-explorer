@@ -64,7 +64,10 @@ export const DashboardView = () => {
   theData = theData?.map((item: Transaction, i: number) => {
     item.fromName = names[item.from]?.name;
     item.toName = names[item.to]?.name;
-    return item;
+    return {
+      id: (i + 1).toString(),
+      ...item,
+    };
   });
   let uniqAssets: any = [];
 

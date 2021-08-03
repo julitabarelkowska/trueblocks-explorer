@@ -35,7 +35,6 @@ export const Monitors = () => {
       : response.data[0].caches[0].items?.map((item: any, i: number) => {
           return {
             id: (i + 1).toString(),
-            namedAddress: item.name + ' ' + item.address,
             ...item,
           };
         });
@@ -260,7 +259,7 @@ export const Monitors = () => {
 const monitorSchema: ColumnsType<Monitor> = [
   addColumn<Monitor>({
     title: 'Name / Address',
-    dataIndex: 'namedAddress',
+    dataIndex: 'address',
     configuration: {
       render: (unused, record) => renderClickableAddress(record.name, record.address),
       width: 500,
