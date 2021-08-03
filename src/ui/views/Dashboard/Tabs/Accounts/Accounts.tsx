@@ -8,6 +8,7 @@ import {
   DashboardAccountsNeighborsLocation,
 } from '../../../../Routes';
 import useGlobalState, { useGlobalNames } from '../../../../State';
+import { downloadRecords } from '../../../../Utilities';
 import { AccountViewParams } from '../../Dashboard';
 import { Assets } from './LeftTabs/Assets';
 import { Events } from './LeftTabs/Events';
@@ -85,6 +86,7 @@ export const AccountsView = ({ params }: { params: AccountViewParams }) => {
 
 const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   const styles = useStyles();
+  const { names } = useGlobalNames();
   const { prefs, setTransactions } = params;
 
   const onEther = () => {
@@ -107,8 +109,15 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
     prefs.setHideZero(prefs.hideZero === 'all' ? 'hide' : 'all');
   };
 
-  const repOptions = ['by year', 'by month', 'by week', 'by day', 'by hour', 'by tx'];
+  const onExportCSV = () => {
+    downloadRecords(params.theData, exportColumns, ',', '"');
+  };
 
+  const onExportTXT = () => {
+    downloadRecords(params.theData, exportColumns, '\t', '');
+  };
+
+  const repOptions = ['by tx', 'by hour', 'by day', 'by week', 'by month', 'by quarter', 'by year'];
   return (
     <div style={{ marginLeft: '2px' }}>
       <h3 className={styles.smallHeader}>options: </h3>
@@ -163,8 +172,12 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
       </Checkbox>
       <p />
       <div className={styles.smallHeader}>export: </div>
-      <Button className={styles.exportBtn}>CSV...</Button>
-      <Button className={styles.exportBtn}>TXT...</Button>
+      <Button onClick={onExportCSV} className={styles.exportBtn}>
+        CSV...
+      </Button>
+      <Button onClick={onExportTXT} className={styles.exportBtn}>
+        TXT...
+      </Button>
       <Button className={styles.exportBtn}>QB...</Button>
       {/* <br />
       <pre>{JSON.stringify(prefs, null, 2)}</pre> */}
@@ -521,3 +534,33 @@ export const useAcctStyles = createUseStyles({
     textAlign: 'right',
   },
 });
+
+const exportColumns: ColumnsType<Transaction> = [
+  addColumn({
+    title: 'bn.txid',
+    dataIndex: 'blockNumber',
+    configuration: {
+      render: (item, record) => record.blockNumber + '.' + record.transactionIndex,
+    },
+  }),
+  addColumn({
+    title: 'hash',
+    dataIndex: 'hash',
+  }),
+  addColumn({
+    title: 'from',
+    dataIndex: 'from',
+  }),
+  addColumn({
+    title: 'fromName',
+    dataIndex: 'fromName',
+  }),
+  addColumn({
+    title: 'to',
+    dataIndex: 'to',
+  }),
+  addColumn({
+    title: 'toName',
+    dataIndex: 'toName',
+  }),
+];

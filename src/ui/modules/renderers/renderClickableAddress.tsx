@@ -3,7 +3,7 @@ import useGlobalState from '../../State';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 
-export const renderNamedAddress = (name: string, address: string) => {
+export const renderClickableAddress = (name: string, address: string) => {
   const history = useHistory();
   const { setAccountAddress } = useGlobalState();
   return (

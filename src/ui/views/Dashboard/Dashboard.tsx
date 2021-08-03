@@ -61,6 +61,11 @@ export const DashboardView = () => {
   }
   const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
   let theData: TransactionArray = getData(transactions);
+  theData = theData?.map((item: Transaction, i: number) => {
+    item.fromName = names[item.from]?.name;
+    item.toName = names[item.to]?.name;
+    return item;
+  });
   let uniqAssets: any = [];
 
   useEffect(() => {
@@ -104,6 +109,7 @@ export const DashboardView = () => {
           accounting: true,
           reversed: false,
           relevant: true,
+          // summarize_by: 'monthly',
           first_record: transactions?.data?.length || 0,
           max_records:
             (transactions?.data?.length || 0) < 50

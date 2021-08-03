@@ -4,7 +4,7 @@ import { PlusCircleFilled, SearchOutlined } from '@ant-design/icons';
 import { addActionsColumn, addColumn, addNumColumn, addTagsColumn, BaseTable, TableActions } from '@components/Table';
 import { useCommand } from '@hooks/useCommand';
 import { createErrorNotification } from '@modules/error_notification';
-import { renderNamedAddress } from '@modules/renderers';
+import { renderClickableAddress } from '@modules/renderers';
 import { Monitor } from '@modules/types';
 import { Button, Form, Input, Space, Spin } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
@@ -241,7 +241,7 @@ export const Monitors = () => {
         <div style={{ borderRight: '1px solid lightgrey', marginLeft: '5' }}>
           <h2>Recents</h2>
           {recents.map((item, index) => (
-            <div key={index}>{renderNamedAddress(item.name, item.address)}</div>
+            <div key={index}>{renderClickableAddress(item.name, item.address)}</div>
           ))}
         </div>
         <BaseTable
@@ -262,7 +262,7 @@ const monitorSchema: ColumnsType<Monitor> = [
     title: 'Name / Address',
     dataIndex: 'namedAddress',
     configuration: {
-      render: (unused, record) => renderNamedAddress(record.name, record.address),
+      render: (unused, record) => renderClickableAddress(record.name, record.address),
       width: 500,
     },
   }),

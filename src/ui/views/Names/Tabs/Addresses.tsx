@@ -5,7 +5,7 @@ import { addActionsColumn, addColumn, addFlagColumn, addTagsColumn, BaseTable, T
 import { Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
 import { runCommand } from '@modules/core';
 import { createErrorNotification } from '@modules/error_notification';
-import { renderNamedAddress } from '@modules/renderers';
+import { renderClickableAddress } from '@modules/renderers';
 import { Accountname } from '@modules/types';
 import { Button, Input, Space, Spin } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
@@ -263,7 +263,7 @@ const addressSchema: ColumnsType<Accountname> = [
     title: 'Name / Address',
     dataIndex: 'namedAddress',
     configuration: {
-      render: (unused, record) => renderNamedAddress(record.name, record.address),
+      render: (unused, record) => renderClickableAddress(record.name, record.address),
       width: 500,
     },
   }),
