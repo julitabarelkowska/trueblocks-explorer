@@ -2,7 +2,9 @@ import { Transaction, TransactionArray } from '@modules/types';
 import React from 'react';
 
 export const Gas = ({ theData, loading }: { theData: TransactionArray; loading: boolean }) => {
+  if (!theData) return <></>;
   const usesGas = theData.filter((tx: Transaction, index: number) => {
+    if (!tx.statements) return false;
     const stmts = tx.statements.filter((st) => {
       // console.log('---------', index, '---------', index < 3, '---------');
       return st.gasCostOut !== '';
