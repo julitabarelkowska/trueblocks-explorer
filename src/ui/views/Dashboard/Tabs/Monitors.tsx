@@ -144,6 +144,7 @@ export const Monitors = () => {
     { name: 'BokkyPooBah', address: '0x000001f568875f378bf6d170b790967fe429c81a' },
     { name: 'DeeEee', address: '0xd1629474d25a63b1018fcc965e1d218a00f6cbd3' },
     { name: 'BTag', address: '0x0035fc5208ef989c28d47e552e92b0c507d2b318' },
+    { name: 'M', address: '0x054993ab0f2b1acc0fdc65405ee203b4271bebe6' },
   ];
 
   return (
