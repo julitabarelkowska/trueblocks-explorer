@@ -11,7 +11,6 @@ import { NavLink } from 'react-router-dom';
 
 export const Assets = ({ params }: { params: AccountViewParams }) => {
   const { uniqAssets } = params;
-
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
       {uniqAssets.map((asset: any, index: number) => {

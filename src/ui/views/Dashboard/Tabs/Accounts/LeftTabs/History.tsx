@@ -7,19 +7,21 @@ import {
   DashboardAccountsHistoryTracesLocation,
 } from '../../../../../Routes';
 import useGlobalState from '../../../../../State';
+import { AccountViewParams } from '../../../Dashboard';
 import { transactionSchema } from '../Accounts';
 import { HistoryEvents } from './HistoryEvents';
 import { HistoryFunctions } from './HistoryFunctions';
 import { HistoryRecons } from './HistoryRecons';
 import { BaseView } from '@components/BaseView';
 import { BaseTable } from '@components/Table';
-import { TransactionArray } from '@modules/types';
 import React from 'react';
 
-export const History = ({ theData, loading }: { theData: TransactionArray; loading: boolean }) => {
+export const History = ({ params }: { params: AccountViewParams }) => {
+  const { theData, loading } = params;
   const { accountAddress } = useGlobalState();
-  const siderRender = (record: any) => <AccountHistorySider key='account-transactions' record={record} />;
-
+  const siderRender = (record: any) => (
+    <AccountHistorySider key='account-transactions' record={record} params={params} />
+  );
   return (
     <BaseTable
       dataSource={theData}
@@ -31,12 +33,12 @@ export const History = ({ theData, loading }: { theData: TransactionArray; loadi
   );
 };
 
-export const AccountHistorySider = ({ record }: { record: any }) => {
+export const AccountHistorySider = ({ record, params }: { record: any; params: AccountViewParams }) => {
   const tabs = [
     {
       name: 'Recons',
       location: DashboardAccountsHistoryReconsLocation,
-      component: <HistoryRecons record={record} />,
+      component: <HistoryRecons record={record} params={params} />,
     },
     {
       name: 'Events',

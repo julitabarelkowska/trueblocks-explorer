@@ -1,19 +1,21 @@
+import { AccountViewParams } from '../../../Dashboard';
 import { useAcctStyles } from '../Accounts';
 import { Reconciliation, Transaction } from '@modules/types';
 import { Card } from 'antd';
-import React, { useState } from 'react';
+import React from 'react';
 
 //-----------------------------------------------------------------
-export const HistoryRecons = ({ record }: { record: Transaction }) => {
+export const HistoryRecons = ({ record, params }: { record: Transaction; params: AccountViewParams }) => {
+  const { prefs } = params;
+
   if (!record) return <></>;
-  const [expand, setExpand] = useState(false);
   const key = record.blockNumber + '.' + record.transactionIndex;
   const styles = useAcctStyles();
   return (
     <div key={key} className={styles.container}>
       <div key={key} className={styles.cardHolder}>
         {record?.statements?.map((statement: Reconciliation, index: number) =>
-          oneStatement(statement, index, expand, setExpand, styles, key)
+          oneStatement(statement, index, prefs.expandRecons, prefs.setExpandRecons, styles, key)
         )}
       </div>
       <div></div>
@@ -25,8 +27,8 @@ export const HistoryRecons = ({ record }: { record: Transaction }) => {
 const oneStatement = (
   statement: Reconciliation,
   index: number,
-  expand: boolean,
-  setExpand: React.Dispatch<React.SetStateAction<boolean>>,
+  expandRecons: boolean,
+  setExpandRecons: any,
   styles: any,
   key: string
 ) => {
@@ -38,24 +40,20 @@ const oneStatement = (
         backgroundColor: 'lightgrey',
       }}
       hoverable={true}
-      title={statementHeader(statement, expand, setExpand)}>
-      {statementBody(statement, expand, styles)}
+      title={statementHeader(statement, expandRecons, setExpandRecons)}>
+      {statementBody(statement, expandRecons, styles)}
     </Card>
   );
 };
 
 //-----------------------------------------------------------------
-const statementHeader = (
-  statement: Reconciliation,
-  expand: boolean,
-  setExpand: React.Dispatch<React.SetStateAction<boolean>>
-) => {
+const statementHeader = (statement: Reconciliation, expandRecons: boolean, setExpandRecons: any) => {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '20fr 1fr', textAlign: 'start' }}>
       <div>
         {statement.assetSymbol + ' reconciliation'} [{statement.reconciliationType}]
       </div>
-      <div onClick={() => setExpand(!expand)}>{expand ? '-' : '+'}</div>
+      <div onClick={() => setExpandRecons(!expandRecons)}>{expandRecons ? '-' : '+'}</div>
     </div>
   );
 };
@@ -75,32 +73,32 @@ const clip = (num: string, diff?: boolean) => {
 };
 
 //-----------------------------------------------------------------
-const statementBody = (statement: Reconciliation, expand: boolean, styles: any) => {
+const statementBody = (statement: Reconciliation, expandRecons: boolean, styles: any) => {
   return (
     <table>
       <tbody>
-        {oneRow(styles, expand, '', 'income', 'outflow', 'balance', 'diff', true)}
+        {oneRow(styles, expandRecons, '', 'income', 'outflow', 'balance', 'diff', true)}
         {oneRow(
           styles,
-          expand,
+          expandRecons,
           'begBal',
           '',
           '',
           statement.begBal === '' ? '0.0000000' : statement.begBal,
           statement.begBalDiff
         )}
-        {oneRow(styles, expand, 'amount', statement.amountIn, statement.amountOut)}
-        {oneRow(styles, expand, 'internal', statement.internalIn, statement.internalOut)}
-        {oneRow(styles, expand, 'selfDestruct', statement.selfDestructIn, statement.selfDestructOut)}
-        {oneRow(styles, expand, 'minerBaseReward', statement.minerBaseRewardIn)}
-        {oneRow(styles, expand, 'minerNephewReward', statement.minerNephewRewardIn)}
-        {oneRow(styles, expand, 'minerTxFee', statement.minerTxFeeIn)}
-        {oneRow(styles, expand, 'minerUncleReward', statement.minerUncleRewardIn)}
-        {oneRow(styles, expand, 'prefund', statement.prefundIn)}
-        {oneRow(styles, expand, 'gasCost', '', statement.gasCostOut)}
+        {oneRow(styles, expandRecons, 'amount', statement.amountIn, statement.amountOut)}
+        {oneRow(styles, expandRecons, 'internal', statement.internalIn, statement.internalOut)}
+        {oneRow(styles, expandRecons, 'selfDestruct', statement.selfDestructIn, statement.selfDestructOut)}
+        {oneRow(styles, expandRecons, 'minerBaseReward', statement.minerBaseRewardIn)}
+        {oneRow(styles, expandRecons, 'minerNephewReward', statement.minerNephewRewardIn)}
+        {oneRow(styles, expandRecons, 'minerTxFee', statement.minerTxFeeIn)}
+        {oneRow(styles, expandRecons, 'minerUncleReward', statement.minerUncleRewardIn)}
+        {oneRow(styles, expandRecons, 'prefund', statement.prefundIn)}
+        {oneRow(styles, expandRecons, 'gasCost', '', statement.gasCostOut)}
         {oneRow(
           styles,
-          expand,
+          expandRecons,
           'amountNet',
           '',
           '',
@@ -108,36 +106,41 @@ const statementBody = (statement: Reconciliation, expand: boolean, styles: any) 
         )}
         {oneRow(
           styles,
-          expand,
+          expandRecons,
           'endBal',
           '',
           '',
           statement.endBal === '' ? '0.0000000' : statement.endBal,
           statement.endBalDiff
         )}
-        {oneDiv(styles, expand)}
-        {oneRow(styles, expand, 'blockNumber', '', '', statement.blockNumber.toString() + '.')}
-        {oneRow(styles, expand, 'transactionIndex', '', '', statement.transactionIndex.toString() + '.')}
-        {oneRow(styles, expand, 'timestamp', '', '', statement.timestamp.toString() + '.')}
-        {/* {oneRow(styles, expand, 'assetAddr', '', '', statement.assetAddr + '.')} */}
-        {oneRow(styles, expand, 'assetSymbol', '', '', statement.assetSymbol + '.')}
-        {oneRow(styles, expand, 'decimals', '', '', statement.decimals.toString() + '.')}
-        {oneRow(styles, expand, 'prevBlk', '', '', statement.prevBlk + '.')}
-        {oneRow(styles, expand, 'prevBlkBal', '', '', statement.prevBlkBal + '.')}
-        {oneRow(styles, expand, 'endBalCalc', '', '', statement.endBalCalc + '.')}
-        {oneRow(styles, expand, 'type', '', '', statement.reconciliationType + '.')}
-        {/* {oneRow(styles, expand, 'reconciled', '', '', statement.reconciled ? 'true' : 'false') + '.'} */}
+        {oneDivider(styles, expandRecons)}
+        {oneDebug(styles, expandRecons, 'assetAddr', statement.assetAddr)}
+        {oneDebug(styles, expandRecons, 'assetSymbol', statement.assetSymbol)}
+        {oneDebug(styles, expandRecons, 'decimals', statement.decimals.toString())}
+        {oneDebug(styles, expandRecons, 'blockNumber', statement.blockNumber.toString())}
+        {oneDebug(styles, expandRecons, 'transactionIndex', statement.transactionIndex.toString())}
+        {oneDebug(styles, expandRecons, 'timestamp', statement.timestamp.toString())}
+        {oneDebug(styles, expandRecons, 'prevBlk', statement.prevBlk.toString())}
+        {oneDivider(styles, expandRecons)}
+        {oneDebug(styles, expandRecons, 'type', statement.reconciliationType)}
+        {oneDebug(styles, expandRecons, 'prevBlkBal', statement.prevBlkBal)}
+        {oneDebug(styles, expandRecons, 'begBal', statement.begBal)}
+        {oneDebug(styles, expandRecons, 'begBalDiff', statement.begBalDiff, true)}
+        {oneDebug(styles, expandRecons, 'endBal', statement.endBal)}
+        {oneDebug(styles, expandRecons, 'endBalCalc', statement.endBalCalc)}
+        {oneDebug(styles, expandRecons, 'endBalDiff', statement.endBalDiff, true)}
+        {/* {oneRow(styles, expandRecons, 'reconciled', statement.reconciled ? 'true' : 'false')} */}
       </tbody>
     </table>
   );
 };
 
 //-----------------------------------------------------------------
-const oneDiv = (styles: any, expand: boolean) => {
-  if (!expand) return <></>;
+const oneDivider = (styles: any, expandRecons: boolean) => {
+  if (!expandRecons) return <></>;
   return (
     <tr>
-      <td className={styles.tableRow} style={{ width: '100px' }} colSpan={6}>
+      <td className={styles.tableRow} colSpan={6}>
         <hr />
       </td>
     </tr>
@@ -145,9 +148,54 @@ const oneDiv = (styles: any, expand: boolean) => {
 };
 
 //-----------------------------------------------------------------
+const oneDebug = (styles: any, expandRecons: boolean, name: string, value: string, second?: boolean) => {
+  if (!expandRecons) return <></>;
+  let isErr: boolean = false;
+  if (value === '') {
+    value = '0.0000000';
+    isErr = true;
+  }
+  let disp = (
+    <tr>
+      <td className={styles.tableRow} style={{ width: '100px' }}>
+        {name}
+      </td>
+      <td className={styles.tableRow} style={{ width: '20px' }}>
+        {' '}
+      </td>
+      <td className={styles.tableRow} style={{ textAlign: 'left' }} colSpan={4}>
+        {value}
+      </td>
+    </tr>
+  );
+  if (second) {
+    disp = (
+      <tr>
+        <td className={styles.tableRow} style={{ width: '100px' }}>
+          {name}
+        </td>
+        <td className={styles.tableRow} style={{ width: '20px' }}>
+          {' '}
+        </td>
+        <td className={styles.tableRow} style={{ textAlign: 'left' }}>
+          {' '}
+        </td>
+        <td
+          className={styles.tableRow}
+          style={isErr ? { textAlign: 'left' } : { color: 'red', textAlign: 'left' }}
+          colSpan={3}>
+          {value}
+        </td>
+      </tr>
+    );
+  }
+  return disp;
+};
+
+//-----------------------------------------------------------------
 const oneRow = (
   styles: any,
-  expand: boolean,
+  expandRecons: boolean,
   name: string,
   valueIn: string,
   valueOut: string = '',
@@ -157,7 +205,7 @@ const oneRow = (
 ) => {
   const v1: number = +valueIn;
   const v2: number = +valueOut;
-  if (!expand && name !== 'begBal' && name !== 'endBal' && v1 + v2 === 0) return <></>;
+  if (!expandRecons && name !== 'begBal' && name !== 'endBal' && v1 + v2 === 0) return <></>;
 
   const valI = header ? valueIn : clip(valueIn);
   const valO = header ? valueOut : clip(valueOut);

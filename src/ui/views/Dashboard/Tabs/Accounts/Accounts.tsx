@@ -41,7 +41,7 @@ export const AccountsView = ({ params }: { params: AccountViewParams }) => {
     {
       name: 'History',
       location: DashboardAccountsHistoryLocation,
-      component: <History theData={theData} loading={loading} />,
+      component: <History params={params} />,
     },
     {
       name: 'Events',
@@ -151,6 +151,10 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
       <br />
       <Checkbox checked={prefs.hideReconciled} onChange={() => prefs.setHideReconciled(!prefs.hideReconciled)}>
         unreconciled
+      </Checkbox>
+      <br />
+      <Checkbox checked={prefs.expandRecons} onChange={() => prefs.setExpandRecons(!prefs.expandRecons)}>
+        expand recons
       </Checkbox>
       <p />
       <div className={styles.smallHeader}>zero balance: </div>
