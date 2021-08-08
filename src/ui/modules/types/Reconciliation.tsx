@@ -31,5 +31,6 @@ export declare type Reconciliation = {
   reconciled: boolean;
   totalIn: int256;
   totalOut: int256;
+  totalOutLessGas: int256;
 };
 export declare type ReconciliationArray = Reconciliation[];

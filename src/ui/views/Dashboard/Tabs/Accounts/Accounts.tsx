@@ -28,7 +28,7 @@ import { createUseStyles } from 'react-jss';
 import style from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark';
 
 export const AccountsView = ({ params }: { params: AccountViewParams }) => {
-  const { theData, uniqAssets, loading } = params;
+  const { theData, theMeta, uniqAssets, loading } = params;
 
   if (!theData || !uniqAssets) return <></>;
 
@@ -61,7 +61,7 @@ export const AccountsView = ({ params }: { params: AccountViewParams }) => {
     {
       name: 'Neighbors',
       location: DashboardAccountsNeighborsLocation,
-      component: <Neighbors theData={theData} loading={loading} />,
+      component: <Neighbors theData={theData} theMeta={theMeta} loading={loading} />,
     },
   ];
 
@@ -147,6 +147,10 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
       </Select>
       <Checkbox checked={prefs.hideNamed} onChange={() => prefs.setHideNamed(!prefs.hideNamed)}>
         unnamed
+      </Checkbox>
+      <br />
+      <Checkbox checked={prefs.hideReconciled} onChange={() => prefs.setHideReconciled(!prefs.hideReconciled)}>
+        unreconciled
       </Checkbox>
       <p />
       <div className={styles.smallHeader}>zero balance: </div>
@@ -431,7 +435,6 @@ const ReconIcon = ({ reconciled }: { reconciled: boolean }) => {
 
 const Statement = ({ statement }: { statement: Reconciliation }) => {
   const styles = useStyles();
-
   return (
     <tr className={styles.row} key={statement.assetSymbol || Math.random()}>
       <td key={`${1}-${Math.random()}`} className={styles.col} style={{ width: '12%' }}>
@@ -444,7 +447,7 @@ const Statement = ({ statement }: { statement: Reconciliation }) => {
         {clip(statement.totalIn)}
       </td>
       <td key={`${4}-${Math.random()}`} className={styles.col} style={{ width: '17%' }}>
-        {clip(statement.totalOut)}
+        {clip(statement.totalOutLessGas)}
       </td>
       <td key={`${5}-${Math.random()}`} className={styles.col} style={{ width: '17%' }}>
         {clip(statement.gasCostOut, true)}
@@ -460,6 +463,7 @@ const Statement = ({ statement }: { statement: Reconciliation }) => {
 };
 
 const clip = (num: string, is_gas?: boolean) => {
+  if (!num) return <></>;
   const parts = num.split('.');
   if (parts.length === 0 || parts[0] === '')
     return (

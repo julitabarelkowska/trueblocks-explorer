@@ -52,7 +52,9 @@ const statementHeader = (
 ) => {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '20fr 1fr', textAlign: 'start' }}>
-      <div>{statement.assetSymbol + ' reconciliation'}</div>
+      <div>
+        {statement.assetSymbol + ' reconciliation'} [{statement.reconciliationType}]
+      </div>
       <div onClick={() => setExpand(!expand)}>{expand ? '-' : '+'}</div>
     </div>
   );
@@ -77,12 +79,6 @@ const statementBody = (statement: Reconciliation, expand: boolean, styles: any) 
   return (
     <table>
       <tbody>
-        {/* {oneRow(styles, expand, 'blockNumber', statement.blockNumber.toString())}
-        {oneRow(styles, expand, 'transactionIndex', statement.transactionIndex.toString())}
-        {oneRow(styles, expand, 'timestamp', statement.timestamp.toString())}
-        {oneRow(styles, expand, 'assetAddr', statement.assetAddr)}
-        {oneRow(styles, expand, 'assetSymbol', statement.assetSymbol)}
-        {oneRow(styles, expand, 'decimals', statement.decimals.toString())} */}
         {oneRow(styles, expand, '', 'income', 'outflow', 'balance', 'diff', true)}
         {oneRow(
           styles,
@@ -119,11 +115,32 @@ const statementBody = (statement: Reconciliation, expand: boolean, styles: any) 
           statement.endBal === '' ? '0.0000000' : statement.endBal,
           statement.endBalDiff
         )}
-        {/* {oneRow(styles, expand, 'endBalCalc', '', '', statement.endBalCalc)} */}
-        {/* {oneRow(styles, expand, 'reconciliationType', statement.reconciliationType, '')}
-        {oneRow(styles, expand, 'reconciled', statement.reconciled ? 'true' : 'false', '')} */}
+        {oneDiv(styles, expand)}
+        {oneRow(styles, expand, 'blockNumber', '', '', statement.blockNumber.toString() + '.')}
+        {oneRow(styles, expand, 'transactionIndex', '', '', statement.transactionIndex.toString() + '.')}
+        {oneRow(styles, expand, 'timestamp', '', '', statement.timestamp.toString() + '.')}
+        {/* {oneRow(styles, expand, 'assetAddr', '', '', statement.assetAddr + '.')} */}
+        {oneRow(styles, expand, 'assetSymbol', '', '', statement.assetSymbol + '.')}
+        {oneRow(styles, expand, 'decimals', '', '', statement.decimals.toString() + '.')}
+        {oneRow(styles, expand, 'prevBlk', '', '', statement.prevBlk + '.')}
+        {oneRow(styles, expand, 'prevBlkBal', '', '', statement.prevBlkBal + '.')}
+        {oneRow(styles, expand, 'endBalCalc', '', '', statement.endBalCalc + '.')}
+        {oneRow(styles, expand, 'type', '', '', statement.reconciliationType + '.')}
+        {/* {oneRow(styles, expand, 'reconciled', '', '', statement.reconciled ? 'true' : 'false') + '.'} */}
       </tbody>
     </table>
+  );
+};
+
+//-----------------------------------------------------------------
+const oneDiv = (styles: any, expand: boolean) => {
+  if (!expand) return <></>;
+  return (
+    <tr>
+      <td className={styles.tableRow} style={{ width: '100px' }} colSpan={6}>
+        <hr />
+      </td>
+    </tr>
   );
 };
 

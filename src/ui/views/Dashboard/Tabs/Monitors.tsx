@@ -6,7 +6,7 @@ import { useCommand } from '@hooks/useCommand';
 import { createErrorNotification } from '@modules/error_notification';
 import { renderClickableAddress } from '@modules/renderers';
 import { Monitor } from '@modules/types';
-import { Button, Form, Input, Space, Spin } from 'antd';
+import { Button, Form, Input, Spin } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
 import { ColumnsType } from 'antd/lib/table';
 import React, { useCallback, useRef, useState } from 'react';
@@ -41,43 +41,33 @@ export const Monitors = () => {
   }, []);
   const theData = getData(monitors);
 
+  // Antd filter routine requires this structure
+  // export interface FilterDropdownProps {
+  //   prefixCls: string;
+  //   setSelectedKeys: (selectedKeys: React.Key[]) => void;
+  //   selectedKeys: React.Key[];
+  //   confirm: (param?: FilterConfirmProps) => void;
+  //   clearFilters?: () => void;
+  //   filters?: ColumnFilterItem[];
+  //   visible: boolean;
+  // }
   const getColumnSearchProps = (dataIndex: any) => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
       <div style={{ padding: 8 }}>
-        <Input
-          ref={searchInputRef}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ marginBottom: 8, display: 'block' }}
+        <SearchInput
+          onEnter={() => handleSearch(selectedKeys, confirm, dataIndex, setSearchText, setSearchedColumn)}
+          searchInputRef={searchInputRef}
+          dataIndex={dataIndex}
+          selectedKeys={selectedKeys}
+          setSelectedKeys={setSelectedKeys}
         />
-        <Space>
-          <Button
-            type='primary'
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size='small'
-            style={{ width: 90 }}>
-            Search
-          </Button>
-          <Button onClick={() => handleReset(clearFilters)} size='small' style={{ width: 90 }}>
-            Reset
-          </Button>
-          <Button
-            type='link'
-            size='small'
-            onClick={() => {
-              confirm({ closeDropdown: false });
-              setSearchText(selectedKeys[0]);
-              setSearchedColumn(dataIndex);
-            }}>
-            Filter
-          </Button>
-        </Space>
+        <SearchButton
+          onClick={() => handleSearch(selectedKeys, confirm, dataIndex, setSearchText, setSearchedColumn)}
+        />
+        <ResetButton onClick={() => handleReset(clearFilters, setSearchText)} />
       </div>
     ),
-    filterIcon: (filtered: any) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filterIcon: filterIconFunc,
     onFilter: (value: any, record: any) =>
       record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()) : '',
     onFilterDropdownVisibleChange: (visible: any) => {
@@ -87,17 +77,6 @@ export const Monitors = () => {
       }
     },
   });
-
-  const handleSearch = (selectedKeys: any, confirm: any, dataIndex: any) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
-
-  const handleReset = (clearFilters: any) => {
-    clearFilters();
-    setSearchText('');
-  };
 
   const onEditItem = () => {
     setLoadingEdit(true);
@@ -140,6 +119,7 @@ export const Monitors = () => {
   };
 
   const recents = [
+    // TODO(tjayrush): obviously, this should not be hard coded
     { name: 'TrueBlocks Wallet', address: '0xf503017d7baf7fbc0fff7492b751025c6a78179b' },
     { name: 'BokkyPooBah', address: '0x000001f568875f378bf6d170b790967fe429c81a' },
     { name: 'DeeEee', address: '0xd1629474d25a63b1018fcc965e1d218a00f6cbd3' },
@@ -254,6 +234,67 @@ export const Monitors = () => {
         />
       </div>
     </>
+  );
+};
+
+const filterIconFunc = (filtered: any) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />;
+
+const handleReset = (clearFilters: any, setSearchText: any) => {
+  clearFilters();
+  setSearchText('');
+};
+
+const handleSearch = (selectedKeys: any, confirm: any, dataIndex: any, setSearchText: any, setSearchedColumn: any) => {
+  confirm();
+  setSearchText(selectedKeys[0]);
+  setSearchedColumn(dataIndex);
+};
+
+const SearchInput = ({
+  onEnter,
+  searchInputRef,
+  dataIndex,
+  selectedKeys,
+  setSelectedKeys,
+}: {
+  onEnter: any;
+  searchInputRef: any;
+  dataIndex: any;
+  selectedKeys: any;
+  setSelectedKeys: any;
+}) => {
+  return (
+    <Input
+      ref={searchInputRef}
+      placeholder={`Search ${dataIndex}`}
+      value={selectedKeys[0]}
+      onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+      onPressEnter={onEnter}
+      style={{ marginBottom: 8, display: 'block' }}
+    />
+  );
+};
+const SearchButton = ({ onClick }: { onClick: any }) => {
+  return (
+    <Button type='primary' onClick={onClick} icon={<SearchOutlined />} size='small' style={{ width: 90 }}>
+      Search
+    </Button>
+  );
+};
+
+const ResetButton = ({ onClick }: { onClick: any }) => {
+  return (
+    <Button onClick={onClick} size='small' style={{ width: 90 }}>
+      Reset
+    </Button>
+  );
+};
+
+const FilterButton = ({ onClick }: { onClick: any }) => {
+  return (
+    <Button type='link' size='small' onClick={onClick}>
+      Filter
+    </Button>
   );
 };
 

@@ -12,7 +12,14 @@ import { BaseView } from '@components/BaseView';
 import { emptyData, Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
 import { runCommand } from '@modules/core';
 import { createErrorNotification } from '@modules/error_notification';
-import { AssetHistory, AssetHistoryArray, Reconciliation, Transaction, TransactionArray } from '@modules/types';
+import {
+  AssetHistory,
+  AssetHistoryArray,
+  Balance,
+  Reconciliation,
+  Transaction,
+  TransactionArray,
+} from '@modules/types';
 import { either as Either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -26,6 +33,8 @@ export declare type UserPrefs = {
   setHideZero: any;
   hideNamed: boolean;
   setHideNamed: any;
+  hideReconciled: boolean;
+  setHideReconciled: any;
   period: string;
   setPeriod: any;
 };
@@ -37,6 +46,7 @@ export declare type AccountViewParams = {
   totalRecords: number | null;
   theData: any;
   setTransactions: any;
+  theMeta: any;
   uniqAssets: AssetHistoryArray;
 };
 
@@ -47,6 +57,7 @@ export const DashboardView = () => {
   const [named, setNamed] = useState('');
   const [hideZero, setHideZero] = useState('all');
   const [hideNamed, setHideNamed] = useState(false);
+  const [hideReconciled, setHideReconciled] = useState(false);
   const [period, setPeriod] = useState('by tx');
 
   const { accountAddress } = useGlobalState();
@@ -59,6 +70,9 @@ export const DashboardView = () => {
       description: 'Could not fetch transactions',
     });
   }
+  const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
+  let theMeta: any = getMeta(transactions);
+  console.log(JSON.stringify(theMeta));
   const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
   let theData: TransactionArray = getData(transactions);
   theData = theData?.map((item: Transaction, i: number) => {
@@ -68,6 +82,13 @@ export const DashboardView = () => {
       fromName: names[item.from]?.name || item.fromName,
       toName: names[item.to]?.name || item.toName,
     };
+  });
+  theData = theData?.filter((item: Transaction) => {
+    if (!hideReconciled) return true;
+    const unrecon = item.statements?.filter((item: Reconciliation) => {
+      return !item.reconciled;
+    });
+    return unrecon && unrecon.length > 0;
   });
   let uniqAssets: any = [];
 
@@ -191,12 +212,15 @@ export const DashboardView = () => {
       setHideZero: setHideZero,
       hideNamed: hideNamed,
       setHideNamed: setHideNamed,
+      hideReconciled: hideReconciled,
+      setHideReconciled: setHideReconciled,
       period: period,
       setPeriod: setPeriod,
     },
     totalRecords: totalRecords,
     theData: theData,
     setTransactions: setTransactions,
+    theMeta: theMeta,
     uniqAssets: uniqAssets,
   };
 
@@ -219,5 +243,13 @@ export const DashboardView = () => {
       cookieName={'COOKIE_DASHBOARD_CURRENT_TAB'}
       tabs={tabs}
     />
+  );
+};
+
+const allReconciled = (asset: AssetHistory) => {
+  return (
+    asset.balHistory.filter((st: Balance) => {
+      return st.reconciled;
+    }).length > 0
   );
 };
