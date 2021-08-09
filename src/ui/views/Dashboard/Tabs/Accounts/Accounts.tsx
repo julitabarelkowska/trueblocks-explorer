@@ -16,7 +16,14 @@ import { Functions } from './LeftTabs/Functions';
 import { Gas } from './LeftTabs/Gas';
 import { History } from './LeftTabs/History';
 import { Neighbors } from './LeftTabs/Neighbors';
-import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
+import {
+  CheckCircleFilled,
+  CloseCircleFilled,
+  DownCircleFilled,
+  DownOutlined,
+  RightCircleFilled,
+  UpCircleFilled,
+} from '@ant-design/icons';
 import { BaseView, ViewTab } from '@components/BaseView';
 import { addColumn } from '@components/Table';
 import { Reconciliation, ReconciliationArray, Transaction } from '@modules/types';
@@ -153,8 +160,8 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
         unreconciled
       </Checkbox>
       <br />
-      <Checkbox checked={prefs.expandRecons} onChange={() => prefs.setExpandRecons(!prefs.expandRecons)}>
-        expand recons
+      <Checkbox checked={prefs.showDetails} onChange={() => prefs.setShowDetails(!prefs.showDetails)}>
+        details
       </Checkbox>
       <p />
       <div className={styles.smallHeader}>zero balance: </div>
@@ -429,12 +436,35 @@ export const renderStatements = (statements: ReconciliationArray) => {
   );
 };
 
-const ReconIcon = ({ reconciled }: { reconciled: boolean }) => {
-  return (
-    <div>
-      {reconciled ? <CheckCircleFilled style={{ color: 'green' }} /> : <CloseCircleFilled style={{ color: 'red' }} />}
-    </div>
-  );
+const ReconIcon = ({ statement }: { statement: Reconciliation }) => {
+  if (!statement) return <></>;
+  if (!statement.reconciliationType) {
+    statement.reconciliationType = 'regular';
+  }
+  let icon = <></>;
+  const okay = { color: 'green' };
+  const not_okay = { color: 'red' };
+  if (statement.reconciled) {
+    icon = <></>;
+    switch (statement.reconciliationType) {
+      case 'partial-nextdiff':
+        icon = <DownCircleFilled style={okay} />;
+        break;
+      case 'prevdiff-partial':
+        icon = <UpCircleFilled style={okay} />;
+        break;
+      case 'partial-partial':
+        icon = <RightCircleFilled style={okay} />;
+        break;
+      case 'regular':
+      case 'by-trace':
+        icon = <CheckCircleFilled style={okay} />;
+        break;
+    }
+  } else {
+    icon = <CloseCircleFilled style={not_okay} />;
+  }
+  return <div>{icon}</div>;
 };
 
 const Statement = ({ statement }: { statement: Reconciliation }) => {
@@ -445,7 +475,7 @@ const Statement = ({ statement }: { statement: Reconciliation }) => {
         {statement.assetSymbol?.slice(0, 5)}
       </td>
       <td key={`${2}-${Math.random()}`} className={styles.col} style={{ width: '17%' }}>
-        {clip(statement.begBal)}
+        {clip(!statement.begBal ? '0.000000' : statement.begBal)}
       </td>
       <td key={`${3}-${Math.random()}`} className={styles.col} style={{ width: '17%' }}>
         {clip(statement.totalIn)}
@@ -457,10 +487,10 @@ const Statement = ({ statement }: { statement: Reconciliation }) => {
         {clip(statement.gasCostOut, true)}
       </td>
       <td key={`${6}-${Math.random()}`} className={styles.col} style={{ width: '17%' }}>
-        {clip(statement.endBal)}
+        {clip(!statement.endBal ? '0.000000' : statement.endBal)}
       </td>
       <td key={`${7}-${Math.random()}`} className={styles.col} style={{ width: '4%' }}>
-        <ReconIcon reconciled={statement.reconciled} />
+        <ReconIcon statement={statement} />
       </td>
     </tr>
   );

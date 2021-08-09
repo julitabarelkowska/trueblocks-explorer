@@ -35,8 +35,8 @@ export declare type UserPrefs = {
   setHideNamed: any;
   hideReconciled: boolean;
   setHideReconciled: any;
-  expandRecons: boolean;
-  setExpandRecons: any;
+  showDetails: boolean;
+  setShowDetails: any;
   period: string;
   setPeriod: any;
 };
@@ -60,7 +60,7 @@ export const DashboardView = () => {
   const [hideZero, setHideZero] = useState('all');
   const [hideNamed, setHideNamed] = useState(false);
   const [hideReconciled, setHideReconciled] = useState(false);
-  const [expandRecons, setExpandRecons] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [period, setPeriod] = useState('by tx');
 
   const { accountAddress } = useGlobalState();
@@ -217,8 +217,8 @@ export const DashboardView = () => {
       setHideNamed: setHideNamed,
       hideReconciled: hideReconciled,
       setHideReconciled: setHideReconciled,
-      expandRecons: expandRecons,
-      setExpandRecons: setExpandRecons,
+      showDetails: showDetails,
+      setShowDetails: setShowDetails,
       period: period,
       setPeriod: setPeriod,
     },
