@@ -111,3 +111,5 @@ export const BaseTable = ({
     </div>
   );
 };
+
+// TODO(tjayrush): We used to be able to press enter to open a record's details

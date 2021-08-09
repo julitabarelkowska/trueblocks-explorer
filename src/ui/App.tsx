@@ -127,7 +127,7 @@ export const App = () => {
               style={{
                 backgroundColor: 'white',
                 padding: '1rem',
-                overflowY: 'auto',
+                overflowY: 'scroll',
               }}>
               <Routes />
             </Content>
