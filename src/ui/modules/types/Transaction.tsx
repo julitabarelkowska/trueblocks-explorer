@@ -14,6 +14,7 @@ import {
 } from '@modules/types';
 
 export declare type Transaction = {
+  id: string;
   hash: hash;
   blockHash: hash;
   blockNumber: blknum;

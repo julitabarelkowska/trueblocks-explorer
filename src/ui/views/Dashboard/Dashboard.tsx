@@ -79,8 +79,8 @@ export const DashboardView = () => {
   const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
   let theData: TransactionArray = getData(transactions);
   theData = theData?.map((item: Transaction, i: number) => {
+    item.id = (i + 1).toString();
     return {
-      id: (i + 1).toString(),
       ...item,
       fromName: names[item.from]?.name || item.fromName,
       toName: names[item.to]?.name || item.toName,
