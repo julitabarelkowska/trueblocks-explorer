@@ -75,15 +75,15 @@ export const DashboardView = () => {
   }
   const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
   let theMeta: any = getMeta(transactions);
-  console.log(JSON.stringify(theMeta));
+  // console.log(JSON.stringify(theMeta));
   const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
   let theData: TransactionArray = getData(transactions);
   theData = theData?.map((item: Transaction, i: number) => {
     item.id = (i + 1).toString();
     return {
       ...item,
-      fromName: names[item.from]?.name || item.fromName,
-      toName: names[item.to]?.name || item.toName,
+      fromName: names[item.from] || { name: '' },
+      toName: names[item.to] || { name: '' },
     };
   });
   theData = theData?.filter((item: Transaction) => {

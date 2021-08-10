@@ -1,4 +1,5 @@
 import {
+  Accountname,
   address,
   blknum,
   date,
@@ -40,8 +41,9 @@ export declare type Transaction = {
   statements: ReconciliationArray;
   finalized: boolean;
   date: date;
-  fromName: string;
-  toName: string;
+  // Added on front end
+  fromName: Accountname;
+  toName: Accountname;
   extraData: string;
 };
 export declare type TransactionArray = Transaction[];

@@ -364,10 +364,16 @@ export const transactionSchema: ColumnsType<Transaction> = [
         if (!record) return <div></div>;
         const to = record.to === record.extraData ? <div style={style}>{record.to}</div> : record.to;
         return (
-          <pre>
-            {renderAsNamedAddress(record.from, record.extraData)}
-            {renderAsNamedAddress(record.to, record.extraData)}
-          </pre>
+          <>
+            <pre>
+              {renderAsNamedAddress(record.from, record.extraData)}
+              {renderAsNamedAddress(record.to, record.extraData)}
+              <div style={{ margin: '0px', padding: '0px', display: 'grid', gridTemplateColumns: '1fr 10fr' }}>
+                {msgPills(record)}
+                <div> </div>
+              </div>
+            </pre>
+          </>
         );
       },
     },
@@ -378,22 +384,14 @@ export const transactionSchema: ColumnsType<Transaction> = [
     configuration: {
       width: '50%',
       render: (item, record) => {
+        const st = useStyles();
         item = record.compressedTx;
         if (item === '' && record.from === '0xPrefund') item = '0xPrefund';
         if (item === '' && record.from === '0xBlockReward') item = '0xBlockReward';
         if (item === '' && record.from === '0xUncleReward') item = '0xUncleReward';
         return (
           <div style={{ border: '1px solid darkgrey' }}>
-            <div
-              style={{
-                padding: '2px',
-                paddingLeft: '5px',
-                backgroundColor: 'lightgrey',
-                color: '#222222',
-                overflowX: 'hidden',
-              }}>
-              {item}
-            </div>
+            <div className={st.reconHead}>{item}</div>
             <div>{renderStatements(record.statements)}</div>
           </div>
         );
@@ -413,6 +411,27 @@ export const transactionSchema: ColumnsType<Transaction> = [
     },
   }),
 ];
+
+export const msgPills = (record: Transaction) => {
+  const st = useStyles();
+  const isErr = record.isError;
+  const isInt = record.to != record.extraData && record.from != record.extraData;
+  const isCon = record.to == '0x0';
+  const is20 = record.toName?.is_erc20 || record?.statements?.length > 1;
+  const is721 = record.toName?.is_erc721;
+  const tag = (name: string, tag: string, show: boolean) => {
+    return show ? <div className={st.tag + ' ' + tag}>{name}</div> : <></>;
+  };
+  return (
+    <div style={{ display: 'flex' }}>
+      {tag('int', st.intTag, isInt)}
+      {tag('err', st.errTag, isErr)}
+      {tag('con', st.conTag, isCon)}
+      {tag('erc20', st.tok20Tag, is20)}
+      {tag('nft', st.tok721Tag, is721)}
+    </div>
+  );
+};
 
 export const renderStatements = (statements: ReconciliationArray) => {
   const styles = useStyles();
@@ -544,6 +563,46 @@ const useStyles = createUseStyles({
     fontSize: '10pt',
     textAlign: 'left',
   },
+  reconHead: {
+    padding: '2px',
+    paddingLeft: '5px',
+    backgroundColor: 'lightgrey',
+    color: '#222222',
+    overflowX: 'hidden',
+  },
+  tag: {
+    padding: '0px 2px 0px 2px',
+    margin: '0px 0px 0px 2px',
+    border: '1px solid red',
+    borderRadius: '4px',
+    fontSize: '9pt',
+    textAlign: 'center',
+  },
+  errTag: {
+    backgroundColor: 'lightcoral',
+    borderColor: 'lightcoral',
+    color: 'yellow',
+  },
+  intTag: {
+    backgroundColor: 'slateblue',
+    borderColor: 'slateblue',
+    color: 'white',
+  },
+  conTag: {
+    backgroundColor: 'cornsilk',
+    borderColor: 'orange',
+    color: 'black',
+  },
+  tok20Tag: {
+    backgroundColor: 'darkblue',
+    borderColor: 'darkblue',
+    color: 'white',
+  },
+  tok721Tag: {
+    backgroundColor: 'darkgreen',
+    borderColor: 'darkgreen',
+    color: 'white',
+  },
 });
 
 //-----------------------------------------------------------------
@@ -584,27 +643,33 @@ const exportColumns: ColumnsType<Transaction> = [
     title: 'bn.txid',
     dataIndex: 'blockNumber',
     configuration: {
-      render: (item, record) => record.blockNumber + '.' + record.transactionIndex,
+      render: (unused, record) => record.blockNumber + '.' + record.transactionIndex,
     },
   }),
   addColumn({
-    title: 'hash',
+    title: 'Hash',
     dataIndex: 'hash',
   }),
   addColumn({
-    title: 'from',
+    title: 'From Address',
     dataIndex: 'from',
   }),
   addColumn({
-    title: 'fromName',
+    title: 'From Name',
     dataIndex: 'fromName',
+    configuration: {
+      render: (unused, record) => record.fromName.name,
+    },
   }),
   addColumn({
-    title: 'to',
+    title: 'To Address',
     dataIndex: 'to',
   }),
   addColumn({
-    title: 'toName',
+    title: 'To Name',
     dataIndex: 'toName',
+    configuration: {
+      render: (unused, record) => record.toName.name,
+    },
   }),
 ];
