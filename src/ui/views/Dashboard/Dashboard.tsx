@@ -75,7 +75,6 @@ export const DashboardView = () => {
   }
   const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
   let theMeta: any = getMeta(transactions);
-  // console.log(JSON.stringify(theMeta));
   const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
   let theData: TransactionArray = getData(transactions);
   theData = theData?.map((item: Transaction, i: number) => {
