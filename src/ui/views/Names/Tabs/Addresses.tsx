@@ -37,6 +37,7 @@ export const Addresses = () => {
     return response.data?.map((item: any, i: number) => {
       return {
         id: (i + 1).toString(),
+        searchStr: item.address + ' ' + item.name,
         ...item,
       };
     });
@@ -260,7 +261,7 @@ const ModalEditRow = ({ name, value, type, onChange }: { name: any; value: any; 
 const addressSchema: ColumnsType<Accountname> = [
   addColumn<Accountname>({
     title: 'Name / Address',
-    dataIndex: 'address',
+    dataIndex: 'searchStr',
     configuration: {
       render: (unused, record) => renderClickableAddress(record.name, record.address),
       width: 500,

@@ -35,6 +35,7 @@ export const Monitors = () => {
       : response.data[0].caches[0].items?.map((item: any, i: number) => {
           return {
             id: (i + 1).toString(),
+            searchStr: item.address + ' ' + item.name,
             ...item,
           };
         });
@@ -301,7 +302,7 @@ const FilterButton = ({ onClick }: { onClick: any }) => {
 const monitorSchema: ColumnsType<Monitor> = [
   addColumn<Monitor>({
     title: 'Name / Address',
-    dataIndex: 'address',
+    dataIndex: 'searchStr',
     configuration: {
       render: (unused, record) => renderClickableAddress(record.name, record.address),
       width: 500,
