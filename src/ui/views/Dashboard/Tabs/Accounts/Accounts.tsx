@@ -427,8 +427,8 @@ export const msgPills = (record: Transaction) => {
       {tag('int', st.intTag, isInt)}
       {tag('err', st.errTag, isErr)}
       {tag('con', st.conTag, isCon)}
-      {tag('erc20', st.tok20Tag, is20)}
-      {tag('nft', st.tok721Tag, is721)}
+      {tag('erc20', st.tok20Tag, is20 && !is721)}
+      {tag('erc721', st.tok721Tag, is721)}
     </div>
   );
 };
