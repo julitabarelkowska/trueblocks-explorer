@@ -32,8 +32,9 @@ export const DashboardCollectionsLocation = '/dashboard/collections';
 export const NamesLocation = '/names';
 export const NamesAddressesLocation = '/names/addresses';
 export const NamesTagsLocation = '/names/tags';
-export const NamesFuncSigsLocation = '/names/func-sigs';
-export const NamesEventSigsLocation = '/names/event-sigs';
+export const NamesSignaturesLocation = '/names/signatures';
+export const NamesSignaturesFunctionsLocation = '/names/signatures/functions';
+export const NamesSignaturesEventsLocation = '/names/signatures/events';
 export const NamesBlocksLocation = '/names/blocks';
 
 export const ExplorerLocation = '/explorer';
@@ -229,16 +230,22 @@ export const routes = [
     helpText: 'Tags are groupings used to collect together named addresses.',
   },
   {
-    path: NamesFuncSigsLocation,
+    path: NamesSignaturesFunctionsLocation,
     exact: true,
     component: NamesView,
-    helpText: 'The function signatures tab allows you to add/edit/delete four byte signatures.',
+    helpText: 'The function and event signatures tab allows you to add/edit/delete four byte signatures.',
   },
   {
-    path: NamesEventSigsLocation,
+    path: NamesSignaturesEventsLocation,
     exact: true,
     component: NamesView,
-    helpText: 'The event signatures tab allows you to add/edit/delete event signatures.',
+    helpText: 'The function and event signatures tab allows you to add/edit/delete four byte signatures.',
+  },
+  {
+    path: NamesSignaturesLocation,
+    exact: true,
+    component: NamesView,
+    helpText: 'The function and event signatures tab allows you to add/edit/delete four byte signatures.',
   },
   {
     path: NamesBlocksLocation,
