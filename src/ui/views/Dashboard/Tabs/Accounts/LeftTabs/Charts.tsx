@@ -7,9 +7,9 @@ import { addColumn } from '@components/Table';
 import { AssetHistory } from '@modules/types';
 import dayjs from 'dayjs';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-export const Assets = ({ params }: { params: AccountViewParams }) => {
+export const Charts = ({ params }: { params: AccountViewParams }) => {
   const { uniqAssets } = params;
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
@@ -58,7 +58,7 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
   const { currentAddress } = useGlobalState();
 
   const links: any = [];
-  links.push(<NavLink to={DashboardAccountsHistoryLocation}>History</NavLink>);
+  links.push(<Link to={DashboardAccountsHistoryLocation}>History</Link>);
   if (!names[asset.assetAddr]) {
     links.push(
       <a target='_blank' href={'http://localhost:8080/names?autoname=' + asset.assetAddr}>

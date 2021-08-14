@@ -9,7 +9,7 @@ import {
 import useGlobalState, { useGlobalNames } from '../../../../State';
 import { downloadRecords } from '../../../../Utilities';
 import { AccountViewParams } from '../../Dashboard';
-import { Assets } from './LeftTabs/Assets';
+import { Charts } from './LeftTabs/Charts';
 import { Events } from './LeftTabs/Events';
 import { Functions } from './LeftTabs/Functions';
 import { Gas } from './LeftTabs/Gas';
@@ -35,14 +35,13 @@ import style from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark';
 
 export const AccountsView = ({ params }: { params: AccountViewParams }) => {
   const { theData, theMeta, uniqAssets, loading } = params;
-
   if (!theData || !uniqAssets) return <></>;
 
   const leftSideTabs: ViewTab[] = [
     {
-      name: 'Assets',
+      name: 'Charts',
       location: DashboardAccountsChartsLocation,
-      component: <Assets params={params} />,
+      component: <Charts params={params} />,
     },
     {
       name: 'History',

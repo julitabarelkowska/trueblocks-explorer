@@ -2,10 +2,10 @@
  * Parts of this file were generated with makeClass --js. Edit only those parts of
  * the code outside of the BEG_CODE/END_CODE sections
  */
+import { address } from '@modules/types';
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { DashboardView, ExplorerView, NamesView, SettingsView, SupportView } from './views';
-
 
 const Mousetrap = require('mousetrap');
 
@@ -70,11 +70,11 @@ export const DashboardAccountsFunctionsAddressTemplate = '/dashboard/accounts/fu
 export const DashboardAccountsGasAddressTemplate = '/dashboard/accounts/gas/:address';
 export const DashboardAccountsTracesAddressTemplate = '/dashboard/accounts/traces/:address';
 
-export const DashboardAccountsAddressLocation = (address: string) => `/dashboard/accounts/${address}`;
-export const DashboardAccountsReconsLocationAddress = (address: string) => `/dashboard/accounts/recons/${address}`;
-export const DashboardAccountsFunctionsLocationAddress = (address: string) => `/dashboard/accounts/functions/${address}`;
-export const DashboardAccountsGasLocationAddress = (address: string) => `/dashboard/accounts/gas/${address}`;
-export const DashboardAccountsTracesLocationAddress = (address: string) => `/dashboard/accounts/traces/${address}`;
+export const DashboardAccountsAddressLocation = (address: address) => `/dashboard/accounts?address=${address}`;
+// export const DashboardAccountsReconsLocationAddress = (address: string) => `/dashboard/accounts/recons/${address}`;
+// export const DashboardAccountsFunctionsLocationAddress = (address: string) => `/dashboard/accounts/functions/${address}`;
+// export const DashboardAccountsGasLocationAddress = (address: string) => `/dashboard/accounts/gas/${address}`;
+// export const DashboardAccountsTracesLocationAddress = (address: string) => `/dashboard/accounts/traces/${address}`;
 // END_CODE_TEMPLATES
 
 // BEG_CODE_ROUTES
