@@ -1,12 +1,12 @@
 import { addColumn, BaseTable } from '@components/Table';
 import { useFetchData } from '@hooks/useFetchData';
 import { createErrorNotification } from '@modules/error_notification';
+import { ManifestRecord } from '@modules/types';
 import { ColumnsType } from 'antd/lib/table';
 import React from 'react';
 
 export const IndexManifest = () => {
   const { theData, loading, status } = useFetchData('pins', { list: true });
-
   if (status === 'fail') {
     createErrorNotification({
       description: 'Could not fetch manifest',
@@ -15,15 +15,9 @@ export const IndexManifest = () => {
 
   return (
     <div style={{ width: '70%' }}>
-      <BaseTable dataSource={theData} columns={manifestSchema} loading={false} />
+      <BaseTable dataSource={theData} columns={manifestSchema} loading={loading} />
     </div>
   );
-};
-
-declare type ManifestRecord = {
-  fileName: string;
-  bloomHash: string;
-  indexHash: string;
 };
 
 export const manifestSchema: ColumnsType<ManifestRecord> = [
@@ -32,21 +26,14 @@ export const manifestSchema: ColumnsType<ManifestRecord> = [
     dataIndex: 'fileName',
     configuration: {
       width: '200px',
-      render: (value) => <pre>{value}</pre>,
     },
   }),
   addColumn({
     title: 'Bloom Hash',
     dataIndex: 'bloomHash',
-    configuration: {
-      render: (value) => <pre>{value}</pre>,
-    },
   }),
   addColumn({
     title: 'Index Hash',
     dataIndex: 'indexHash',
-    configuration: {
-      render: (value) => <pre>{value}</pre>,
-    },
   }),
 ];

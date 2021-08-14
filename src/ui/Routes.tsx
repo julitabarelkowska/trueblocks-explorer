@@ -52,7 +52,7 @@ export const SettingsIndexesChartsLocation = '/settings/indexes/charts';
 export const SettingsIndexesManifestLocation = '/settings/indexes/manifest';
 export const SettingsCachesLocation = '/settings/caches';
 export const SettingsSkinsLocation = '/settings/skins';
-export const SettingsSchemasLocation = '/settings/schemas';
+export const SettingsDataModelLocation = '/settings/datamodel';
 
 export const SupportLocation = '/support';
 export const SupportContactUsLocation = '/support/contact-us';
@@ -337,10 +337,10 @@ export const routes = [
     helpText: 'Change the skin or them of the application.',
   },
   {
-    path: SettingsSchemasLocation,
+    path: SettingsDataModelLocation,
     exact: true,
     component: SettingsView,
-    helpText: 'View and edit the schemas for the various screens and tables.',
+    helpText: 'View and edit the data types for the various screens and tables.',
   },
   {
     path: SupportLocation,

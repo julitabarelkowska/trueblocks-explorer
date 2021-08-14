@@ -4,7 +4,6 @@ import {
   DashboardAccountsFunctionsLocation,
   DashboardAccountsGasLocation,
   DashboardAccountsHistoryLocation,
-  DashboardAccountsLocation,
   DashboardAccountsNeighborsLocation,
 } from '../../../../Routes';
 import useGlobalState, { useGlobalNames } from '../../../../State';
@@ -77,14 +76,7 @@ export const AccountsView = ({ params }: { params: AccountViewParams }) => {
       <AddressBar params={params} />
       <Divider style={{ height: '1px' }} />
       <div style={{ display: 'grid', gridTemplateColumns: '20fr 1fr' }}>
-        <BaseView
-          defaultActive={DashboardAccountsChartsLocation}
-          baseActive={DashboardAccountsLocation}
-          cookieName={'COOKIE_DASHBOARD_ACCOUNT_SUB_TAB'}
-          tabs={leftSideTabs}
-          position='left'
-          subBase={true}
-        />
+        <BaseView cookieName={'COOKIE_DASHBOARD_ACCOUNTS'} tabs={leftSideTabs} position='left' />
         <ViewOptions params={params} />
       </div>
     </div>
@@ -277,10 +269,10 @@ const ProgressBar = ({ params }: { params: AccountViewParams }): JSX.Element => 
 };
 
 const AddressBar = ({ params }: { params: AccountViewParams }) => {
-  const { accountAddress } = useGlobalState();
+  const { currentAddress } = useGlobalState();
   const { names } = useGlobalNames();
 
-  if (!names || !accountAddress) return <></>;
+  if (!names || !currentAddress) return <></>;
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '2fr 25fr 5fr 3fr 1fr' }}>
@@ -292,9 +284,9 @@ const AddressBar = ({ params }: { params: AccountViewParams }) => {
       <h3 style={{ display: 'inline', marginBottom: -5, backgroundColor: '#f2f2f2' }}>
         NONE
         <br />
-        {accountAddress}
+        {currentAddress}
         <br />
-        {names[accountAddress]?.name}
+        {names[currentAddress]?.name}
       </h3>
       <div></div>
       <div>

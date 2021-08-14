@@ -2,7 +2,6 @@ import {
   DashboardAccountsHistoryCustomLocation,
   DashboardAccountsHistoryEventsLocation,
   DashboardAccountsHistoryFunctionsLocation,
-  DashboardAccountsHistoryLocation,
   DashboardAccountsHistoryReconsLocation,
   DashboardAccountsHistoryTracesLocation,
 } from '../../../../../Routes';
@@ -18,7 +17,7 @@ import React from 'react';
 
 export const History = ({ params }: { params: AccountViewParams }) => {
   const { theData, loading } = params;
-  const { accountAddress } = useGlobalState();
+  const { currentAddress } = useGlobalState();
   const siderRender = (record: any) => (
     <AccountHistorySider key='account-transactions' record={record} params={params} />
   );
@@ -27,7 +26,7 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       dataSource={theData}
       columns={transactionSchema}
       loading={loading}
-      extraData={accountAddress}
+      extraData={currentAddress}
       siderRender={siderRender}
     />
   );
@@ -62,13 +61,5 @@ export const AccountHistorySider = ({ record, params }: { record: any; params: A
     },
   ];
 
-  return (
-    <BaseView
-      defaultActive={DashboardAccountsHistoryReconsLocation}
-      baseActive={DashboardAccountsHistoryLocation}
-      cookieName={'COOKIE_DASHBOARD_ACCOUNT_HISTORY_SUB_TAB'}
-      tabs={tabs}
-      subBase={true}
-    />
-  );
+  return <BaseView title={''} cookieName={'COOKIE_DASHBOARD_DETAILS'} tabs={tabs} />;
 };

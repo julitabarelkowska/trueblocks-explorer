@@ -4,7 +4,6 @@ import {
   SupportDocumentationLocation,
   SupportHotKeysLocation,
   SupportLicensingLocation,
-  SupportLocation,
 } from '../../Routes';
 import { About } from './Tabs/About';
 import { Contact } from './Tabs/Contact';
@@ -24,13 +23,5 @@ export const SupportView = () => {
     { name: 'About Us', location: SupportAboutUsLocation, component: <About /> },
   ];
 
-  return (
-    <BaseView
-      title={title}
-      defaultActive={SupportContactUsLocation}
-      baseActive={SupportLocation}
-      cookieName={'COOKIE_SUPPORT_CURRENT_TAB'}
-      tabs={tabs}
-    />
-  );
+  return <BaseView title={title} cookieName={'COOKIE_SUPPORT'} tabs={tabs} />;
 };

@@ -1,14 +1,13 @@
 import {
   SettingsCachesLocation,
+  SettingsDataModelLocation,
   SettingsIndexesLocation,
-  SettingsLocation,
-  SettingsSchemasLocation,
   SettingsScrapersLocation,
   SettingsSkinsLocation,
 } from '../../Routes';
 import { Caches } from './Tabs/Caches';
+import { DataModel } from './Tabs/DataModel';
 import { IndexesView } from './Tabs/Indexes/Indexes';
-import { Schemas } from './Tabs/Schemas';
 import { Scrapers } from './Tabs/Scrapers';
 import { Skins } from './Tabs/Skins';
 import { BaseView } from '@components/BaseView';
@@ -21,16 +20,8 @@ export const SettingsView = () => {
     { name: 'Indexes', location: SettingsIndexesLocation, component: <IndexesView />, disabled: false },
     { name: 'Caches', location: SettingsCachesLocation, component: <Caches /> },
     { name: 'Skins', location: SettingsSkinsLocation, component: <Skins /> },
-    { name: 'Schemas', location: SettingsSchemasLocation, component: <Schemas /> },
+    { name: 'Data Model', location: SettingsDataModelLocation, component: <DataModel /> },
   ];
 
-  return (
-    <BaseView
-      title={title}
-      defaultActive={SettingsScrapersLocation}
-      baseActive={SettingsLocation}
-      cookieName={'COOKIE_SETTINGS_CURRENT_TAB'}
-      tabs={tabs}
-    />
-  );
+  return <BaseView title={title} cookieName={'COOKIE_SETTINGS'} tabs={tabs} />;
 };

@@ -8,7 +8,7 @@ import useGlobalState, { useGlobalNames } from '../../State';
 import { AccountsView } from './Tabs/Accounts/Accounts';
 import { Collections } from './Tabs/Collections';
 import { Monitors } from './Tabs/Monitors';
-import { BaseView } from '@components/BaseView';
+import { BaseView_old } from '@components/BaseView_old';
 import { emptyData, Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
 import { runCommand } from '@modules/core';
 import { createErrorNotification } from '@modules/error_notification';
@@ -24,46 +24,17 @@ import { either as Either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 import React, { useCallback, useEffect, useState } from 'react';
 
-export declare type UserPrefs = {
-  denom: string;
-  setDenom: any;
-  staging: boolean;
-  setStaging: any;
-  hideZero: string;
-  setHideZero: any;
-  hideNamed: boolean;
-  setHideNamed: any;
-  hideReconciled: boolean;
-  setHideReconciled: any;
-  showDetails: boolean;
-  setShowDetails: any;
-  period: string;
-  setPeriod: any;
-};
-
-export declare type AccountViewParams = {
-  prefs: UserPrefs;
-  loading: boolean;
-  setLoading: any;
-  totalRecords: number | null;
-  theData: any;
-  setTransactions: any;
-  theMeta: any;
-  uniqAssets: AssetHistoryArray;
-};
-
 export const DashboardView = () => {
   const [loading, setLoading] = useState(false);
   const [staging, setStaging] = useState(false);
   const [denom, setDenom] = useState('ether');
-  const [named, setNamed] = useState('');
   const [hideZero, setHideZero] = useState('all');
   const [hideNamed, setHideNamed] = useState(false);
   const [hideReconciled, setHideReconciled] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [period, setPeriod] = useState('by tx');
 
-  const { accountAddress } = useGlobalState();
+  const { currentAddress } = useGlobalState();
   const { names } = useGlobalNames();
   const { totalRecords, setTotalRecords } = useGlobalState();
 
@@ -73,40 +44,15 @@ export const DashboardView = () => {
       description: 'Could not fetch transactions',
     });
   }
-  const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
-  let theMeta: any = getMeta(transactions);
-  const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
-  let theData: TransactionArray = getData(transactions);
-  theData = theData?.map((item: Transaction, i: number) => {
-    if (typeof item === 'object') item.id = (i + 1).toString();
-    return {
-      ...item,
-      fromName: names[item.from] || { name: '' },
-      toName: names[item.to] || { name: '' },
-    };
-  });
-  theData = theData?.filter((item: Transaction) => {
-    if (!hideReconciled) return true;
-    const unrecon = item.statements?.filter((item: Reconciliation) => {
-      return !item.reconciled;
-    });
-    return unrecon && unrecon.length > 0;
-  });
-  let uniqAssets: any = [];
-
-  useEffect(() => {
-    const name = names && names[accountAddress];
-    if (name) setNamed(name.name);
-  }, [accountAddress, names]);
 
   useEffect(() => {
     (async () => {
-      if (accountAddress?.slice(0, 2) === '0x') {
+      if (currentAddress?.slice(0, 2) === '0x') {
         setLoading(true);
         const eitherResponse = await runCommand('list', {
           count: true,
           appearances: true,
-          addrs: accountAddress,
+          addrs: currentAddress,
         });
         const result: Result = pipe(
           eitherResponse,
@@ -117,13 +63,13 @@ export const DashboardView = () => {
         setLoading(false);
       }
     })();
-  }, [accountAddress, denom, staging]);
+  }, [currentAddress, denom, staging]);
 
   useEffect(() => {
     (async () => {
       if (totalRecords && (transactions?.data?.length || 0) < totalRecords) {
         const eitherResponse = await runCommand('export', {
-          addrs: accountAddress,
+          addrs: currentAddress,
           fmt: 'json',
           cache_txs: true,
           cache_traces: true,
@@ -158,6 +104,27 @@ export const DashboardView = () => {
       }
     })();
   }, [totalRecords, transactions, denom, staging]);
+
+  const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
+  let theMeta: any = getMeta(transactions);
+  const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
+  let theData: TransactionArray = getData(transactions);
+  theData = theData?.map((item: Transaction, i: number) => {
+    if (typeof item === 'object') item.id = (i + 1).toString();
+    return {
+      ...item,
+      fromName: names[item.from] || { name: '' },
+      toName: names[item.to] || { name: '' },
+    };
+  });
+  theData = theData?.filter((item: Transaction) => {
+    if (!hideReconciled) return true;
+    const unrecon = item.statements?.filter((item: Reconciliation) => {
+      return !item.reconciled;
+    });
+    return unrecon && unrecon.length > 0;
+  });
+  let uniqAssets: any = [];
 
   if (theData) {
     theData.map((tx: Transaction) => {
@@ -240,13 +207,16 @@ export const DashboardView = () => {
   ];
 
   return (
-    <BaseView
-      title={title}
-      defaultActive={DashboardMonitorsLocation}
-      baseActive={DashboardLocation}
-      cookieName={'COOKIE_DASHBOARD_CURRENT_TAB'}
-      tabs={tabs}
-    />
+    <>
+      <pre>{currentAddress}</pre>
+      <BaseView_old
+        title={title}
+        cookieName={'COOKIE_DASHBOARD'}
+        tabs={tabs}
+        defaultActive={DashboardMonitorsLocation}
+        baseActive={DashboardLocation}
+      />
+    </>
   );
 };
 
@@ -256,4 +226,32 @@ const allReconciled = (asset: AssetHistory) => {
       return st.reconciled;
     }).length > 0
   );
+};
+
+export declare type UserPrefs = {
+  denom: string;
+  setDenom: any;
+  staging: boolean;
+  setStaging: any;
+  hideZero: string;
+  setHideZero: any;
+  hideNamed: boolean;
+  setHideNamed: any;
+  hideReconciled: boolean;
+  setHideReconciled: any;
+  showDetails: boolean;
+  setShowDetails: any;
+  period: string;
+  setPeriod: any;
+};
+
+export declare type AccountViewParams = {
+  prefs: UserPrefs;
+  loading: boolean;
+  setLoading: any;
+  totalRecords: number | null;
+  theData: any;
+  setTransactions: any;
+  theMeta: any;
+  uniqAssets: AssetHistoryArray;
 };

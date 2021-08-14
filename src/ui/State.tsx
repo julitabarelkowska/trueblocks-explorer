@@ -5,13 +5,11 @@ import { ReactNode } from 'react-markdown';
 const GlobalStateContext = createContext<any[]>([]);
 
 const THEME = Cookies.get('theme');
-const DEBUG = Cookies.get('debug') === 'true' ? true : false;
 const ADDRESS = Cookies.get('address');
 
 const initialState = {
   theme: THEME || null,
-  debug: DEBUG || false,
-  accountAddress: ADDRESS || null,
+  currentAddress: ADDRESS || null,
   names: null,
   namesEditModal: false,
   transactions: null,
@@ -26,25 +24,19 @@ const GlobalStateReducer = (state: any, action: any) => {
         ...state,
         theme: action.theme,
       };
-    case 'SET_DEBUG':
-      Cookies.set('debug', action.debug ? 'true' : 'false');
-      return {
-        ...state,
-        debug: action.debug,
-      };
     case 'SET_ACCOUNT_ADDRESS':
       Cookies.set('address', action.address);
       if (action.address !== state.address) {
         return {
           ...state,
-          accountAddress: action.address,
+          currentAddress: action.address,
           transactions: null,
           totalRecords: null,
         };
       } else {
         return {
           ...state,
-          accountAddress: action.address,
+          currentAddress: action.address,
         };
       }
     case 'SET_NAMES':
@@ -79,11 +71,7 @@ const useGlobalState = () => {
     dispatch({ type: 'SET_THEME', theme });
   };
 
-  const setDebug = (debug: boolean) => {
-    dispatch({ type: 'SET_DEBUG', debug });
-  };
-
-  const setAccountAddress = (address: string) => {
+  const setCurrentAddress = (address: string) => {
     dispatch({ type: 'SET_ACCOUNT_ADDRESS', address });
   };
 
@@ -106,10 +94,8 @@ const useGlobalState = () => {
   return {
     theme: state.theme,
     setTheme,
-    debug: state.debug,
-    setDebug,
-    accountAddress: state.accountAddress,
-    setAccountAddress,
+    currentAddress: state.currentAddress,
+    setCurrentAddress,
     names: state.names,
     setNames,
     namesEditModal: state.namesEditModal,

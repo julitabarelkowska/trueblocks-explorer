@@ -3,7 +3,6 @@ import {
   NamesBlocksLocation,
   NamesEventSigsLocation,
   NamesFuncSigsLocation,
-  NamesLocation,
   NamesTagsLocation,
 } from '../../Routes';
 import { Addresses } from './Tabs/Addresses';
@@ -24,13 +23,5 @@ export const NamesView = () => {
     { name: 'Named Blocks', location: NamesBlocksLocation, component: <When /> },
   ];
 
-  return (
-    <BaseView
-      title={title}
-      defaultActive={NamesAddressesLocation}
-      baseActive={NamesLocation}
-      cookieName={'COOKIE_NAMES_CURRENT_TAB'}
-      tabs={tabs}
-    />
-  );
+  return <BaseView title={title} cookieName={'COOKIE_NAMES'} tabs={tabs} />;
 };

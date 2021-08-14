@@ -16,7 +16,7 @@ import {
 } from '@ant-design/icons';
 import { Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
 import { runCommand } from '@modules/core';
-import { Button, Layout, Typography } from 'antd';
+import { Layout, Typography } from 'antd';
 import 'antd/dist/antd.css';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -35,7 +35,7 @@ const useStyles = createUseStyles({
 export const App = () => {
   dayjs.extend(relativeTime);
 
-  const { debug, setDebug, names, setNames } = useGlobalState();
+  const { names, setNames } = useGlobalState();
   const [status, setStatus] = useState<Result>(toSuccessfulData({ data: [{}], meta: {} }) as Result);
   const [loadingStatus, setLoadingStatus] = useState(false);
   const styles = useStyles();
@@ -114,11 +114,7 @@ export const App = () => {
         </Title>
       </Header>
       <Layout>
-        <SidePanel
-          header='Menu'
-          dir={PanelDirection.Left}
-          cookieName={'COOKIE_MENU_EXPANDED'}
-          collapsibleContent={false}>
+        <SidePanel header='Menu' dir={PanelDirection.Left} cookieName={'MENU_EXPANDED'} collapsibleContent={false}>
           <MainMenu items={menuItems} />
         </SidePanel>
         <Layout>
@@ -131,12 +127,12 @@ export const App = () => {
               }}>
               <Routes />
             </Content>
-            <SidePanel header='Status' cookieName={'COOKIE_STATUS_EXPANDED'} dir={PanelDirection.Right}>
+            <SidePanel header='Status' cookieName={'STATUS_EXPANDED'} dir={PanelDirection.Right}>
               <StatusPanel status={status} loading={loadingStatus} />
             </SidePanel>
             <SidePanel
               header='Help'
-              cookieName={'COOKIE_HELP_EXPANDED'}
+              cookieName={'HELP_EXPANDED'}
               dir={PanelDirection.Right}
               customCollapseIcon={<QuestionCircleFilled className={styles.help_icon} />}
               customExpandIcon={<QuestionCircleFilled className={styles.help_icon} />}>
@@ -144,9 +140,7 @@ export const App = () => {
             </SidePanel>
           </Layout>
           <Footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Button type={debug ? 'primary' : 'ghost'} onClick={() => setDebug(!debug)}>
-              {debug ? 'debug on' : 'debug off'}
-            </Button>
+            <div></div>
             <Console asText={true} />
             <div />
           </Footer>

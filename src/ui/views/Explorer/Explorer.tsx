@@ -1,6 +1,5 @@
 import {
   ExplorerBlocksLocation,
-  ExplorerLocation,
   ExplorerLogsLocation,
   ExplorerReceiptsLocation,
   ExplorerTracesLocation,
@@ -27,13 +26,7 @@ export const ExplorerView = () => {
   return (
     <div>
       <div style={{ backgroundColor: 'orange', color: 'black' }}>This module is not completed.</div>
-      <BaseView
-        title={title}
-        defaultActive={ExplorerBlocksLocation}
-        baseActive={ExplorerLocation}
-        cookieName={'COOKIE_EXPLORER_CURRENT_TAB'}
-        tabs={tabs}
-      />
+      <BaseView title={title} cookieName={'COOKIE_EXPLORER'} tabs={tabs} />
     </div>
   );
 };

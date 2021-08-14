@@ -1,7 +1,6 @@
 import {
   SettingsIndexesChartsLocation,
   SettingsIndexesGridLocation,
-  SettingsIndexesLocation,
   SettingsIndexesManifestLocation,
   SettingsIndexesTableLocation,
 } from '../../../../Routes';
@@ -53,16 +52,7 @@ export const IndexesView = () => {
     },
   ];
 
-  return (
-    <BaseView
-      defaultActive={SettingsIndexesGridLocation}
-      baseActive={SettingsIndexesLocation}
-      cookieName={'COOKIE_DASHBOARD_INDEXES_SUB_TAB'}
-      tabs={tabs}
-      position='left'
-      subBase={true}
-    />
-  );
+  return <BaseView title={''} cookieName={'COOKIE_SETTINGS_INDEX'} tabs={tabs} position='left' />;
 };
 
 function padLeft(num: number, size: number, char: string = '0') {

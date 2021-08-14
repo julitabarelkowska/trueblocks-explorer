@@ -46,7 +46,7 @@ const showInput = (record: Transaction, key: string) => {
   );
   return (
     <div>
-      {oneItem('Json Object', json)}
+      {oneItem('Articulated', json)}
       {/* {oneItem('Compressed Tx', comp)} */}
       {oneItem('Input bytes', bytes)}
     </div>

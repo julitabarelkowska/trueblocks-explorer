@@ -19,6 +19,7 @@ export { Block, BlockArray } from '@modules/types/Block';
 export { Chunk, ChunkArray } from '@modules/types/Chunk';
 export { Function, FunctionArray } from '@modules/types/Function';
 export { Logentry, LogentryArray } from '@modules/types/Logentry';
+export { ManifestRecord, ManifestRecordArray } from '@modules/types/Manifest';
 export { Monitor, MonitorArray } from '@modules/types/Monitor';
 export { Parameter, ParameterArray } from '@modules/types/Parameter';
 export { Receipt, ReceiptArray } from '@modules/types/Receipt';

@@ -55,7 +55,7 @@ export const Assets = ({ params }: { params: AccountViewParams }) => {
 
 const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
   const { names } = useGlobalNames();
-  const { accountAddress } = useGlobalState();
+  const { currentAddress } = useGlobalState();
 
   const links: any = [];
   links.push(<NavLink to={DashboardAccountsHistoryLocation}>History</NavLink>);
@@ -68,7 +68,7 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
   }
   if (asset.assetSymbol !== 'ETH') {
     links.push(
-      <a target='_blank' href={'https://etherscan.io/token/' + asset.assetAddr + '?a=' + accountAddress}>
+      <a target='_blank' href={'https://etherscan.io/token/' + asset.assetAddr + '?a=' + currentAddress}>
         Holdings
       </a>
     );
