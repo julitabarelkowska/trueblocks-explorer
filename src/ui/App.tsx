@@ -1,5 +1,5 @@
 import { ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation } from './Routes';
-import useGlobalState from './State';
+import { useGlobalNames } from './State';
 import './app.css';
 import { Console } from './components/Console';
 import { MainMenu, MenuItems } from './components/MainMenu';
@@ -35,7 +35,7 @@ const useStyles = createUseStyles({
 export const App = () => {
   dayjs.extend(relativeTime);
 
-  const { names, setNames } = useGlobalState();
+  const { names, setNamesMap } = useGlobalNames();
   const [status, setStatus] = useState<Result>(toSuccessfulData({ data: [{}], meta: {} }) as Result);
   const [loadingStatus, setLoadingStatus] = useState(false);
   const styles = useStyles();
@@ -74,7 +74,7 @@ export const App = () => {
         }, {});
       const resultMap = arrayToObject(result.data);
 
-      setNames(resultMap);
+      setNamesMap(resultMap);
     })();
   }, []);
 

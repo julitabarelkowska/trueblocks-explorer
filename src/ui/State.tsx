@@ -75,7 +75,7 @@ const useGlobalState = () => {
     dispatch({ type: 'SET_ACCOUNT_ADDRESS', address });
   };
 
-  const setNames = (names: any) => {
+  const setNamesMap = (names: any) => {
     dispatch({ type: 'SET_NAMES', names });
   };
 
@@ -97,7 +97,7 @@ const useGlobalState = () => {
     currentAddress: state.currentAddress,
     setCurrentAddress,
     names: state.names,
-    setNames,
+    setNamesMap,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
     transactions: state.transactions,
@@ -116,6 +116,6 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 export default useGlobalState;
 
 export const useGlobalNames = () => {
-  const { names, setNames } = useGlobalState();
-  return { names, setNames };
+  const { names, setNamesMap } = useGlobalState();
+  return { names, setNamesMap };
 };
