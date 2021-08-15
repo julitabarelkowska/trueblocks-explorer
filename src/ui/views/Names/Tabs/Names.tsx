@@ -13,7 +13,7 @@ import { either as Either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-export const Addresses = () => {
+export const Names = () => {
   const [searchText, setSearchText] = useState('');
   const [_, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);

@@ -1,5 +1,5 @@
 import { NamesAddressesLocation, NamesBlocksLocation, NamesSignaturesLocation, NamesTagsLocation } from '../../Routes';
-import { Addresses } from './Tabs/Addresses';
+import { Names } from './Tabs/Names';
 import { Signatures } from './Tabs/Signatures';
 import { Tags } from './Tabs/Tag';
 import { When } from './Tabs/When';
@@ -9,7 +9,7 @@ import React from 'react';
 export const NamesView = () => {
   const title = 'Names';
   const tabs = [
-    { name: 'Named Addresses', location: NamesAddressesLocation, component: <Addresses /> },
+    { name: 'Named Addresses', location: NamesAddressesLocation, component: <Names /> },
     { name: 'Address Tags', location: NamesTagsLocation, component: <Tags /> },
     { name: 'Signatures', location: NamesSignaturesLocation, component: <Signatures /> },
     { name: 'Named Blocks', location: NamesBlocksLocation, component: <When /> },
