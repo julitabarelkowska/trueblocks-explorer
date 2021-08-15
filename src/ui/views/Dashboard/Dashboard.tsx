@@ -208,7 +208,6 @@ export const DashboardView = () => {
 
   return (
     <>
-      <pre>{currentAddress}</pre>
       <BaseView_old
         title={title}
         cookieName={'COOKIE_DASHBOARD'}

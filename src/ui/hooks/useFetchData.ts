@@ -20,24 +20,17 @@ export function useFetchData(command: CoreCommand, params?: CommandParams, filte
 
 export function useFetchDataCaches(command: CoreCommand, params?: CommandParams, filterFunc?: any) {
   const [result, loading] = useCommand(command, params);
-  if (result.status === 'fail') return { theData: [], theMeta: {}, status: 'fail', loading: false };
-
   const getData = useCallback((response) => {
-    if (
-      !result.data ||
-      !result.data.length ||
-      !result.data[0].caches ||
-      !result.data[0].caches.length ||
-      !result.data[0].caches[0].items
-    )
-      return { theData: [], theMeta: {}, status: 'fail', loading: false };
-
-    // if (filterFunc) {
-    //   return response.data[0].caches[0].items.filter((item: any) => filterFunc(item));
-    // }
-    return response.data[0].caches[0].items;
+    if (response.status === 'fail') return [];
+    if (!response.data) return [];
+    if (!response.data.length) return [];
+    if (!response.data[0].caches) return [];
+    const items = response.data[0].caches[0].items;
+    if (filterFunc) {
+      return items.filter((item: any) => filterFunc(item));
+    }
+    return items;
   }, []);
-
   const getMeta = useCallback((response) => {
     return response.meta;
   }, []);

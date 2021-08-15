@@ -13,11 +13,7 @@ export const IndexManifest = () => {
     });
   }
 
-  return (
-    <div style={{ width: '70%' }}>
-      <BaseTable dataSource={theData} columns={manifestSchema} loading={loading} />
-    </div>
-  );
+  return <BaseTable dataSource={theData} columns={manifestSchema} loading={loading} />;
 };
 
 export const manifestSchema: ColumnsType<ManifestRecord> = [

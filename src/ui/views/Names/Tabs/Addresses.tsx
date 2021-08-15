@@ -1,5 +1,4 @@
 import useGlobalState from '../../../State';
-import './Addresses.css';
 import { SearchOutlined } from '@ant-design/icons';
 import { addActionsColumn, addColumn, addFlagColumn, addTagsColumn, BaseTable, TableActions } from '@components/Table';
 import { Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
@@ -43,6 +42,7 @@ export const Addresses = () => {
     });
   }, []);
   const theData = getData(addresses);
+
   useEffect(() => {
     (async () => {
       setLoading(true);

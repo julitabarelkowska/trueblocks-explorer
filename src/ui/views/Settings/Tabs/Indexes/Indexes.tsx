@@ -10,24 +10,19 @@ import { IndexManifest } from './LeftTabs/IndexManifest';
 import { IndexTable } from './LeftTabs/IndexTable';
 import { BaseView } from '@components/BaseView';
 import { addColumn, addNumColumn } from '@components/Table';
-import { useCommand } from '@hooks/useCommand';
+import { useFetchDataCaches } from '@hooks/useFetchData';
 import { createErrorNotification } from '@modules/error_notification';
 import { Chunk } from '@modules/types';
 import { ColumnsType } from 'antd/lib/table';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 export const IndexesView = () => {
-  const [indexes, loading] = useCommand('status', { mode: 'index', details: true });
-  if (indexes.status === 'fail') {
+  const { theData, loading, status } = useFetchDataCaches('status', { mode: 'index', details: true });
+  if (status === 'fail') {
     createErrorNotification({
       description: 'Could not fetch indexes',
     });
   }
-
-  const getData = useCallback((response) => {
-    return response.status === 'fail' || !response.data[0].caches ? [] : response.data[0].caches[0].items;
-  }, []);
-  const theData = getData(indexes);
 
   const tabs = [
     {
