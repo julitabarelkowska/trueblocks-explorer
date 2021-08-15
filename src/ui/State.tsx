@@ -117,5 +117,5 @@ export default useGlobalState;
 
 export const useGlobalNames = () => {
   const { names, setNamesMap } = useGlobalState();
-  return { names, setNamesMap };
+  return { namesMap: names, setNamesMap: setNamesMap };
 };

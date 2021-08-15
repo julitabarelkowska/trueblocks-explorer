@@ -55,12 +55,12 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
 };
 
 const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
-  const { names } = useGlobalNames();
+  const { namesMap } = useGlobalNames();
   const { currentAddress } = useGlobalState();
 
   const links: any = [];
   links.push(<Link to={DashboardAccountsHistoryLocation + '?asset=' + asset.assetAddr}>History</Link>);
-  if (!names[asset.assetAddr]) {
+  if (!namesMap[asset.assetAddr]) {
     links.push(
       <a target='_blank' href={'http://localhost:8080/names?autoname=' + asset.assetAddr}>
         Name
@@ -89,8 +89,8 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
     <div key={index + 'd1'} style={{ overflowX: 'hidden' }}>
       {asset.assetSymbol === 'ETH'
         ? asset.assetSymbol
-        : names[asset.assetAddr]
-        ? names[asset.assetAddr].name?.substr(0, 15) +
+        : namesMap[asset.assetAddr]
+        ? namesMap[asset.assetAddr].name?.substr(0, 15) +
           (asset.assetSymbol ? ' (' + asset.assetSymbol.substr(0, 15) + ')' : '')
         : asset.assetSymbol.substr(0, 15)}
       <br />

@@ -35,7 +35,7 @@ export const DashboardView = () => {
   const [period, setPeriod] = useState('by tx');
 
   const { currentAddress } = useGlobalState();
-  const { names } = useGlobalNames();
+  const { namesMap } = useGlobalNames();
   const { totalRecords, setTotalRecords } = useGlobalState();
 
   const { transactions, setTransactions } = useGlobalState();
@@ -113,8 +113,8 @@ export const DashboardView = () => {
     if (typeof item === 'object') item.id = (i + 1).toString();
     return {
       ...item,
-      fromName: names[item.from] || { name: '' },
-      toName: names[item.to] || { name: '' },
+      fromName: namesMap[item.from] || { name: '' },
+      toName: namesMap[item.to] || { name: '' },
     };
   });
   theData = theData?.filter((item: Transaction) => {
@@ -165,7 +165,7 @@ export const DashboardView = () => {
         hideZero === 'all' ||
         (hideZero === 'show' && Number(asset.balHistory[asset.balHistory.length - 1].balance) === 0) ||
         (hideZero === 'hide' && Number(asset.balHistory[asset.balHistory.length - 1].balance) > 0);
-      return show && (!hideNamed || !names[asset.assetAddr]);
+      return show && (!hideNamed || !namesMap[asset.assetAddr]);
     });
   }
 

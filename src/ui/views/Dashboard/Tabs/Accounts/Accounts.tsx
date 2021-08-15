@@ -84,7 +84,6 @@ export const AccountsView = ({ params }: { params: AccountViewParams }) => {
 
 const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   const styles = useStyles();
-  const { names } = useGlobalNames();
   const { prefs, setTransactions } = params;
 
   const onEther = () => {
@@ -269,9 +268,9 @@ const ProgressBar = ({ params }: { params: AccountViewParams }): JSX.Element => 
 
 const AddressBar = ({ params }: { params: AccountViewParams }) => {
   const { currentAddress } = useGlobalState();
-  const { names } = useGlobalNames();
+  const { namesMap } = useGlobalNames();
 
-  if (!names || !currentAddress) return <></>;
+  if (!namesMap || !currentAddress) return <></>;
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '2fr 25fr 5fr 3fr 1fr' }}>
@@ -285,7 +284,7 @@ const AddressBar = ({ params }: { params: AccountViewParams }) => {
         <br />
         {currentAddress}
         <br />
-        {names[currentAddress]?.name}
+        {namesMap[currentAddress]?.name}
       </h3>
       <div></div>
       <div>
@@ -298,12 +297,12 @@ const AddressBar = ({ params }: { params: AccountViewParams }) => {
 };
 
 export const renderAsNamedAddress = (address: string, acctFor: string) => {
-  const { names } = useGlobalNames();
+  const { namesMap } = useGlobalNames();
 
   const isCurrent = address === acctFor;
   const isSpecial = address === '0xPrefund' || address === '0xBlockReward' || address === '0xUncleReward';
 
-  let name = names && names[address] && names[address].name;
+  let name = namesMap && namesMap[address] && namesMap[address].name;
   if (!isSpecial && !isCurrent && !name) {
     return <div style={{ color: 'grey' }}>{address}</div>;
   }
