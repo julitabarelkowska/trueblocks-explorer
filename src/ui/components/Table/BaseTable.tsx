@@ -25,6 +25,8 @@ export const BaseTable = ({
   const [displayedRow, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
   const [curRow, setCurRow] = useState(0);
   const [curPage, setCurPage] = useState(1);
+  // const [curRow, setCurRow] = useState(Number(localStorage.getItem('curRow')) || 0);
+  // const [curPage, setCurPage] = useState(Number(localStorage.getItem('curPage')) || 1);
   const [pageSize, setPageSize] = useState(defPageSize);
   const [isExpanded, setIsExpanded] = useState(false);
   const [keyedData, setKeyedData] = useState([{ key: 0 }]);
@@ -32,7 +34,10 @@ export const BaseTable = ({
   const setRowNumber = (n: number) => {
     const num = Math.max(0, Math.min(dataSource.length - 1, n));
     setCurRow(num);
-    setCurPage(Math.floor(num / pageSize) + 1);
+    const page = Math.floor(num / pageSize) + 1;
+    setCurPage(page);
+    // localStorage.setItem('curRow', num.toString());
+    // localStorage.setItem('curPage', page.toString());
   };
 
   Mousetrap.bind('up', () => setRowNumber(curRow - 1));
@@ -67,6 +72,8 @@ export const BaseTable = ({
   // clean up mouse control when we unmount
   useEffect(() => {
     return () => {
+      // setCurRow(0);
+      // setCurPage(1);
       Mousetrap.unbind(['up', 'down', 'pageup', 'pagedown', 'home', 'end', 'enter']);
     };
   }, []);
