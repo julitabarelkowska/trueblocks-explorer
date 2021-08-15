@@ -103,7 +103,7 @@ export const DashboardView = () => {
         setTransactions(newTransactions);
       }
     })();
-  }, [totalRecords, transactions, denom, staging]);
+  }, [totalRecords, transactions]);
 
   const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
   let theMeta: any = getMeta(transactions);
@@ -195,7 +195,6 @@ export const DashboardView = () => {
     uniqAssets: uniqAssets,
   };
 
-  const title = 'Dashboard';
   const tabs = [
     { name: 'Monitors', location: DashboardMonitorsLocation, component: <Monitors /> },
     {
@@ -209,7 +208,7 @@ export const DashboardView = () => {
   return (
     <>
       <BaseView_old
-        title={title}
+        title={'Dashboard'}
         cookieName={'COOKIE_DASHBOARD'}
         tabs={tabs}
         defaultActive={DashboardMonitorsLocation}

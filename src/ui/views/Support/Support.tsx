@@ -14,7 +14,6 @@ import { BaseView } from '@components/BaseView';
 import React from 'react';
 
 export const SupportView = () => {
-  const title = 'Support';
   const tabs = [
     { name: 'Contact Us', location: SupportContactUsLocation, component: <Contact /> },
     { name: 'Documentation', location: SupportDocumentationLocation, component: <Documentation /> },
@@ -23,5 +22,5 @@ export const SupportView = () => {
     { name: 'About Us', location: SupportAboutUsLocation, component: <About /> },
   ];
 
-  return <BaseView title={title} cookieName={'COOKIE_SUPPORT'} tabs={tabs} />;
+  return <BaseView title={'Support'} cookieName={'COOKIE_SUPPORT'} tabs={tabs} />;
 };

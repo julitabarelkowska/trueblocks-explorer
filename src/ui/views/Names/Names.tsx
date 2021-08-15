@@ -7,12 +7,11 @@ import { BaseView } from '@components/BaseView';
 import React from 'react';
 
 export const NamesView = () => {
-  const title = 'Names';
   const tabs = [
     { name: 'Named Addresses', location: NamesAddressesLocation, component: <Names /> },
     { name: 'Address Tags', location: NamesTagsLocation, component: <Tags /> },
     { name: 'Signatures', location: NamesSignaturesLocation, component: <Signatures /> },
     { name: 'Named Blocks', location: NamesBlocksLocation, component: <When /> },
   ];
-  return <BaseView title={title} cookieName={'COOKIE_NAMES'} tabs={tabs} />;
+  return <BaseView title={'Names'} cookieName={'COOKIE_NAMES'} tabs={tabs} />;
 };
