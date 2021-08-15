@@ -23,8 +23,6 @@ export interface ViewParams {
 export const BaseView = ({ cookieName, tabs, extraContent, title = '', position = 'top' }: ViewParams) => {
   const history = useHistory();
   const [lastVisited] = useState(localStorage.getItem(cookieName) || tabs[0].location);
-  // const location = useLocation();
-  // const parts = location.pathname.split('/');
 
   const onTabChange = (key: string) => {
     localStorage.setItem(cookieName, key);

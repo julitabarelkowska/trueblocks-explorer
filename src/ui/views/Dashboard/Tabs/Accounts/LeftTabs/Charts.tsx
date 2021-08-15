@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 
 export const Charts = ({ params }: { params: AccountViewParams }) => {
   const { uniqAssets } = params;
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
       {uniqAssets.map((asset: any, index: number) => {
@@ -58,7 +59,7 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
   const { currentAddress } = useGlobalState();
 
   const links: any = [];
-  links.push(<Link to={DashboardAccountsHistoryLocation}>History</Link>);
+  links.push(<Link to={DashboardAccountsHistoryLocation + '?asset=' + asset.assetAddr}>History</Link>);
   if (!names[asset.assetAddr]) {
     links.push(
       <a target='_blank' href={'http://localhost:8080/names?autoname=' + asset.assetAddr}>
