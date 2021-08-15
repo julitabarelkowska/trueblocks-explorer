@@ -18,6 +18,7 @@ export { Balance, BalanceArray } from '@modules/types/Balance';
 export { Block, BlockArray } from '@modules/types/Block';
 export { Chunk, ChunkArray } from '@modules/types/Chunk';
 export { Function, FunctionArray } from '@modules/types/Function';
+export { ItemCounter, ItemCounterArray } from '@modules/types/ItemCounter';
 export { Logentry, LogentryArray } from '@modules/types/Logentry';
 export { ManifestRecord, ManifestRecordArray } from '@modules/types/Manifest';
 export { Monitor, MonitorArray } from '@modules/types/Monitor';

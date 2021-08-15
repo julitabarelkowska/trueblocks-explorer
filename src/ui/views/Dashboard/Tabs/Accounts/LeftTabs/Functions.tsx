@@ -1,15 +1,10 @@
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
-import { Transaction, TransactionArray } from '@modules/types';
+import { ItemCounter, ItemCounterArray, Transaction, TransactionArray } from '@modules/types';
 import { ColumnsType } from 'antd/lib/table';
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-declare type Evt = {
-  evt: string;
-  count: number;
-};
 
 export const Functions = ({ theData, loading }: { theData: TransactionArray; loading: boolean }) => {
   if (!theData) return <></>;
@@ -23,7 +18,7 @@ export const Functions = ({ theData, loading }: { theData: TransactionArray; loa
     }
   });
 
-  const uniqItems: Evt[] = [];
+  const uniqItems: ItemCounterArray = [];
   Object.keys(counts).map((key: any) => {
     uniqItems.push({
       evt: key,
@@ -31,13 +26,13 @@ export const Functions = ({ theData, loading }: { theData: TransactionArray; loa
     });
   });
 
-  uniqItems.sort(function (a: Evt, b: Evt) {
+  uniqItems.sort(function (a: ItemCounter, b: ItemCounter) {
     if (b.count === a.count) return a.evt.localeCompare(b.evt);
     return b.count - a.count;
   });
 
-  const top = uniqItems.filter((item: Evt, i: number) => i < 10);
-  const remains = uniqItems.filter((item: Evt, i: number) => i >= 10);
+  const top = uniqItems.filter((item: ItemCounter, i: number) => i < 10);
+  const remains = uniqItems.filter((item: ItemCounter, i: number) => i >= 10);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
@@ -47,12 +42,12 @@ export const Functions = ({ theData, loading }: { theData: TransactionArray; loa
   );
 };
 
-export const countSchema: ColumnsType<Evt> = [
+export const countSchema: ColumnsType<ItemCounter> = [
   addColumn({
     title: 'Function',
     dataIndex: 'evt',
     configuration: {
-      render: (field: string, record: Evt) => {
+      render: (field: string, record: ItemCounter) => {
         if (!record) return <></>;
         return <Link to={DashboardAccountsHistoryLocation + '?function=' + field}>{field}</Link>;
       },
