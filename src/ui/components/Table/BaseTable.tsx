@@ -23,10 +23,8 @@ export const BaseTable = ({
   defPageSize?: number;
 }) => {
   const [displayedRow, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
-  const [curRow, setCurRow] = useState(0);
-  const [curPage, setCurPage] = useState(1);
-  // const [curRow, setCurRow] = useState(Number(localStorage.getItem('curRow')) || 0);
-  // const [curPage, setCurPage] = useState(Number(localStorage.getItem('curPage')) || 1);
+  const [curRow, setCurRow] = useState(Number(sessionStorage.getItem('curRow')) || 0);
+  const [curPage, setCurPage] = useState(Number(sessionStorage.getItem('curPage')) || 1);
   const [pageSize, setPageSize] = useState(defPageSize);
   const [isExpanded, setIsExpanded] = useState(false);
   const [keyedData, setKeyedData] = useState([{ key: 0 }]);
@@ -36,8 +34,8 @@ export const BaseTable = ({
     setCurRow(num);
     const page = Math.floor(num / pageSize) + 1;
     setCurPage(page);
-    // localStorage.setItem('curRow', num.toString());
-    // localStorage.setItem('curPage', page.toString());
+    sessionStorage.setItem('curRow', num.toString());
+    sessionStorage.setItem('curPage', page.toString());
   };
 
   Mousetrap.bind('up', () => setRowNumber(curRow - 1));
