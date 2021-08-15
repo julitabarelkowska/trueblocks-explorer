@@ -34,8 +34,8 @@ export const BaseTable = ({
     setCurRow(num);
     const page = Math.floor(num / pageSize) + 1;
     setCurPage(page);
-    sessionStorage.setItem('curRow', num.toString());
-    sessionStorage.setItem('curPage', page.toString());
+    // sessionStorage.setItem('curRow', num.toString());
+    // sessionStorage.setItem('curPage', page.toString());
   };
 
   Mousetrap.bind('up', () => setRowNumber(curRow - 1));
