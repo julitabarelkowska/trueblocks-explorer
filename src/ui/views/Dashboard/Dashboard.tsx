@@ -37,8 +37,8 @@ export const DashboardView = () => {
   const { currentAddress } = useGlobalState();
   const { namesMap } = useGlobalNames();
   const { totalRecords, setTotalRecords } = useGlobalState();
-
   const { transactions, setTransactions } = useGlobalState();
+
   if (transactions?.status === 'fail') {
     createErrorNotification({
       description: 'Could not fetch transactions',
@@ -226,27 +226,28 @@ const allReconciled = (asset: AssetHistory) => {
   );
 };
 
+declare type stateSetter<Type> = React.Dispatch<React.SetStateAction<Type>>;
 export declare type UserPrefs = {
   denom: string;
-  setDenom: any;
+  setDenom: stateSetter<string>;
   staging: boolean;
-  setStaging: any;
+  setStaging: stateSetter<boolean>;
   hideZero: string;
-  setHideZero: any;
+  setHideZero: stateSetter<string>;
   hideNamed: boolean;
-  setHideNamed: any;
+  setHideNamed: stateSetter<boolean>;
   hideReconciled: boolean;
-  setHideReconciled: any;
+  setHideReconciled: stateSetter<boolean>;
   showDetails: boolean;
-  setShowDetails: any;
+  setShowDetails: stateSetter<boolean>;
   period: string;
-  setPeriod: any;
+  setPeriod: stateSetter<string>;
 };
 
 export declare type AccountViewParams = {
   prefs: UserPrefs;
   loading: boolean;
-  setLoading: any;
+  setLoading: stateSetter<boolean>;
   totalRecords: number | null;
   theData: any;
   setTransactions: any;

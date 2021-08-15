@@ -95,7 +95,7 @@ export const Names = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered: any) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+    filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
     onFilter: (value: any, record: any) =>
       record[dataIndex] ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()) : '',
     onFilterDropdownVisibleChange: (visible: any) => {
@@ -223,6 +223,7 @@ const NameEditModal = ({
   onEditItem: any;
 }) => {
   const fields = [
+    { name: 'Address', value: namesEditModal.address, type: '', onChange: setSelectedNameName, disabled: true },
     { name: 'Name', value: selectedNameName, type: '', onChange: setSelectedNameName },
     { name: 'Description', value: selectedNameDescription, type: '', onChange: setSelectedNameDescription },
     { name: 'Source', value: selectedNameSource, type: '', onChange: setSelectedNameSource },
@@ -237,10 +238,17 @@ const NameEditModal = ({
         </div>
       ) : (
         <div style={{ marginTop: '24px' }}>
-          <h2>Editing {namesEditModal.name || namesEditModal.address}</h2>
+          <h2>Editing Name</h2>
           {fields.map((item: any, index: number) => {
             return (
-              <ModalEditRow key={index} name={item.name} value={item.value} type={item.type} onChange={item.onChange} />
+              <ModalEditRow
+                key={index}
+                name={item.name}
+                value={item.value}
+                type={item.type}
+                onChange={item.onChange}
+                disabled={item.disabled}
+              />
             );
           })}
         </div>
@@ -249,11 +257,23 @@ const NameEditModal = ({
   );
 };
 
-const ModalEditRow = ({ name, value, type, onChange }: { name: any; value: any; type: any; onChange: any }) => {
+const ModalEditRow = ({
+  name,
+  value,
+  type,
+  onChange,
+  disabled,
+}: {
+  name: any;
+  value: any;
+  type: any;
+  onChange: any;
+  disabled: any;
+}) => {
   return (
     <div style={{ marginTop: '16px' }}>
       <div style={{ marginBottom: '6px' }}>{name}</div>
-      <Input placeholder={name} value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input disabled={disabled} placeholder={name} value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 };
