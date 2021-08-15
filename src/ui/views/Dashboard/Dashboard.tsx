@@ -4,7 +4,7 @@ import {
   DashboardLocation,
   DashboardMonitorsLocation,
 } from '../../Routes';
-import useGlobalState, { useGlobalNames } from '../../State';
+import { useGlobalNames, useGlobalState } from '../../State';
 import { AccountsView } from './Tabs/Accounts/Accounts';
 import { Collections } from './Tabs/Collections';
 import { Monitors } from './Tabs/Monitors';

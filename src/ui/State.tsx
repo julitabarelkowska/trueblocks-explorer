@@ -10,7 +10,7 @@ const ADDRESS = Cookies.get('address');
 const initialState = {
   theme: THEME || null,
   currentAddress: ADDRESS || null,
-  names: null,
+  namesMap: null,
   namesEditModal: false,
   transactions: null,
   totalRecords: null,
@@ -24,7 +24,7 @@ const GlobalStateReducer = (state: any, action: any) => {
         ...state,
         theme: action.theme,
       };
-    case 'SET_ACCOUNT_ADDRESS':
+    case 'SET_CURRENT_ADDRESS':
       Cookies.set('address', action.address);
       if (action.address !== state.address) {
         return {
@@ -39,10 +39,10 @@ const GlobalStateReducer = (state: any, action: any) => {
           currentAddress: action.address,
         };
       }
-    case 'SET_NAMES':
+    case 'SET_NAMES_MAP':
       return {
         ...state,
-        names: action.names,
+        namesMap: action.namesMap,
       };
     case 'SET_NAMES_EDIT_MODAL':
       return {
@@ -64,7 +64,7 @@ const GlobalStateReducer = (state: any, action: any) => {
   }
 };
 
-const useGlobalState = () => {
+export const useGlobalState = () => {
   const [state, dispatch] = useContext(GlobalStateContext);
 
   const setTheme = (theme: any) => {
@@ -72,11 +72,11 @@ const useGlobalState = () => {
   };
 
   const setCurrentAddress = (address: string) => {
-    dispatch({ type: 'SET_ACCOUNT_ADDRESS', address });
+    dispatch({ type: 'SET_CURRENT_ADDRESS', address });
   };
 
-  const setNamesMap = (names: any) => {
-    dispatch({ type: 'SET_NAMES', names });
+  const setNamesMap = (namesMap: any) => {
+    dispatch({ type: 'SET_NAMES_MAP', namesMap: namesMap });
   };
 
   const setNamesEditModal = (val: any) => {
@@ -96,7 +96,7 @@ const useGlobalState = () => {
     setTheme,
     currentAddress: state.currentAddress,
     setCurrentAddress,
-    names: state.names,
+    namesMap: state.namesMap,
     setNamesMap,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
@@ -113,9 +113,7 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   return <GlobalStateContext.Provider value={[state, dispatch]}>{children}</GlobalStateContext.Provider>;
 };
 
-export default useGlobalState;
-
 export const useGlobalNames = () => {
-  const { names, setNamesMap } = useGlobalState();
-  return { namesMap: names, setNamesMap: setNamesMap };
+  const { namesMap, setNamesMap } = useGlobalState();
+  return { namesMap: namesMap, setNamesMap: setNamesMap };
 };

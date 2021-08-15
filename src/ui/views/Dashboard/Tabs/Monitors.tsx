@@ -1,4 +1,4 @@
-import useGlobalState from '../../../State';
+import { useGlobalState } from '../../../State';
 import { goToUrl } from '../../../Utilities';
 import { PlusCircleFilled, SearchOutlined } from '@ant-design/icons';
 import { addActionsColumn, addColumn, addNumColumn, addTagsColumn, BaseTable, TableActions } from '@components/Table';

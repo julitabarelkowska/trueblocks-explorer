@@ -1,5 +1,5 @@
 import { DashboardAccountsAddressLocation } from '../../Routes';
-import useGlobalState from '../../State';
+import { useGlobalState } from '../../State';
 import { address } from '@modules/types';
 import React from 'react';
 import { useHistory } from 'react-router-dom';

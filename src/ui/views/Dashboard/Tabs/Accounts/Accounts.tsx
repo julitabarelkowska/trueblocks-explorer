@@ -6,7 +6,7 @@ import {
   DashboardAccountsHistoryLocation,
   DashboardAccountsNeighborsLocation,
 } from '../../../../Routes';
-import useGlobalState, { useGlobalNames } from '../../../../State';
+import { useGlobalNames, useGlobalState } from '../../../../State';
 import { downloadRecords } from '../../../../Utilities';
 import { AccountViewParams } from '../../Dashboard';
 import { Charts } from './LeftTabs/Charts';

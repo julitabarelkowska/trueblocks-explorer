@@ -1,4 +1,4 @@
-import useGlobalState from '../../../State';
+import { useGlobalState } from '../../../State';
 import React from 'react';
 import { createUseStyles } from 'react-jss';
 
