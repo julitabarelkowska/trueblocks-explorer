@@ -35,7 +35,7 @@ const useStyles = createUseStyles({
 export const App = () => {
   dayjs.extend(relativeTime);
 
-  const { setNamesMap } = useGlobalNames();
+  const { setNamesMap, setNamesArray } = useGlobalNames();
   const [status, setStatus] = useState<Result>(toSuccessfulData({ data: [{}], meta: {} }) as Result);
   const [loadingStatus, setLoadingStatus] = useState(false);
   const styles = useStyles();
@@ -75,6 +75,7 @@ export const App = () => {
       const resultMap = arrayToObject(result.data);
 
       setNamesMap(resultMap);
+      setNamesArray(result.data);
     })();
   }, []);
 

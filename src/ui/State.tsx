@@ -11,6 +11,7 @@ const initialState = {
   theme: THEME || null,
   currentAddress: ADDRESS || null,
   namesMap: null,
+  namesArray: null,
   namesEditModal: false,
   transactions: null,
   totalRecords: null,
@@ -43,6 +44,11 @@ const GlobalStateReducer = (state: any, action: any) => {
       return {
         ...state,
         namesMap: action.namesMap,
+      };
+    case 'SET_NAMES_ARRAY':
+      return {
+        ...state,
+        namesArray: action.namesArray,
       };
     case 'SET_NAMES_EDIT_MODAL':
       return {
@@ -79,6 +85,10 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_NAMES_MAP', namesMap: namesMap });
   };
 
+  const setNamesArray = (namesArray: any) => {
+    dispatch({ type: 'SET_NAMES_ARRAY', namesArray: namesArray });
+  };
+
   const setNamesEditModal = (val: any) => {
     dispatch({ type: 'SET_NAMES_EDIT_MODAL', val });
   };
@@ -98,6 +108,8 @@ export const useGlobalState = () => {
     setCurrentAddress,
     namesMap: state.namesMap,
     setNamesMap,
+    namesArray: state.namesArray,
+    setNamesArray,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
     transactions: state.transactions,
@@ -114,6 +126,6 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useGlobalNames = () => {
-  const { namesMap, setNamesMap } = useGlobalState();
-  return { namesMap: namesMap, setNamesMap: setNamesMap };
+  const { namesMap, setNamesMap, namesArray, setNamesArray } = useGlobalState();
+  return { namesMap, setNamesMap, namesArray, setNamesArray };
 };
