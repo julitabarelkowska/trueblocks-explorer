@@ -12,14 +12,7 @@ import { BaseView_old } from '@components/BaseView_old';
 import { emptyData, Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
 import { runCommand } from '@modules/core';
 import { createErrorNotification } from '@modules/error_notification';
-import {
-  AssetHistory,
-  AssetHistoryArray,
-  Balance,
-  Reconciliation,
-  Transaction,
-  TransactionArray,
-} from '@modules/types';
+import { AssetHistory, AssetHistoryArray, Reconciliation, Transaction, TransactionArray } from '@modules/types';
 import { either as Either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -215,14 +208,6 @@ export const DashboardView = () => {
         baseActive={DashboardLocation}
       />
     </>
-  );
-};
-
-const allReconciled = (asset: AssetHistory) => {
-  return (
-    asset.balHistory.filter((st: Balance) => {
-      return st.reconciled;
-    }).length > 0
   );
 };
 
