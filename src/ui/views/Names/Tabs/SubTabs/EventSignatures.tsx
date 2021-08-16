@@ -1,4 +1,4 @@
-import { abiSignature } from '..';
+import { abiSignature } from '../Signatures';
 import { BaseTable } from '@components/Table';
 import { useFetchData } from '@hooks/useFetchData';
 import { createErrorNotification } from '@modules/error_notification';

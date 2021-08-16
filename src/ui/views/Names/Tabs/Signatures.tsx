@@ -1,6 +1,6 @@
-import { NamesSignaturesEventsLocation, NamesSignaturesFunctionsLocation } from '../../../../Routes';
-import { EventSignatures } from './LeftTabs/EventSignatures';
-import { FunctionSignatures } from './LeftTabs/FunctionSignatures';
+import { NamesSignaturesEventsLocation, NamesSignaturesFunctionsLocation } from '../../../Routes';
+import { EventSignatures } from './SubTabs/EventSignatures';
+import { FunctionSignatures } from './SubTabs/FunctionSignatures';
 import { BaseView } from '@components/BaseView';
 import { addActionsColumn, addColumn, TableActions } from '@components/Table';
 import { Function } from '@modules/types';
