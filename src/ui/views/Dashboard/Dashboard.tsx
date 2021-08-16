@@ -5,7 +5,7 @@ import {
   DashboardMonitorsLocation,
 } from '../../Routes';
 import { useGlobalNames, useGlobalState } from '../../State';
-import { AccountsView } from './Tabs/Accounts/Accounts';
+import { AccountsView } from './Tabs/Accounts';
 import { Collections } from './Tabs/Collections';
 import { Monitors } from './Tabs/Monitors';
 import { BaseView_old } from '@components/BaseView_old';

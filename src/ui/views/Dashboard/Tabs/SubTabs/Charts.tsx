@@ -1,7 +1,7 @@
-import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
-import { useGlobalNames, useGlobalState } from '../../../../../State';
-import { chartColors } from '../../../../../Utilities';
-import { AccountViewParams } from '../../../Dashboard';
+import { DashboardAccountsHistoryLocation } from '../../../../Routes';
+import { useGlobalNames, useGlobalState } from '../../../../State';
+import { chartColors } from '../../../../Utilities';
+import { AccountViewParams } from '../../Dashboard';
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
 import { AssetHistory } from '@modules/types';

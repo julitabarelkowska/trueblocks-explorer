@@ -5,16 +5,16 @@ import {
   DashboardAccountsGasLocation,
   DashboardAccountsHistoryLocation,
   DashboardAccountsNeighborsLocation,
-} from '../../../../Routes';
-import { useGlobalNames, useGlobalState } from '../../../../State';
-import { downloadRecords } from '../../../../Utilities';
-import { AccountViewParams } from '../../Dashboard';
-import { Charts } from './LeftTabs/Charts';
-import { Events } from './LeftTabs/Events';
-import { Functions } from './LeftTabs/Functions';
-import { Gas } from './LeftTabs/Gas';
-import { History } from './LeftTabs/History';
-import { Neighbors } from './LeftTabs/Neighbors';
+} from '../../../Routes';
+import { useGlobalNames, useGlobalState } from '../../../State';
+import { downloadRecords } from '../../../Utilities';
+import { AccountViewParams } from '../Dashboard';
+import { Charts } from './SubTabs/Charts';
+import { Events } from './SubTabs/Events';
+import { Functions } from './SubTabs/Functions';
+import { Gas } from './SubTabs/Gas';
+import { History } from './SubTabs/History';
+import { Neighbors } from './SubTabs/Neighbors';
 import {
   CheckCircleFilled,
   CloseCircleFilled,

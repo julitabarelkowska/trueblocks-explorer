@@ -1,4 +1,4 @@
-import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
+import { DashboardAccountsHistoryLocation } from '../../../../Routes';
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
 import { ItemCounter, ItemCounterArray, Transaction, TransactionArray } from '@modules/types';

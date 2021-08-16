@@ -1,4 +1,4 @@
-import { AccountViewParams } from '../../../Dashboard';
+import { AccountViewParams } from '../../Dashboard';
 import { useAcctStyles } from '../Accounts';
 import { Reconciliation, Transaction } from '@modules/types';
 import { Card } from 'antd';

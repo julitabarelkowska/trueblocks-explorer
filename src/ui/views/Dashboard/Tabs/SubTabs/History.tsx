@@ -4,9 +4,9 @@ import {
   DashboardAccountsHistoryFunctionsLocation,
   DashboardAccountsHistoryReconsLocation,
   DashboardAccountsHistoryTracesLocation,
-} from '../../../../../Routes';
-import { useGlobalState } from '../../../../../State';
-import { AccountViewParams } from '../../../Dashboard';
+} from '../../../../Routes';
+import { useGlobalState } from '../../../../State';
+import { AccountViewParams } from '../../Dashboard';
 import { transactionSchema } from '../Accounts';
 import { HistoryEvents } from './HistoryEvents';
 import { HistoryFunctions } from './HistoryFunctions';
