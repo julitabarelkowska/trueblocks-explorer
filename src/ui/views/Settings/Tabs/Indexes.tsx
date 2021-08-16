@@ -3,11 +3,11 @@ import {
   SettingsIndexesGridLocation,
   SettingsIndexesManifestLocation,
   SettingsIndexesTableLocation,
-} from '../../../../Routes';
-import { IndexCharts } from './LeftTabs/IndexCharts';
-import { IndexGrid } from './LeftTabs/IndexGrid';
-import { IndexManifest } from './LeftTabs/IndexManifest';
-import { IndexTable } from './LeftTabs/IndexTable';
+} from '../../../Routes';
+import { IndexCharts } from './SubTabs/IndexCharts';
+import { IndexGrid } from './SubTabs/IndexGrid';
+import { IndexManifest } from './SubTabs/IndexManifest';
+import { IndexTable } from './SubTabs/IndexTable';
 import { BaseView } from '@components/BaseView';
 import { addColumn, addNumColumn } from '@components/Table';
 import { useFetchDataCaches } from '@hooks/useFetchData';

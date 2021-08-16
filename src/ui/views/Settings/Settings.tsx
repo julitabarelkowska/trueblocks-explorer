@@ -7,7 +7,7 @@ import {
 } from '../../Routes';
 import { Caches } from './Tabs/Caches';
 import { DataModel } from './Tabs/DataModel';
-import { IndexesView } from './Tabs/Indexes/Indexes';
+import { IndexesView } from './Tabs/Indexes';
 import { Scrapers } from './Tabs/Scrapers';
 import { Skins } from './Tabs/Skins';
 import { BaseView } from '@components/BaseView';
