@@ -33,7 +33,7 @@ import React from 'react';
 import { createUseStyles } from 'react-jss';
 import style from 'react-syntax-highlighter/dist/esm/styles/hljs/a11y-dark';
 
-export const AccountsView = ({ params }: { params: AccountViewParams }) => {
+export const DetailsView = ({ params }: { params: AccountViewParams }) => {
   const { theData, theMeta, uniqAssets, loading } = params;
   if (!theData || !uniqAssets) return <></>;
 

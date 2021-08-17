@@ -1,5 +1,5 @@
 export * from './Dashboard/Dashboard';
-export * from './Dashboard/Tabs/Accounts';
+export * from './Dashboard/Tabs/Details';
 export * from './Explorer/Explorer';
 export * from './Names/Names';
 export * from './Settings/Settings';

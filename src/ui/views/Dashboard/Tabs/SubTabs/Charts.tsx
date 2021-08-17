@@ -4,7 +4,7 @@ import { chartColors } from '../../../../Utilities';
 import { AccountViewParams } from '../../Dashboard';
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
-import { AssetHistory } from '@modules/types';
+import { AssetHistory, Balance } from '@modules/types';
 import dayjs from 'dayjs';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -14,7 +14,7 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
-      {uniqAssets.map((asset: any, index: number) => {
+      {uniqAssets.map((asset: AssetHistory, index: number) => {
         const color =
           asset.assetSymbol === 'ETH'
             ? '#63b598'
@@ -31,10 +31,10 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
           }),
         ];
 
-        const items = asset.balHistory.map((item: any) => {
+        const items = asset.balHistory.map((item: Balance) => {
           return {
             date: dayjs(item.date).format('YYYY-MM-DD'),
-            [asset.assetAddr]: parseFloat(item.balance || 0),
+            [asset.assetAddr]: parseFloat(item.balance || '0'),
           };
         });
 

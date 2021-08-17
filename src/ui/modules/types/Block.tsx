@@ -1,4 +1,4 @@
-import { address, blknum, date, double, gas, hash, timestamp, TransactionArray, uint64 } from '@modules/types';
+import { address, blknum, date, gas, hash, timestamp, TransactionArray, uint64 } from '@modules/types';
 
 export declare type Block = {
   gasLimit: gas;
@@ -8,7 +8,7 @@ export declare type Block = {
   parentHash: hash;
   miner: address;
   difficulty: uint64;
-  price: double;
+  baseFeePerGas: gas;
   finalized: boolean;
   timestamp: timestamp;
   transactions: TransactionArray;

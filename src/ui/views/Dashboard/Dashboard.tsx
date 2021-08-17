@@ -5,8 +5,8 @@ import {
   DashboardMonitorsLocation,
 } from '../../Routes';
 import { useGlobalNames, useGlobalState } from '../../State';
-import { AccountsView } from './Tabs/Accounts';
 import { Collections } from './Tabs/Collections';
+import { DetailsView } from './Tabs/Details';
 import { Monitors } from './Tabs/Monitors';
 import { BaseView_old } from '@components/BaseView_old';
 import { emptyData, Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
@@ -56,7 +56,7 @@ export const DashboardView = () => {
         setLoading(false);
       }
     })();
-  }, [currentAddress, denom, staging]);
+  }, [currentAddress, staging]);
 
   useEffect(() => {
     (async () => {
@@ -68,8 +68,8 @@ export const DashboardView = () => {
           cache_traces: true,
           staging: false, //staging,
           unripe: false, // unripe: true,
-          ether: denom === 'ether',
-          dollars: denom === 'dollars',
+          ether: true,
+          dollars: false,
           articulate: true,
           accounting: true,
           reversed: false,
@@ -191,9 +191,9 @@ export const DashboardView = () => {
   const tabs = [
     { name: 'Monitors', location: DashboardMonitorsLocation, component: <Monitors /> },
     {
-      name: 'Account Details',
+      name: 'Details',
       location: DashboardAccountsLocation,
-      component: <AccountsView params={params} />,
+      component: <DetailsView params={params} />,
     },
     { name: 'Collections', location: DashboardCollectionsLocation, component: <Collections /> },
   ];

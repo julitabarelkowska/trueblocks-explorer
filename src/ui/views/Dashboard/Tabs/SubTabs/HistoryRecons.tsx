@@ -1,5 +1,5 @@
 import { AccountViewParams } from '../../Dashboard';
-import { useAcctStyles } from '../Accounts';
+import { useAcctStyles } from '../Details';
 import { Reconciliation, Transaction } from '@modules/types';
 import { Card } from 'antd';
 import React from 'react';

@@ -7,7 +7,7 @@ import {
 } from '../../../../Routes';
 import { useGlobalState } from '../../../../State';
 import { AccountViewParams } from '../../Dashboard';
-import { transactionSchema } from '../Accounts';
+import { transactionSchema } from '../Details';
 import { HistoryEvents } from './HistoryEvents';
 import { HistoryFunctions } from './HistoryFunctions';
 import { HistoryRecons } from './HistoryRecons';
