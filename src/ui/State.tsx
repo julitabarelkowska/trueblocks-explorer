@@ -7,18 +7,28 @@ import { ReactNode } from 'react-markdown';
 const THEME = Cookies.get('theme');
 const ADDRESS = Cookies.get('address');
 
+type TransactionsState = {
+  result: ReturnType<typeof useCommand>[0],
+  loading: ReturnType<typeof useCommand>[1]
+};
+
 type State = {
   theme?: string,
   currentAddress?: string,
   namesMap?: Map<Address, Accountname>
   namesArray?: Accountname[],
   namesEditModal: boolean,
-  transactions: ReturnType<typeof useCommand>,
+  transactions: TransactionsState,
   totalRecords: number,
 }
 
 const createDefaultTransaction = () => toSuccessfulData({
   data: [], meta: {},
+});
+
+const getDefaultTransactionsValue = () => ({
+  result: createDefaultTransaction(),
+  loading: false,
 });
 
 const initialState: State = {
@@ -27,18 +37,18 @@ const initialState: State = {
   namesMap: new Map(),
   namesArray: [],
   namesEditModal: false,
-  transactions: [createDefaultTransaction(), false],
+  transactions: getDefaultTransactionsValue(),
   totalRecords: 0,
 };
 
 type SetTheme = {
   type: 'SET_THEME',
-  theme: Pick<State, 'theme'>,
+  theme: State['theme'],
 };
 
 type SetCurrentAddress = {
   type: 'SET_CURRENT_ADDRESS',
-  address: State['currentAddress'], // Pick<State, 'currentAddress'>,
+  address: State['currentAddress'],
 };
 
 type SetNamesMap = {
@@ -80,10 +90,10 @@ const GlobalStateContext = createContext<[
   React.Dispatch<GlobalAction>
 ]>([initialState, () => { }]);
 
-const GlobalStateReducer = (state: any, action: GlobalAction) => {
+const GlobalStateReducer = (state: State, action: GlobalAction) => {
   switch (action.type) {
     case 'SET_THEME':
-      Cookies.set('theme', action.theme);
+      Cookies.set('theme', action.theme || '');
       return {
         ...state,
         theme: action.theme,
@@ -91,12 +101,12 @@ const GlobalStateReducer = (state: any, action: GlobalAction) => {
     case 'SET_CURRENT_ADDRESS':
       Cookies.set('address', action.address || '');
 
-      if (action.address !== state.address) {
+      if (action.address !== state.currentAddress) {
         return {
           ...state,
           currentAddress: action.address,
-          transactions: null,
-          totalRecords: null,
+          transactions: getDefaultTransactionsValue(),
+          totalRecords: 0,
         };
       }
 
