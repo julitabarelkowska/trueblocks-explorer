@@ -90,6 +90,7 @@ const GlobalStateReducer = (state: any, action: GlobalAction) => {
       };
     case 'SET_CURRENT_ADDRESS':
       Cookies.set('address', action.address || '');
+
       if (action.address !== state.address) {
         return {
           ...state,
@@ -97,12 +98,12 @@ const GlobalStateReducer = (state: any, action: GlobalAction) => {
           transactions: null,
           totalRecords: null,
         };
-      } else {
-        return {
-          ...state,
-          currentAddress: action.address,
-        };
       }
+
+      return {
+        ...state,
+        currentAddress: action.address,
+      };
     case 'SET_NAMES_MAP':
       return {
         ...state,
@@ -145,11 +146,11 @@ export const useGlobalState = () => {
   };
 
   const setNamesMap = (namesMap: any) => {
-    dispatch({ type: 'SET_NAMES_MAP', namesMap: namesMap });
+    dispatch({ type: 'SET_NAMES_MAP', namesMap });
   };
 
   const setNamesArray = (namesArray: any) => {
-    dispatch({ type: 'SET_NAMES_ARRAY', namesArray: namesArray });
+    dispatch({ type: 'SET_NAMES_ARRAY', namesArray });
   };
 
   const setNamesEditModal = (val: any) => {
@@ -190,6 +191,10 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useGlobalNames = () => {
-  const { namesMap, setNamesMap, namesArray, setNamesArray } = useGlobalState();
-  return { namesMap, setNamesMap, namesArray, setNamesArray };
+  const {
+    namesMap, setNamesMap, namesArray, setNamesArray,
+  } = useGlobalState();
+  return {
+    namesMap, setNamesMap, namesArray, setNamesArray,
+  };
 };
