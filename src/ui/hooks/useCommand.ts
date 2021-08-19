@@ -1,4 +1,6 @@
-import { CommandParams, CoreCommand, JsonResponse, runCommand } from '@modules/core';
+import {
+  CommandParams, CoreCommand, JsonResponse, runCommand
+} from '@modules/core';
 import { either as Either } from 'fp-ts';
 import { pipe } from 'fp-ts/function';
 import { useEffect, useState } from 'react';
@@ -74,7 +76,7 @@ export function useCommand(command: CoreCommand, params?: CommandParams) {
       const eitherResponse = await runCommand(command, params);
       const result: Result = pipe(
         eitherResponse,
-        Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result)
+        Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result),
       );
       setData(result);
       setLoading(false);

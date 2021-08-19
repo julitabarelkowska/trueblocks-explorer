@@ -4,8 +4,18 @@ import Cookies from 'js-cookie';
 import React, { createContext, useContext, useReducer } from 'react';
 import { ReactNode } from 'react-markdown';
 
-const THEME = Cookies.get('theme');
+// const THEME = Cookies.get('theme');
 const ADDRESS = Cookies.get('address');
+
+type Theme = ReturnType<typeof getDefaultTheme>;
+
+type NamesEditModalState = {
+  address: string,
+  name: string,
+  description: string,
+  source: string,
+  tags: string
+}
 
 type TransactionsState = {
   result: ReturnType<typeof useCommand>[0],
@@ -13,14 +23,19 @@ type TransactionsState = {
 };
 
 type State = {
-  theme?: string,
+  theme?: Theme,
   currentAddress?: string,
-  namesMap?: Map<Address, Accountname>
+  namesMap: Map<Address, Accountname>
   namesArray?: Accountname[],
-  namesEditModal: boolean,
+  namesEditModalVisible: boolean,
+  namesEditModal: NamesEditModalState,
+  // divide this into meta and data
   transactions: TransactionsState,
   totalRecords: number,
 }
+
+// TODO: It shouldn't be here
+const getDefaultTheme = () => ({ theme: 'Blue on Black', primaryColor: 'lightblue', secondaryColor: 'black' });
 
 const createDefaultTransaction = () => toSuccessfulData({
   data: [], meta: {},
@@ -31,12 +46,21 @@ const getDefaultTransactionsValue = () => ({
   loading: false,
 });
 
+const getDefaultNamesEditModalValue = () => ({
+  address: '',
+  name: '',
+  description: '',
+  source: '',
+  tags: '',
+});
+
 const initialState: State = {
-  theme: THEME,
+  theme: getDefaultTheme(),
   currentAddress: ADDRESS,
   namesMap: new Map(),
   namesArray: [],
-  namesEditModal: false,
+  namesEditModalVisible: false,
+  namesEditModal: getDefaultNamesEditModalValue(),
   transactions: getDefaultTransactionsValue(),
   totalRecords: 0,
 };
@@ -66,6 +90,11 @@ type SetNamesEditModal = {
   val: State['namesEditModal'],
 };
 
+type SetNamesEditModalVisible = {
+  type: 'SET_NAMES_EDIT_MODAL_VISIBLE',
+  visible: State['namesEditModalVisible'],
+};
+
 type SetTransactions = {
   type: 'SET_TRANSACTIONS',
   transactions: State['transactions'],
@@ -82,6 +111,7 @@ type GlobalAction =
   | SetNamesMap
   | SetNamesArray
   | SetNamesEditModal
+  | SetNamesEditModalVisible
   | SetTransactions
   | SetTotalRecords;
 
@@ -129,6 +159,11 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         ...state,
         namesEditModal: action.val,
       };
+    case 'SET_NAMES_EDIT_MODAL_VISIBLE':
+      return {
+        ...state,
+        namesEditModalVisible: action.visible,
+      };
     case 'SET_TRANSACTIONS':
       return {
         ...state,
@@ -147,15 +182,15 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
 export const useGlobalState = () => {
   const [state, dispatch] = useContext(GlobalStateContext);
 
-  const setTheme = (theme: any) => {
+  const setTheme = (theme: SetTheme['theme']) => {
     dispatch({ type: 'SET_THEME', theme });
   };
 
-  const setCurrentAddress = (address: string) => {
+  const setCurrentAddress = (address: SetCurrentAddress['address']) => {
     dispatch({ type: 'SET_CURRENT_ADDRESS', address });
   };
 
-  const setNamesMap = (namesMap: any) => {
+  const setNamesMap = (namesMap: SetNamesMap['namesMap']) => {
     dispatch({ type: 'SET_NAMES_MAP', namesMap });
   };
 
@@ -165,6 +200,10 @@ export const useGlobalState = () => {
 
   const setNamesEditModal = (val: any) => {
     dispatch({ type: 'SET_NAMES_EDIT_MODAL', val });
+  };
+
+  const setNamesEditModalVisible = (visible: SetNamesEditModalVisible['visible']) => {
+    dispatch({ type: 'SET_NAMES_EDIT_MODAL_VISIBLE', visible });
   };
 
   const setTransactions = (transactions: any) => {
@@ -186,6 +225,8 @@ export const useGlobalState = () => {
     setNamesArray,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
+    namesEditModalVisible: state.namesEditModalVisible,
+    setNamesEditModalVisible,
     transactions: state.transactions,
     setTransactions,
     totalRecords: state.totalRecords,

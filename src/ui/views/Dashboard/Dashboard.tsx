@@ -1,21 +1,30 @@
+import { BaseView_old as BaseViewOld } from '@components/BaseView_old';
+import { Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
+import { runCommand } from '@modules/core';
+import { createErrorNotification } from '@modules/error_notification';
+import {
+  AssetHistory,
+  AssetHistoryArray,
+  // Balance,
+  createEmptyAccountname,
+  Reconciliation,
+  Transaction
+} from '@modules/types';
+import { either as Either } from 'fp-ts';
+import { pipe } from 'fp-ts/lib/function';
+import React, {
+  useCallback, useEffect, useMemo, useState
+} from 'react';
 import {
   DashboardAccountsLocation,
   DashboardCollectionsLocation,
   DashboardLocation,
-  DashboardMonitorsLocation,
+  DashboardMonitorsLocation
 } from '../../Routes';
 import { useGlobalNames, useGlobalState } from '../../State';
 import { Collections } from './Tabs/Collections';
 import { DetailsView } from './Tabs/Details';
 import { Monitors } from './Tabs/Monitors';
-import { BaseView_old } from '@components/BaseView_old';
-import { emptyData, Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
-import { runCommand } from '@modules/core';
-import { createErrorNotification } from '@modules/error_notification';
-import { AssetHistory, AssetHistoryArray, Reconciliation, Transaction, TransactionArray } from '@modules/types';
-import { either as Either } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
-import React, { useCallback, useEffect, useState } from 'react';
 
 export const DashboardView = () => {
   const [loading, setLoading] = useState(false);
@@ -30,9 +39,20 @@ export const DashboardView = () => {
   const { currentAddress } = useGlobalState();
   const { namesMap } = useGlobalNames();
   const { totalRecords, setTotalRecords } = useGlobalState();
-  const { transactions, setTransactions } = useGlobalState();
+  const {
+    transactions: {
+      // TODO: this should not require that much destructuring
+      result: {
+        status: transactionsStatus,
+        data: transactions,
+        meta: transactionsMeta,
+      },
+      // loading: transactionsLoading,
+    },
+    setTransactions,
+  } = useGlobalState();
 
-  if (transactions?.status === 'fail') {
+  if (transactionsStatus === 'fail') {
     createErrorNotification({
       description: 'Could not fetch transactions',
     });
@@ -49,10 +69,10 @@ export const DashboardView = () => {
         });
         const result: Result = pipe(
           eitherResponse,
-          Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result)
+          Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result),
         );
-        //@ts-ignore
-        setTotalRecords(result.data[0]?.nRecords);
+
+        setTotalRecords(result.status === 'success' ? result.data[0]?.nRecords : 0);
         setLoading(false);
       }
     })();
@@ -60,13 +80,13 @@ export const DashboardView = () => {
 
   useEffect(() => {
     (async () => {
-      if (totalRecords && (transactions?.data?.length || 0) < totalRecords) {
+      if (totalRecords && (transactions.length || 0) < totalRecords) {
         const eitherResponse = await runCommand('export', {
-          addrs: currentAddress,
+          addrs: currentAddress || '', // TODO: this is a quick and dirty fix
           fmt: 'json',
           cache_txs: true,
           cache_traces: true,
-          staging: false, //staging,
+          staging: false, // staging,
           unripe: false, // unripe: true,
           ether: true,
           dollars: false,
@@ -75,55 +95,71 @@ export const DashboardView = () => {
           reversed: false,
           relevant: true,
           // summarize_by: 'monthly',
-          first_record: transactions?.data?.length || 0,
-          max_records:
-            (transactions?.data?.length || 0) < 50
-              ? 10
-              : (transactions?.data?.length || 0) < 150
-              ? 71
-              : (transactions?.data?.length || 0) < 1500
-              ? 239
-              : 639 /* an arbitrary number not too big, not too small, that appears not to repeat */,
+          first_record: transactions.length || 0,
+          max_records: (() => {
+            if (transactions.length < 50) return 10;
+
+            if (transactions.length < 150) return 71;
+
+            if (transactions.length < 1500) return 239;
+
+            return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
+          })(),
         });
         const result: Result = pipe(
           eitherResponse,
-          Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result)
+          Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result),
         );
-        let newTransactions: Result = transactions?.data ? { ...transactions } : toSuccessfulData(emptyData);
-        //@ts-ignore
-        newTransactions.data =
-          newTransactions.data.length === 1 ? [...result.data] : [...newTransactions.data, ...result.data];
+        // TODO: fix this mutation
+        // const newTransactions: Result = transactions.length ? { status: transactionsStatus, data: transactions, meta: transactionsMeta } : toSuccessfulData(emptyData);
+        const newTransactions = toSuccessfulData({
+          data: [...transactions, ...result.data],
+          meta: transactionsMeta,
+        });
+
         setTransactions(newTransactions);
       }
     })();
   }, [totalRecords, transactions]);
 
   const getMeta = useCallback((response) => (response?.status === 'fail' ? [] : response?.meta), []);
-  let theMeta: any = getMeta(transactions);
-  const getData = useCallback((response) => (response?.status === 'fail' ? [] : response?.data), []);
-  let theData: TransactionArray = getData(transactions);
-  theData = theData?.map((item: Transaction, i: number) => {
-    if (typeof item === 'object') item.id = (i + 1).toString();
-    return {
-      ...item,
-      fromName: namesMap[item.from] || { name: '' },
-      toName: namesMap[item.to] || { name: '' },
-    };
-  });
-  theData = theData?.filter((item: Transaction) => {
-    if (!hideReconciled) return true;
-    const unrecon = item.statements?.filter((item: Reconciliation) => {
-      return !item.reconciled;
-    });
-    return unrecon && unrecon.length > 0;
-  });
-  let uniqAssets: any = [];
+  const theMeta: any = getMeta(transactions);
 
-  if (theData) {
-    theData.map((tx: Transaction) => {
-      tx.statements?.map((statement: Reconciliation) => {
-        if (uniqAssets.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
-          uniqAssets.push({
+  const [theData, setTheData] = useState<Transaction[]>([]);
+
+  // should be useMemo really
+  useEffect(() => {
+    setTheData((transactions as Transaction[]).map((transaction, index) => {
+      const newId = String(index + 1);
+      const fromName = namesMap.get(transaction.from) || createEmptyAccountname();
+      const toName = namesMap.get(transaction.to) || createEmptyAccountname();
+
+      return {
+        ...transaction,
+        id: newId,
+        fromName,
+        toName,
+      };
+    }));
+  }, [transactions]);
+
+  useEffect(() => {
+    setTheData(theData.filter((transaction) => {
+      if (!hideReconciled) return true;
+
+      return transaction.statements.some(({ reconciled }) => !reconciled);
+    }));
+  }, [hideReconciled]);
+
+  const uniqAssets = useMemo(() => {
+    if (!theData.length) return [];
+
+    const unique: Array<AssetHistory> = [];
+
+    theData.forEach((tx: Transaction) => {
+      tx.statements?.forEach((statement: Reconciliation) => {
+        if (unique.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
+          unique.push({
             assetAddr: statement.assetAddr,
             assetSymbol: statement.assetSymbol,
             balHistory: [],
@@ -131,18 +167,18 @@ export const DashboardView = () => {
         }
       });
 
-      uniqAssets.map((asset: AssetHistory, index: number) => {
+      unique.forEach((asset: AssetHistory, index: number) => {
         const found = tx.statements?.find((statement: Reconciliation) => asset.assetAddr === statement.assetAddr);
         if (found) {
-          uniqAssets[index].balHistory = [
-            ...uniqAssets[index].balHistory,
-            { balance: found.endBal, date: new Date(found.timestamp * 1000) },
+          unique[index].balHistory = [
+            ...unique[index].balHistory,
+            { balance: found.endBal, date: new Date(found.timestamp * 1000), reconciled: found.reconciled },
           ];
         }
       });
     });
 
-    uniqAssets.sort(function (a: any, b: any) {
+    unique.sort((a: any, b: any) => {
       if (b.balHistory.length === a.balHistory.length) {
         if (b.balHistory.length === 0) {
           return b.assetAddr - a.assetAddr;
@@ -152,40 +188,39 @@ export const DashboardView = () => {
       return b.balHistory.length - a.balHistory.length;
     });
 
-    uniqAssets = uniqAssets.filter((asset: AssetHistory) => {
+    return unique.filter((asset: AssetHistory) => {
       if (asset.balHistory.length === 0) return false;
-      const show =
-        hideZero === 'all' ||
-        (hideZero === 'show' && Number(asset.balHistory[asset.balHistory.length - 1].balance) === 0) ||
-        (hideZero === 'hide' && Number(asset.balHistory[asset.balHistory.length - 1].balance) > 0);
-      return show && (!hideNamed || !namesMap[asset.assetAddr]);
+      const show = hideZero === 'all'
+        || (hideZero === 'show' && Number(asset.balHistory[asset.balHistory.length - 1].balance) === 0)
+        || (hideZero === 'hide' && Number(asset.balHistory[asset.balHistory.length - 1].balance) > 0);
+      return show && (!hideNamed || !namesMap.get(asset.assetAddr));
     });
-  }
+  }, [theData]);
 
   const params: AccountViewParams = {
-    loading: loading,
-    setLoading: setLoading,
+    loading,
+    setLoading,
     prefs: {
-      denom: denom,
-      setDenom: setDenom,
-      staging: staging,
-      setStaging: setStaging,
-      hideZero: hideZero,
-      setHideZero: setHideZero,
-      hideNamed: hideNamed,
-      setHideNamed: setHideNamed,
-      hideReconciled: hideReconciled,
-      setHideReconciled: setHideReconciled,
-      showDetails: showDetails,
-      setShowDetails: setShowDetails,
-      period: period,
-      setPeriod: setPeriod,
+      denom,
+      setDenom,
+      staging,
+      setStaging,
+      hideZero,
+      setHideZero,
+      hideNamed,
+      setHideNamed,
+      hideReconciled,
+      setHideReconciled,
+      showDetails,
+      setShowDetails,
+      period,
+      setPeriod,
     },
-    totalRecords: totalRecords,
-    theData: theData,
-    setTransactions: setTransactions,
-    theMeta: theMeta,
-    uniqAssets: uniqAssets,
+    totalRecords,
+    theData,
+    setTransactions,
+    theMeta,
+    uniqAssets,
   };
 
   const tabs = [
@@ -200,9 +235,9 @@ export const DashboardView = () => {
 
   return (
     <>
-      <BaseView_old
-        title={'Dashboard'}
-        cookieName={'COOKIE_DASHBOARD'}
+      <BaseViewOld
+        title="Dashboard"
+        cookieName="COOKIE_DASHBOARD"
         tabs={tabs}
         defaultActive={DashboardMonitorsLocation}
         baseActive={DashboardLocation}

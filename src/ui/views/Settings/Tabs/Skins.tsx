@@ -1,6 +1,6 @@
-import { useGlobalState } from '../../../State';
 import React from 'react';
 import { createUseStyles } from 'react-jss';
+import { useGlobalState } from '../../../State';
 
 const themeList = [
   { theme: 'Blue on Black', primaryColor: 'lightblue', secondaryColor: 'black' },

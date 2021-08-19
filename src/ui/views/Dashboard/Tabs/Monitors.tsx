@@ -1,5 +1,3 @@
-import { useGlobalState } from '../../../State';
-import { goToUrl } from '../../../Utilities';
 import { PlusCircleFilled, SearchOutlined } from '@ant-design/icons';
 import { addActionsColumn, addColumn, addNumColumn, addTagsColumn, BaseTable, TableActions } from '@components/Table';
 import { useCommand } from '@hooks/useCommand';
@@ -10,12 +8,17 @@ import { Button, Form, Input, Spin } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
 import { ColumnsType } from 'antd/lib/table';
 import React, { useCallback, useRef, useState } from 'react';
+import { useGlobalState } from '../../../State';
+import { goToUrl } from '../../../Utilities';
 
 export const Monitors = () => {
   const [searchText, setSearchText] = useState('');
   const [_, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
-  const { namesEditModal, setNamesEditModal } = useGlobalState();
+  const {
+    namesEditModalVisible,
+    setNamesEditModalVisible,
+  } = useGlobalState();
   const [selectedNameAddress, setSelectedNameAddress] = useState('');
   const [selectedNameName, setSelectedNameName] = useState('');
   const [selectedNameDescription, setSelectedNameDescription] = useState('');
@@ -115,7 +118,7 @@ export const Monitors = () => {
         };
         setAddresses(newAddresses);*/
         setLoadingEdit(false);
-        setNamesEditModal(false);
+        setNamesEditModalVisible(false);
       });
   };
 
@@ -130,7 +133,7 @@ export const Monitors = () => {
 
   return (
     <>
-      <Modal visible={namesEditModal} footer={null}>
+      <Modal visible={namesEditModalVisible} footer={null}>
         {loadingEdit ? (
           <div style={{ padding: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <Spin />
@@ -206,7 +209,7 @@ export const Monitors = () => {
         )}
       </Modal>
       <div
-        onClick={() => setNamesEditModal(true)}
+        onClick={() => setNamesEditModalVisible(true)}
         style={{
           marginTop: '16px',
           marginBottom: '24px',
