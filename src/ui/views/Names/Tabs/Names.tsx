@@ -17,7 +17,7 @@ export const Names = () => {
   const [searchText, setSearchText] = useState('');
   const [_, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
-  const { namesEditModal, setNamesEditModal } = useGlobalState();
+  const { namesEditModal, setNamesEditModal, setNamesEditModalVisible } = useGlobalState();
   const [selectedNameName, setSelectedNameName] = useState(namesEditModal.name);
   const [selectedNameDescription, setSelectedNameDescription] = useState(namesEditModal.description);
   const [selectedNameSource, setSelectedNameSource] = useState(namesEditModal.source);
@@ -163,7 +163,7 @@ export const Names = () => {
         };
         setAddresses(newAddresses);
         setLoadingEdit(false);
-        setNamesEditModal(false);
+        setNamesEditModalVisible(false);
       });
   };
 

@@ -117,7 +117,7 @@ export const DashboardView = () => {
           meta: transactionsMeta,
         });
 
-        setTransactions(newTransactions);
+        setTransactions({ result: newTransactions, loading: false });
       }
     })();
   }, [totalRecords, transactions]);
@@ -270,6 +270,7 @@ export declare type AccountViewParams = {
   setLoading: stateSetter<boolean>;
   totalRecords: number | null;
   theData: any;
+  // This should not be passed down, as it is in GlobalState
   setTransactions: any;
   theMeta: any;
   uniqAssets: AssetHistoryArray;

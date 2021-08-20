@@ -88,16 +88,18 @@ export const DetailsView = ({ params }: { params: AccountViewParams }) => {
 
 const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   const styles = useStyles();
-  const { prefs, setTransactions } = params;
+  const { setTransactions } = useGlobalState();
+  const { prefs } = params;
 
   const onEther = () => {
     prefs.setDenom('ether');
-    setTransactions({ status: 'success' }); // empty
+    setTransactions({ result: { status: 'success', data: [], meta: {} }, loading: false }); // empty
   };
 
   const onDollars = () => {
     prefs.setDenom('dollars');
-    setTransactions({ status: 'success' }); // empty
+    // TODO: use a function instead of object literal for empty value
+    setTransactions({ result: { status: 'success', data: [], meta: {} }, loading: false }); // empty
   };
 
   const onHideZero = () => {
