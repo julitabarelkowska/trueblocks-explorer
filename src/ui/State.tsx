@@ -194,11 +194,11 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_NAMES_MAP', namesMap });
   };
 
-  const setNamesArray = (namesArray: any) => {
+  const setNamesArray = (namesArray: SetNamesArray['namesArray']) => {
     dispatch({ type: 'SET_NAMES_ARRAY', namesArray });
   };
 
-  const setNamesEditModal = (val: any) => {
+  const setNamesEditModal = (val: SetNamesEditModal['val']) => {
     dispatch({ type: 'SET_NAMES_EDIT_MODAL', val });
   };
 
@@ -206,11 +206,11 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_NAMES_EDIT_MODAL_VISIBLE', visible });
   };
 
-  const setTransactions = (transactions: any) => {
+  const setTransactions = (transactions: SetTransactions['transactions']) => {
     dispatch({ type: 'SET_TRANSACTIONS', transactions });
   };
 
-  const setTotalRecords = (records: any) => {
+  const setTotalRecords = (records: SetTotalRecords['records']) => {
     dispatch({ type: 'SET_TOTAL_RECORDS', records });
   };
 
