@@ -133,7 +133,11 @@ export const Monitors = () => {
 
   return (
     <>
-      <Modal visible={namesEditModalVisible} footer={null}>
+      <Modal
+        visible={namesEditModalVisible}
+        footer={null}
+        onCancel={() => setNamesEditModalVisible(false)}
+      >
         {loadingEdit ? (
           <div style={{ padding: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <Spin />
