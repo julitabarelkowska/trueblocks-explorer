@@ -5,6 +5,7 @@ module.exports = {
   },
   extends: [
     'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
     'airbnb',
   ],
   overrides: [
@@ -38,6 +39,7 @@ module.exports = {
   },
   plugins: [
     'react',
+    // 'react-hooks',
     '@typescript-eslint',
   ],
   rules: {
