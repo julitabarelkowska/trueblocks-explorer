@@ -34,7 +34,6 @@ type State = {
   namesArray?: Accountname[],
   namesEditModalVisible: boolean,
   namesEditModal: NamesEditModalState,
-  // divide this into meta and data
   transactions: TransactionsState,
   totalRecords: number,
 }
@@ -233,6 +232,10 @@ export const useGlobalState = () => {
     namesEditModalVisible: state.namesEditModalVisible,
     setNamesEditModalVisible,
     transactions: state.transactions,
+    transactionsStatus: state.transactions.result.status,
+    transactionsData: state.transactions.result.data,
+    transactionsMeta: state.transactions.result.meta,
+    transactionsLoading: state.transactions.loading,
     setTransactions,
     totalRecords: state.totalRecords,
     setTotalRecords,

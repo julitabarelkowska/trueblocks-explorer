@@ -40,15 +40,9 @@ export const DashboardView = () => {
   const { namesMap } = useGlobalNames();
   const { totalRecords, setTotalRecords } = useGlobalState();
   const {
-    transactions: {
-      // TODO: this should not require that much destructuring
-      result: {
-        status: transactionsStatus,
-        data: transactions,
-        meta: transactionsMeta,
-      },
-      // loading: transactionsLoading,
-    },
+    transactionsStatus,
+    transactionsData: transactions, // rename GlobalState.transactionsData to transactions here
+    transactionsMeta,
     setTransactions,
   } = useGlobalState();
 
