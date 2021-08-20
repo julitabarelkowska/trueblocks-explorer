@@ -222,6 +222,7 @@ const NameEditModal = ({
   setSelectedNameTags: any;
   onEditItem: any;
 }) => {
+  const { namesEditModalVisible, setNamesEditModalVisible } = useGlobalState();
   const fields = [
     { name: 'Address', value: namesEditModal.address, type: '', onChange: setSelectedNameName, disabled: true },
     { name: 'Name', value: selectedNameName, type: '', onChange: setSelectedNameName },
@@ -231,7 +232,7 @@ const NameEditModal = ({
   ];
 
   return (
-    <Modal visible={namesEditModal} onCancel={() => setNamesEditModal(false)} onOk={() => onEditItem()}>
+    <Modal visible={namesEditModalVisible} onCancel={() => setNamesEditModalVisible(false)} onOk={() => onEditItem()}>
       {loadingEdit ? (
         <div style={{ padding: '48px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Spin />
@@ -350,13 +351,14 @@ const addressSchema: ColumnsType<Accountname> = [
 ];
 
 function getTableActions(item: Accountname) {
-  const { setNamesEditModal } = useGlobalState();
+  const { setNamesEditModal, setNamesEditModalVisible } = useGlobalState();
   return (
     <TableActions
       item={item}
       onClick={(action, tableItem) => {
         if (action === 'edit') {
           setNamesEditModal(tableItem);
+          setNamesEditModalVisible(true);
         }
         console.log('Clicked action', action, tableItem);
       }}
