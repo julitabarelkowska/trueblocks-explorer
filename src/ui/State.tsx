@@ -1,7 +1,12 @@
 import { toSuccessfulData, useCommand } from '@hooks/useCommand';
 import { Accountname, address as Address } from '@modules/types';
 import Cookies from 'js-cookie';
-import React, { createContext, useContext, useReducer } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  useReducer
+} from 'react';
 import { ReactNode } from 'react-markdown';
 
 // const THEME = Cookies.get('theme');
@@ -236,9 +241,9 @@ export const useGlobalState = () => {
 
 export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(GlobalStateReducer, initialState);
+  const value = useMemo((): [State, React.Dispatch<GlobalAction>] => [state, dispatch], [state]);
 
-  // TODO: wrap [state, dispatch] into useMemo for better performance (test it and note the diff!)
-  return <GlobalStateContext.Provider value={[state, dispatch]}>{children}</GlobalStateContext.Provider>;
+  return <GlobalStateContext.Provider value={value}>{children}</GlobalStateContext.Provider>;
 };
 
 export const useGlobalNames = () => {
