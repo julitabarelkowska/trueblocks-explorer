@@ -8,18 +8,18 @@ import {
   // Balance,
   createEmptyAccountname,
   Reconciliation,
-  Transaction
+  Transaction,
 } from '@modules/types';
 import { either as Either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
 import React, {
-  useCallback, useEffect, useMemo, useState
+  useCallback, useEffect, useMemo, useState,
 } from 'react';
 import {
   DashboardAccountsLocation,
   DashboardCollectionsLocation,
   DashboardLocation,
-  DashboardMonitorsLocation
+  DashboardMonitorsLocation,
 } from '../../Routes';
 import { useGlobalNames, useGlobalState } from '../../State';
 import { Collections } from './Tabs/Collections';
@@ -230,8 +230,8 @@ export const DashboardView = () => {
   return (
     <>
       <BaseViewOld
-        title="Dashboard"
-        cookieName="COOKIE_DASHBOARD"
+        title='Dashboard'
+        cookieName='COOKIE_DASHBOARD'
         tabs={tabs}
         defaultActive={DashboardMonitorsLocation}
         baseActive={DashboardLocation}

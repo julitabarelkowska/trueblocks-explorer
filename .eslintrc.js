@@ -47,6 +47,7 @@ module.exports = {
     'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': ['error'],
     'react/jsx-filename-extension': [2, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
+    'jsx-quotes': ['error', 'prefer-single'],
     'import/prefer-default-export': 'off',
     'import/extensions': 'off',
     'no-shadow': 'off',
