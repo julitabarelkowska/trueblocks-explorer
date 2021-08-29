@@ -1,4 +1,4 @@
-import { BaseView_old as BaseViewOld } from '@components/BaseView_old';
+import { BaseView } from '@components/BaseView';
 import { Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
 import { runCommand } from '@modules/core';
 import { createErrorNotification } from '@modules/error_notification';
@@ -250,12 +250,10 @@ export const DashboardView = () => {
 
   return (
     <>
-      <BaseViewOld
+      <BaseView
         title='Dashboard'
         cookieName='COOKIE_DASHBOARD'
         tabs={tabs}
-        defaultActive={DashboardMonitorsLocation}
-        baseActive={DashboardLocation}
       />
     </>
   );
