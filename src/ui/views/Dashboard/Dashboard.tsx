@@ -5,13 +5,13 @@ import { createErrorNotification } from '@modules/error_notification';
 import {
   AssetHistory,
   AssetHistoryArray,
-  // Balance,
   createEmptyAccountname,
   Reconciliation,
   Transaction,
 } from '@modules/types';
 import { either as Either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
+import Mousetrap from 'mousetrap';
 import React, {
   useEffect, useMemo, useState,
 } from 'react';
@@ -29,12 +29,12 @@ import { Monitors } from './Tabs/Monitors';
 export const DashboardView = () => {
   const [loading, setLoading] = useState(false);
   const [staging, setStaging] = useState(false);
-  const [denom, setDenom] = useState('ether');
   const [hideZero, setHideZero] = useState('all');
   const [hideNamed, setHideNamed] = useState(false);
   const [hideReconciled, setHideReconciled] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [period, setPeriod] = useState('by tx');
+  const [cancel, setCancel] = useState(false);
 
   const { currentAddress } = useGlobalState();
   const { namesMap } = useGlobalNames();
@@ -92,7 +92,7 @@ export const DashboardView = () => {
     (async () => {
       const transactionCount = transactions.length;
 
-      if (totalRecords && transactionCount < totalRecords) {
+      if (!cancel && totalRecords && transactionCount < totalRecords) {
         const eitherResponse = await runCommand('export', {
           addrs: currentAddress || '', // TODO: this is a quick and dirty fix
           fmt: 'json',
@@ -142,7 +142,15 @@ export const DashboardView = () => {
     })();
 
     return () => { cancelled = true; };
-  }, [currentAddress, setTransactions, totalRecords, transactions, transactionsMeta]);
+  }, [currentAddress, setTransactions, totalRecords, transactions, transactionsMeta, cancel]);
+
+  // clean up mouse control when we unmount
+  useEffect(() => {
+    return () => {
+      Mousetrap.unbind(['esc']);
+    };
+  }, []);
+  Mousetrap.bind('esc', () => setCancel(true));
 
   // Store raw data, because it can be huge and we don't want to have to reload it
   // every time a user toggles "hide reconciled".
@@ -216,8 +224,6 @@ export const DashboardView = () => {
     loading,
     setLoading,
     prefs: {
-      denom,
-      setDenom,
       staging,
       setStaging,
       hideZero,
@@ -249,20 +255,16 @@ export const DashboardView = () => {
   ];
 
   return (
-    <>
-      <BaseView
-        title='Dashboard'
-        cookieName='COOKIE_DASHBOARD'
-        tabs={tabs}
-      />
-    </>
+    <BaseView
+      title='Dashboard'
+      cookieName='COOKIE_DASHBOARD'
+      tabs={tabs}
+    />
   );
 };
 
 declare type stateSetter<Type> = React.Dispatch<React.SetStateAction<Type>>;
 export declare type UserPrefs = {
-  denom: string;
-  setDenom: stateSetter<string>;
   staging: boolean;
   setStaging: stateSetter<boolean>;
   hideZero: string;
