@@ -1,37 +1,21 @@
-import {
-  NamesAddressesLocation,
-  NamesBlocksLocation,
-  NamesEventSigsLocation,
-  NamesFuncSigsLocation,
-  NamesLocation,
-  NamesTagsLocation,
-} from '../../Routes';
-import { cookieVars } from '../../Utilities';
-import { Addresses } from './Tabs/Addresses';
-import { EventSignatures } from './Tabs/EventSignatures';
-import { FunctionSignatures } from './Tabs/FunctionSignatures';
-import { Tags } from './Tabs/Tag';
-import { When } from './Tabs/When';
-import { BaseView } from '@components/BaseView';
 import React from 'react';
 
+import { BaseView } from '@components/BaseView';
+
+import {
+  NamesAddressesLocation, NamesBlocksLocation, NamesSignaturesLocation, NamesTagsLocation,
+} from '../../Routes';
+import { Names } from './Tabs/Names';
+import { Signatures } from './Tabs/Signatures';
+import { Tags } from './Tabs/Tags';
+import { When } from './Tabs/When';
+
 export const NamesView = () => {
-  const title = 'Names';
   const tabs = [
-    { name: 'Named Addresses', location: NamesAddressesLocation, component: <Addresses /> },
+    { name: 'Named Addresses', location: NamesAddressesLocation, component: <Names /> },
     { name: 'Address Tags', location: NamesTagsLocation, component: <Tags /> },
-    { name: 'Function Signatures', location: NamesFuncSigsLocation, component: <FunctionSignatures /> },
-    { name: 'Event Signatures', location: NamesEventSigsLocation, component: <EventSignatures /> },
+    { name: 'Signatures', location: NamesSignaturesLocation, component: <Signatures /> },
     { name: 'Named Blocks', location: NamesBlocksLocation, component: <When /> },
   ];
-
-  return (
-    <BaseView
-      title={title}
-      defaultActive={NamesAddressesLocation}
-      baseActive={NamesLocation}
-      cookieName={cookieVars.names_current_tab}
-      tabs={tabs}
-    />
-  );
+  return <BaseView title='Names' cookieName='COOKIE_NAMES' tabs={tabs} />;
 };

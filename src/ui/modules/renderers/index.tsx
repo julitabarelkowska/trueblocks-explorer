@@ -1,1 +1,1 @@
-export { renderNamedAddress } from './renderNamedAddress';
+export { renderClickableAddress } from './renderClickableAddress';

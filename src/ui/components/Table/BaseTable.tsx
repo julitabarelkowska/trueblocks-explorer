@@ -1,13 +1,9 @@
-import 'antd/dist/antd.css';
-import Table, { ColumnsType } from 'antd/lib/table';
-import Mousetrap from 'mousetrap';
 import React, { useEffect, useState } from 'react';
 
-export type SelectedRow = {
-  curRow: number;
-  curPage: number;
-  pageSize: number;
-};
+import Table, { ColumnsType } from 'antd/lib/table';
+import Mousetrap from 'mousetrap';
+
+import 'antd/dist/antd.css';
 
 type JsonResponse = Record<string, any>;
 
@@ -25,12 +21,12 @@ export const BaseTable = ({
   loading: boolean;
   extraData?: string;
   expandRender?: (row: any) => JSX.Element;
-  siderRender?: (record: any, selectedRow: SelectedRow) => JSX.Element;
+  siderRender?: (record: any) => JSX.Element;
   defPageSize?: number;
 }) => {
   const [displayedRow, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
-  const [curRow, setCurRow] = useState(0);
-  const [curPage, setCurPage] = useState(1);
+  const [curRow, setCurRow] = useState(Number(sessionStorage.getItem('curRow')) || 0);
+  const [curPage, setCurPage] = useState(Number(sessionStorage.getItem('curPage')) || 1);
   const [pageSize, setPageSize] = useState(defPageSize);
   const [isExpanded, setIsExpanded] = useState(false);
   const [keyedData, setKeyedData] = useState([{ key: 0 }]);
@@ -38,7 +34,10 @@ export const BaseTable = ({
   const setRowNumber = (n: number) => {
     const num = Math.max(0, Math.min(dataSource.length - 1, n));
     setCurRow(num);
-    setCurPage(Math.floor(num / pageSize) + 1);
+    const page = Math.floor(num / pageSize) + 1;
+    setCurPage(page);
+    // sessionStorage.setItem('curRow', num.toString());
+    // sessionStorage.setItem('curPage', page.toString());
   };
 
   Mousetrap.bind('up', () => setRowNumber(curRow - 1));
@@ -55,14 +54,14 @@ export const BaseTable = ({
     setKeyedData(
       dataSource
         ? dataSource.map((record: any, index: number) => {
-            if (record.key !== undefined) console.log('BaseTable assigns the key field, data should not.');
-            return {
-              key: index,
-              extraData: extraData,
-              ...record,
-            };
-          })
-        : []
+          if (record.key !== undefined) console.log('BaseTable assigns the key field, data should not.');
+          return {
+            key: index,
+            extraData,
+            ...record,
+          };
+        })
+        : [],
     );
   }, [dataSource, extraData]);
 
@@ -71,33 +70,30 @@ export const BaseTable = ({
   }, [curRow, keyedData]);
 
   // clean up mouse control when we unmount
-  useEffect(() => {
-    return () => {
-      Mousetrap.unbind(['up', 'down', 'pageup', 'pagedown', 'home', 'end', 'enter']);
-    };
+  useEffect(() => () => {
+    // setCurRow(0);
+    // setCurPage(1);
+    Mousetrap.unbind(['up', 'down', 'pageup', 'pagedown', 'home', 'end', 'enter']);
   }, []);
 
   const gridStyle = siderRender ? { display: 'grid', gridTemplateColumns: '30fr 1fr 12fr 1fr' } : {};
-  const expandedRowRender =
-    expandRender !== undefined ? expandRender : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
+  const expandedRowRender = expandRender !== undefined ? expandRender : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
 
   return (
     <div style={gridStyle}>
       <Table
-        onRow={(record, rowIndex) => {
-          return {
-            onClick: (event) => {
-              setRowNumber(record.key);
-            },
-            style: record.key === curRow ? { color: 'darkblue', backgroundColor: 'rgb(236, 235, 235)' } : {},
-          };
-        }}
+        onRow={(record, rowIndex) => ({
+          onClick: (event) => {
+            setRowNumber(record.key);
+          },
+          style: record.key === curRow ? { color: 'darkblue', backgroundColor: 'rgb(236, 235, 235)' } : {},
+        })}
         size='small'
         loading={loading}
         columns={columns}
         dataSource={keyedData}
         expandable={{
-          expandedRowRender: expandedRowRender,
+          expandedRowRender,
         }}
         pagination={{
           onChange: (page, newPageSize) => {
@@ -106,14 +102,16 @@ export const BaseTable = ({
               setRowNumber(0);
             }
           },
-          pageSize: pageSize,
+          pageSize,
           current: curPage,
           pageSizeOptions: ['5', '10', '20', '50', '100'],
         }}
       />
-      <div></div>
-      {siderRender ? siderRender(displayedRow, { curRow, curPage, pageSize }) : <></>}
-      <div></div>
+      <div />
+      {siderRender ? siderRender(displayedRow) : <></>}
+      <div />
     </div>
   );
 };
+
+// TODO(tjayrush): We used to be able to press enter to open a record's details

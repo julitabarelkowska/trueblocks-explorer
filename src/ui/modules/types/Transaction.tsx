@@ -1,4 +1,5 @@
 import {
+  Accountname,
   address,
   blknum,
   date,
@@ -13,7 +14,8 @@ import {
   wei,
 } from '@modules/types';
 
-export declare type Transaction = {
+export type Transaction = {
+  id: string;
   hash: hash;
   blockHash: hash;
   blockNumber: blknum;
@@ -39,8 +41,9 @@ export declare type Transaction = {
   statements: ReconciliationArray;
   finalized: boolean;
   date: date;
-  fromName: string;
-  toName: string;
+  // Added on front end
+  fromName: Accountname;
+  toName: Accountname;
   extraData: string;
 };
-export declare type TransactionArray = Transaction[];
+export type TransactionArray = Transaction[];

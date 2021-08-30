@@ -1,12 +1,6 @@
-import { ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation } from './Routes';
-import useGlobalState from './State';
-import { cookieVars } from './Utilities';
-import './app.css';
-import { Console } from './components/Console';
-import { MainMenu, MenuItems } from './components/MainMenu';
-import { HelpPanel } from './components/SidePanels/HelpPanel';
-import { PanelDirection, SidePanel } from './components/SidePanels/SidePanel';
-import { StatusPanel } from './components/SidePanels/StatusPanel';
+import React, { useEffect, useState } from 'react';
+import { createUseStyles } from 'react-jss';
+
 import {
   BookOutlined,
   CameraOutlined,
@@ -15,16 +9,28 @@ import {
   SettingOutlined,
   UnorderedListOutlined,
 } from '@ant-design/icons';
-import { Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
-import { runCommand } from '@modules/core';
-import { Button, Layout, Typography } from 'antd';
-import 'antd/dist/antd.css';
+import { Layout, Typography } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { either as Either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
-import React, { useEffect, useState } from 'react';
-import { createUseStyles } from 'react-jss';
+
+import { Result, toFailedResult, toSuccessfulData } from '@hooks/useCommand';
+import { runCommand } from '@modules/core';
+import { Accountname } from '@modules/types';
+
+import { Console } from './components/Console';
+import { MainMenu, MenuItems } from './components/MainMenu';
+import { HelpPanel } from './components/SidePanels/HelpPanel';
+import { PanelDirection, SidePanel } from './components/SidePanels/SidePanel';
+import { StatusPanel } from './components/SidePanels/StatusPanel';
+import {
+  ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation,
+} from './Routes';
+import { useGlobalNames } from './State';
+
+import 'antd/dist/antd.css';
+import './app.css';
 
 const { Header, Footer, Content } = Layout;
 const { Title } = Typography;
@@ -36,7 +42,7 @@ const useStyles = createUseStyles({
 export const App = () => {
   dayjs.extend(relativeTime);
 
-  const { debug, setDebug, setNames, names } = useGlobalState();
+  const { setNamesMap, setNamesArray } = useGlobalNames();
   const [status, setStatus] = useState<Result>(toSuccessfulData({ data: [{}], meta: {} }) as Result);
   const [loadingStatus, setLoadingStatus] = useState(false);
   const styles = useStyles();
@@ -46,14 +52,14 @@ export const App = () => {
       const eitherResponse = await runCommand('status');
       const result: Result = pipe(
         eitherResponse,
-        Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result)
+        Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result),
       );
       setStatus(result);
       setInterval(async () => {
         const eitherResponse = await runCommand('status');
         const result: Result = pipe(
           eitherResponse,
-          Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result)
+          Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result),
         );
         setStatus(result);
       }, 10 * 1000);
@@ -65,17 +71,25 @@ export const App = () => {
       const eitherResponse = await runCommand('names', { expand: true, all: true });
       const result: Result = pipe(
         eitherResponse,
-        Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result)
+        Either.fold(toFailedResult, (serverResponse) => toSuccessfulData(serverResponse) as Result),
       );
 
-      const arrayToObject = (array: any) =>
-        array.reduce((obj: any, item: any) => {
-          obj[item.address] = item;
-          return obj;
-        }, {});
-      const resultMap = arrayToObject(result.data);
+      const arrayToObject = (array: any) => array.reduce((obj: any, item: any) => {
+        obj[item.address] = item;
+        return obj;
+      }, {});
+      // const resultMap = arrayToObject(result.data);
 
-      setNames(resultMap);
+      const resultMap = (() => {
+        const { data: fetchedNames } = result;
+
+        if (typeof fetchedNames === 'string') return new Map();
+
+        return new Map((fetchedNames as Accountname[]).map((name: Accountname) => [name.address, name]));
+      })();
+
+      setNamesMap(resultMap);
+      setNamesArray((result.data as Accountname[]));
     })();
   }, []);
 
@@ -115,11 +129,7 @@ export const App = () => {
         </Title>
       </Header>
       <Layout>
-        <SidePanel
-          header='Menu'
-          dir={PanelDirection.Left}
-          cookieName={cookieVars.menu_expanded}
-          collapsibleContent={false}>
+        <SidePanel header='Menu' dir={PanelDirection.Left} cookieName='MENU_EXPANDED' collapsibleContent={false}>
           <MainMenu items={menuItems} />
         </SidePanel>
         <Layout>
@@ -128,27 +138,27 @@ export const App = () => {
               style={{
                 backgroundColor: 'white',
                 padding: '1rem',
-                overflowY: 'auto',
-              }}>
+                overflowY: 'scroll',
+              }}
+            >
               <Routes />
             </Content>
-            <SidePanel header='Status' cookieName={cookieVars.status_expanded} dir={PanelDirection.Right}>
+            <SidePanel header='Status' cookieName='STATUS_EXPANDED' dir={PanelDirection.Right}>
               <StatusPanel status={status} loading={loadingStatus} />
             </SidePanel>
             <SidePanel
               header='Help'
-              cookieName={cookieVars.help_expanded}
+              cookieName='HELP_EXPANDED'
               dir={PanelDirection.Right}
               customCollapseIcon={<QuestionCircleFilled className={styles.help_icon} />}
-              customExpandIcon={<QuestionCircleFilled className={styles.help_icon} />}>
+              customExpandIcon={<QuestionCircleFilled className={styles.help_icon} />}
+            >
               <HelpPanel />
             </SidePanel>
           </Layout>
           <Footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Button type={debug ? 'primary' : 'ghost'} onClick={() => setDebug(!debug)}>
-              {debug ? 'debug on' : 'debug off'}
-            </Button>
-            <Console asText={true} />
+            <div />
+            <Console asText />
             <div />
           </Footer>
         </Layout>

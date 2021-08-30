@@ -5,6 +5,7 @@ module.exports = {
   },
   extends: [
     'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
     'airbnb',
   ],
   overrides: [
@@ -39,17 +40,40 @@ module.exports = {
   plugins: [
     'react',
     '@typescript-eslint',
+    'simple-import-sort'
   ],
   rules: {
-    'max-len': 120,
+    'indent': ['error', 2, { SwitchCase: 1 }],
+    '@typescript-eslint/indent': ['error', 2],
+    'max-len': ['warn', { code: 120, comments: 120 }],
     'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': ['error'],
     'react/jsx-filename-extension': [2, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
+    'jsx-quotes': ['error', 'prefer-single'],
     'import/prefer-default-export': 'off',
     'import/extensions': 'off',
     'no-shadow': 'off',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-shadow': 'error',
     '@typescript-eslint/no-unused-vars': 'error',
+    'simple-import-sort/imports': ['error', {
+      groups: [
+        // React
+        ['^react'],
+        // Side effect imports.
+        ['^\\u0000'],
+        // NPM modules starting with '@'
+        ['^@(?!components|hooks|modules\\b)\\w', '^\\w'],
+        // Anything else
+        ['^'],
+        // Our aliases
+        ['^@components', '^@hooks', '^@modules'],
+        // Relative imports
+        ['^\\.'],
+        // Styles
+        ['^.+\\.s?css$']
+      ]
+    }],
+    'simple-import-sort/exports': 'error'
   },
 };

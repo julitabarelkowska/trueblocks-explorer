@@ -1,61 +1,184 @@
-import Cookies from 'js-cookie';
-import React, { createContext, useContext, useReducer } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useReducer,
+} from 'react';
 import { ReactNode } from 'react-markdown';
 
-const GlobalStateContext = createContext<any[]>([]);
+import Cookies from 'js-cookie';
 
-const THEME = Cookies.get('theme');
-const DEBUG = Cookies.get('debug') === 'true' ? true : false;
+import { toSuccessfulData, useCommand } from '@hooks/useCommand';
+import { getThemeByName, Theme, ThemeName } from '@modules/themes';
+import { Accountname, address as Address } from '@modules/types';
+
+const THEME: ThemeName = Cookies.get('theme') as ThemeName || 'default';
 const ADDRESS = Cookies.get('address');
+const DENOM = Cookies.get('denom') || 'ether';
 
-const initialState = {
-  theme: THEME || null,
-  debug: DEBUG || false,
-  accountAddress: ADDRESS || null,
-  names: null,
-  namesEditModal: false,
-  transactions: null,
-  totalRecords: null,
+type NamesEditModalState = {
+  address: string,
+  name: string,
+  description: string,
+  source: string,
+  tags: string
+}
+
+export type TransactionsQueryState = {
+  result: ReturnType<typeof useCommand>[0],
+  loading: ReturnType<typeof useCommand>[1]
 };
 
-const GlobalStateReducer = (state: any, action: any) => {
+type State = {
+  theme: Theme,
+  denom: string,
+  currentAddress?: string,
+  namesMap: Map<Address, Accountname>
+  namesArray?: Accountname[],
+  namesEditModalVisible: boolean,
+  namesEditModal: NamesEditModalState,
+  transactions: TransactionsQueryState,
+  totalRecords: number,
+}
+
+const createDefaultTransaction = () => toSuccessfulData({
+  data: [], meta: {},
+});
+
+const getDefaultTransactionsValue = () => ({
+  result: createDefaultTransaction(),
+  loading: false,
+});
+
+const getDefaultNamesEditModalValue = () => ({
+  address: '',
+  name: '',
+  description: '',
+  source: '',
+  tags: '',
+});
+
+const initialState: State = {
+  theme: getThemeByName(THEME),
+  denom: DENOM,
+  currentAddress: ADDRESS,
+  namesMap: new Map(),
+  namesArray: [],
+  namesEditModalVisible: false,
+  namesEditModal: getDefaultNamesEditModalValue(),
+  transactions: getDefaultTransactionsValue(),
+  totalRecords: 0,
+};
+
+type SetTheme = {
+  type: 'SET_THEME',
+  theme: State['theme'],
+};
+
+type SetDenom = {
+  type: 'SET_DENOM',
+  denom: State['denom'],
+}
+
+type SetCurrentAddress = {
+  type: 'SET_CURRENT_ADDRESS',
+  address: State['currentAddress'],
+};
+
+type SetNamesMap = {
+  type: 'SET_NAMES_MAP',
+  namesMap: State['namesMap'],
+};
+
+type SetNamesArray = {
+  type: 'SET_NAMES_ARRAY',
+  namesArray: State['namesArray'],
+};
+
+type SetNamesEditModal = {
+  type: 'SET_NAMES_EDIT_MODAL',
+  val: State['namesEditModal'],
+};
+
+type SetNamesEditModalVisible = {
+  type: 'SET_NAMES_EDIT_MODAL_VISIBLE',
+  visible: State['namesEditModalVisible'],
+};
+
+type SetTransactions = {
+  type: 'SET_TRANSACTIONS',
+  transactions: State['transactions'],
+};
+
+type SetTotalRecords = {
+  type: 'SET_TOTAL_RECORDS',
+  records: State['totalRecords'],
+};
+
+type GlobalAction =
+  | SetTheme
+  | SetDenom
+  | SetCurrentAddress
+  | SetNamesMap
+  | SetNamesArray
+  | SetNamesEditModal
+  | SetNamesEditModalVisible
+  | SetTransactions
+  | SetTotalRecords;
+
+const GlobalStateContext = createContext<[
+  typeof initialState,
+  React.Dispatch<GlobalAction>
+]>([initialState, () => { }]);
+
+const GlobalStateReducer = (state: State, action: GlobalAction) => {
   switch (action.type) {
     case 'SET_THEME':
-      Cookies.set('theme', action.theme);
+      Cookies.set('theme', action.theme.name);
       return {
         ...state,
         theme: action.theme,
       };
-    case 'SET_DEBUG':
-      Cookies.set('debug', action.debug ? 'true' : 'false');
+    case 'SET_DENOM':
+      // TODO(tjayrush): not sure why this doesn't work
+      // Cookies.set('denom', action.denom);
       return {
         ...state,
-        debug: action.debug,
+        denom: action.denom,
       };
-    case 'SET_ACCOUNT_ADDRESS':
-      Cookies.set('address', action.address);
-      if (action.address !== state.address) {
+    case 'SET_CURRENT_ADDRESS':
+      Cookies.set('address', action.address || '');
+
+      if (action.address !== state.currentAddress) {
         return {
           ...state,
-          accountAddress: action.address,
-          transactions: null,
-          totalRecords: null,
-        };
-      } else {
-        return {
-          ...state,
-          accountAddress: action.address,
+          currentAddress: action.address,
+          transactions: getDefaultTransactionsValue(),
+          totalRecords: 0,
         };
       }
-    case 'SET_NAMES':
+
+      return state;
+    case 'SET_NAMES_MAP':
       return {
         ...state,
-        names: action.names,
+        namesMap: action.namesMap,
+      };
+    case 'SET_NAMES_ARRAY':
+      return {
+        ...state,
+        namesArray: action.namesArray,
       };
     case 'SET_NAMES_EDIT_MODAL':
       return {
         ...state,
         namesEditModal: action.val,
+      };
+    case 'SET_NAMES_EDIT_MODAL_VISIBLE':
+      return {
+        ...state,
+        namesEditModalVisible: action.visible,
       };
     case 'SET_TRANSACTIONS':
       return {
@@ -72,49 +195,65 @@ const GlobalStateReducer = (state: any, action: any) => {
   }
 };
 
-const useGlobalState = () => {
+export const useGlobalState = () => {
   const [state, dispatch] = useContext(GlobalStateContext);
 
-  const setTheme = (theme: any) => {
+  const setTheme = (theme: SetTheme['theme']) => {
     dispatch({ type: 'SET_THEME', theme });
   };
 
-  const setDebug = (debug: boolean) => {
-    dispatch({ type: 'SET_DEBUG', debug });
+  const setDenom = (denom: SetDenom['denom']) => {
+    dispatch({ type: 'SET_DENOM', denom });
   };
 
-  const setAccountAddress = (address: string) => {
-    dispatch({ type: 'SET_ACCOUNT_ADDRESS', address });
+  const setCurrentAddress = (address: SetCurrentAddress['address']) => {
+    dispatch({ type: 'SET_CURRENT_ADDRESS', address });
   };
 
-  const setNames = (names: any) => {
-    dispatch({ type: 'SET_NAMES', names });
+  const setNamesMap = (namesMap: SetNamesMap['namesMap']) => {
+    dispatch({ type: 'SET_NAMES_MAP', namesMap });
   };
 
-  const setNamesEditModal = (val: any) => {
+  const setNamesArray = (namesArray: SetNamesArray['namesArray']) => {
+    dispatch({ type: 'SET_NAMES_ARRAY', namesArray });
+  };
+
+  const setNamesEditModal = (val: SetNamesEditModal['val']) => {
     dispatch({ type: 'SET_NAMES_EDIT_MODAL', val });
   };
 
-  const setTransactions = (transactions: any) => {
-    dispatch({ type: 'SET_TRANSACTIONS', transactions });
+  const setNamesEditModalVisible = (visible: SetNamesEditModalVisible['visible']) => {
+    dispatch({ type: 'SET_NAMES_EDIT_MODAL_VISIBLE', visible });
   };
 
-  const setTotalRecords = (records: any) => {
+  const setTransactions = useCallback((transactions: SetTransactions['transactions']) => {
+    dispatch({ type: 'SET_TRANSACTIONS', transactions });
+  }, [dispatch]);
+
+  const setTotalRecords = useCallback((records: SetTotalRecords['records']) => {
     dispatch({ type: 'SET_TOTAL_RECORDS', records });
-  };
+  }, [dispatch]);
 
   return {
     theme: state.theme,
     setTheme,
-    debug: state.debug,
-    setDebug,
-    accountAddress: state.accountAddress,
-    setAccountAddress,
-    names: state.names,
-    setNames,
+    denom: state.denom,
+    setDenom,
+    currentAddress: state.currentAddress,
+    setCurrentAddress,
+    namesMap: state.namesMap,
+    setNamesMap,
+    namesArray: state.namesArray,
+    setNamesArray,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
+    namesEditModalVisible: state.namesEditModalVisible,
+    setNamesEditModalVisible,
     transactions: state.transactions,
+    transactionsStatus: state.transactions.result.status,
+    transactionsData: state.transactions.result.data,
+    transactionsMeta: state.transactions.result.meta,
+    transactionsLoading: state.transactions.loading,
     setTransactions,
     totalRecords: state.totalRecords,
     setTotalRecords,
@@ -123,8 +262,16 @@ const useGlobalState = () => {
 
 export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(GlobalStateReducer, initialState);
+  const value = useMemo((): [State, React.Dispatch<GlobalAction>] => [state, dispatch], [state]);
 
-  return <GlobalStateContext.Provider value={[state, dispatch]}>{children}</GlobalStateContext.Provider>;
+  return <GlobalStateContext.Provider value={value}>{children}</GlobalStateContext.Provider>;
 };
 
-export default useGlobalState;
+export const useGlobalNames = () => {
+  const {
+    namesMap, setNamesMap, namesArray, setNamesArray,
+  } = useGlobalState();
+  return {
+    namesMap, setNamesMap, namesArray, setNamesArray,
+  };
+};

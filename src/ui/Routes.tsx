@@ -4,8 +4,12 @@
  */
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { DashboardView, ExplorerView, NamesView, SettingsView, SupportView } from './views';
 
+import { address } from '@modules/types';
+
+import {
+  DashboardView, ExplorerView, NamesView, SettingsView, SupportView,
+} from './views';
 
 const Mousetrap = require('mousetrap');
 
@@ -15,13 +19,13 @@ export const RootLocation = '/';
 export const DashboardLocation = '/dashboard';
 export const DashboardMonitorsLocation = '/dashboard/monitors';
 export const DashboardAccountsLocation = '/dashboard/accounts';
+export const DashboardAccountsAssetsLocation = '/dashboard/accounts/assets';
 export const DashboardAccountsHistoryLocation = '/dashboard/accounts/history';
 export const DashboardAccountsHistoryReconsLocation = '/dashboard/accounts/history/recons';
 export const DashboardAccountsHistoryFunctionsLocation = '/dashboard/accounts/history/functions';
 export const DashboardAccountsHistoryEventsLocation = '/dashboard/accounts/history/events';
 export const DashboardAccountsHistoryTracesLocation = '/dashboard/accounts/history/traces';
 export const DashboardAccountsHistoryCustomLocation = '/dashboard/accounts/history/custom';
-export const DashboardAccountsAssetsLocation = '/dashboard/accounts/assets';
 export const DashboardAccountsNeighborsLocation = '/dashboard/accounts/neighbors';
 export const DashboardAccountsGasLocation = '/dashboard/accounts/gas';
 export const DashboardAccountsChartsLocation = '/dashboard/accounts/charts';
@@ -32,8 +36,9 @@ export const DashboardCollectionsLocation = '/dashboard/collections';
 export const NamesLocation = '/names';
 export const NamesAddressesLocation = '/names/addresses';
 export const NamesTagsLocation = '/names/tags';
-export const NamesFuncSigsLocation = '/names/func-sigs';
-export const NamesEventSigsLocation = '/names/event-sigs';
+export const NamesSignaturesLocation = '/names/signatures';
+export const NamesSignaturesFunctionsLocation = '/names/signatures/functions';
+export const NamesSignaturesEventsLocation = '/names/signatures/events';
 export const NamesBlocksLocation = '/names/blocks';
 
 export const ExplorerLocation = '/explorer';
@@ -52,7 +57,7 @@ export const SettingsIndexesChartsLocation = '/settings/indexes/charts';
 export const SettingsIndexesManifestLocation = '/settings/indexes/manifest';
 export const SettingsCachesLocation = '/settings/caches';
 export const SettingsSkinsLocation = '/settings/skins';
-export const SettingsSchemasLocation = '/settings/schemas';
+export const SettingsDataModelLocation = '/settings/datamodel';
 
 export const SupportLocation = '/support';
 export const SupportContactUsLocation = '/support/contact-us';
@@ -69,11 +74,11 @@ export const DashboardAccountsFunctionsAddressTemplate = '/dashboard/accounts/fu
 export const DashboardAccountsGasAddressTemplate = '/dashboard/accounts/gas/:address';
 export const DashboardAccountsTracesAddressTemplate = '/dashboard/accounts/traces/:address';
 
-export const DashboardAccountsAddressLocation = (address: string) => `/dashboard/accounts/${address}`;
-export const DashboardAccountsReconsLocationAddress = (address: string) => `/dashboard/accounts/recons/${address}`;
-export const DashboardAccountsFunctionsLocationAddress = (address: string) => `/dashboard/accounts/functions/${address}`;
-export const DashboardAccountsGasLocationAddress = (address: string) => `/dashboard/accounts/gas/${address}`;
-export const DashboardAccountsTracesLocationAddress = (address: string) => `/dashboard/accounts/traces/${address}`;
+export const DashboardAccountsAddressLocation = (address: address) => `/dashboard/accounts?address=${address}`;
+// export const DashboardAccountsReconsLocationAddress = (address: string) => `/dashboard/accounts/recons/${address}`;
+// export const DashboardAccountsFunctionsLocationAddress = (address: string) => `/dashboard/accounts/functions/${address}`;
+// export const DashboardAccountsGasLocationAddress = (address: string) => `/dashboard/accounts/gas/${address}`;
+// export const DashboardAccountsTracesLocationAddress = (address: string) => `/dashboard/accounts/traces/${address}`;
 // END_CODE_TEMPLATES
 
 // BEG_CODE_ROUTES
@@ -101,6 +106,12 @@ export const routes = [
     exact: true,
     component: DashboardView,
     helpText: 'View the transactional history of an account.',
+  },
+  {
+    path: DashboardAccountsAssetsLocation,
+    exact: true,
+    component: DashboardView,
+    helpText: 'See all assets for a given address.',
   },
   {
     path: DashboardAccountsHistoryLocation,
@@ -137,12 +148,6 @@ export const routes = [
     exact: true,
     component: DashboardView,
     helpText: 'View the logo of the to address for the transaction.',
-  },
-  {
-    path: DashboardAccountsAssetsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'See all assets for a given address.',
   },
   {
     path: DashboardAccountsNeighborsLocation,
@@ -229,16 +234,22 @@ export const routes = [
     helpText: 'Tags are groupings used to collect together named addresses.',
   },
   {
-    path: NamesFuncSigsLocation,
+    path: NamesSignaturesFunctionsLocation,
     exact: true,
     component: NamesView,
-    helpText: 'The function signatures tab allows you to add/edit/delete four byte signatures.',
+    helpText: 'The function and event signatures tab allows you to add/edit/delete four byte signatures.',
   },
   {
-    path: NamesEventSigsLocation,
+    path: NamesSignaturesEventsLocation,
     exact: true,
     component: NamesView,
-    helpText: 'The event signatures tab allows you to add/edit/delete event signatures.',
+    helpText: 'The function and event signatures tab allows you to add/edit/delete four byte signatures.',
+  },
+  {
+    path: NamesSignaturesLocation,
+    exact: true,
+    component: NamesView,
+    helpText: 'The function and event signatures tab allows you to add/edit/delete four byte signatures.',
   },
   {
     path: NamesBlocksLocation,
@@ -337,10 +348,10 @@ export const routes = [
     helpText: 'Change the skin or them of the application.',
   },
   {
-    path: SettingsSchemasLocation,
+    path: SettingsDataModelLocation,
     exact: true,
     component: SettingsView,
-    helpText: 'View and edit the schemas for the various screens and tables.',
+    helpText: 'View and edit the data types for the various screens and tables.',
   },
   {
     path: SupportLocation,
@@ -377,45 +388,45 @@ export const routes = [
     exact: true,
     component: SupportView,
     helpText: 'A short history of TrueBlocks, LLC.',
-  }
+  },
 ];
 // END_CODE_ROUTES
 
 // BEG_CODE_KEYS
-Mousetrap.bind('s m', function () {
+Mousetrap.bind('s m', () => {
   window.location.href = DashboardMonitorsLocation;
 });
-Mousetrap.bind('s a', function () {
+Mousetrap.bind('s a', () => {
   window.location.href = DashboardAccountsLocation;
 });
-Mousetrap.bind('s n', function () {
+Mousetrap.bind('s n', () => {
   window.location.href = NamesLocation;
 });
-Mousetrap.bind('s e', function () {
+Mousetrap.bind('s e', () => {
   window.location.href = ExplorerLocation;
 });
-Mousetrap.bind('e b', function () {
+Mousetrap.bind('e b', () => {
   window.location.href = ExplorerBlocksLocation;
 });
-Mousetrap.bind('e t', function () {
+Mousetrap.bind('e t', () => {
   window.location.href = ExplorerTransactionsLocation;
 });
-Mousetrap.bind('e r', function () {
+Mousetrap.bind('e r', () => {
   window.location.href = ExplorerReceiptsLocation;
 });
-Mousetrap.bind('e l', function () {
+Mousetrap.bind('e l', () => {
   window.location.href = ExplorerLogsLocation;
 });
-Mousetrap.bind('e c', function () {
+Mousetrap.bind('e c', () => {
   window.location.href = ExplorerTracesLocation;
 });
-Mousetrap.bind('s s', function () {
+Mousetrap.bind('s s', () => {
   window.location.href = SettingsLocation;
 });
-Mousetrap.bind('s u', function () {
+Mousetrap.bind('s u', () => {
   window.location.href = SupportContactUsLocation;
 });
-Mousetrap.bind('s k', function () {
+Mousetrap.bind('s k', () => {
   window.location.href = SupportHotKeysLocation;
 });
 // END_CODE_KEYS
@@ -433,4 +444,3 @@ export const Routes = () => (
     <DashboardView />
   </Switch>
 );
-

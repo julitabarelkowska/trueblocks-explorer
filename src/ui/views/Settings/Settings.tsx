@@ -1,37 +1,27 @@
+import React from 'react';
+
+import { BaseView } from '@components/BaseView';
+
 import {
   SettingsCachesLocation,
+  SettingsDataModelLocation,
   SettingsIndexesLocation,
-  SettingsLocation,
-  SettingsSchemasLocation,
   SettingsScrapersLocation,
   SettingsSkinsLocation,
 } from '../../Routes';
-import { cookieVars } from '../../Utilities';
 import { Caches } from './Tabs/Caches';
-import { IndexesView } from './Tabs/Indexes/Indexes';
-import { Schemas } from './Tabs/Schemas';
+import { DataModel } from './Tabs/Data Model';
+import { IndexesView } from './Tabs/Indexes';
 import { Scrapers } from './Tabs/Scrapers';
 import { Skins } from './Tabs/Skins';
-import { BaseView } from '@components/BaseView';
-import React from 'react';
 
 export const SettingsView = () => {
-  const title = 'Settings';
   const tabs = [
     { name: 'Scrapers', location: SettingsScrapersLocation, component: <Scrapers /> },
-    { name: 'Indexes', location: SettingsIndexesLocation, component: <IndexesView />, disabled: false },
+    { name: 'Indexes', location: SettingsIndexesLocation, component: <IndexesView /> },
     { name: 'Caches', location: SettingsCachesLocation, component: <Caches /> },
     { name: 'Skins', location: SettingsSkinsLocation, component: <Skins /> },
-    { name: 'Schemas', location: SettingsSchemasLocation, component: <Schemas /> },
+    { name: 'Data Model', location: SettingsDataModelLocation, component: <DataModel /> },
   ];
-
-  return (
-    <BaseView
-      title={title}
-      defaultActive={SettingsScrapersLocation}
-      baseActive={SettingsLocation}
-      cookieName={cookieVars.settings_current_tab}
-      tabs={tabs}
-    />
-  );
+  return <BaseView title='Settings' cookieName='COOKIE_SETTINGS' tabs={tabs} />;
 };

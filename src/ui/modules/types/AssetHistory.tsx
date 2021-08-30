@@ -1,8 +1,8 @@
 import { address, BalanceArray } from '@modules/types';
 
-export declare type AssetHistory = {
-  color: string;
+export type AssetHistory = {
   assetAddr: address;
   assetSymbol: string;
-  history: BalanceArray;
+  balHistory: BalanceArray;
 };
+export type AssetHistoryArray = AssetHistory[];

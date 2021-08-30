@@ -1,19 +1,5 @@
-export const cookieVars = {
-  dashboard_current_tab: 'DASHBOARD_CURRENT_TAB',
-  dashboard_account_history_sub_tab: 'DASHBOARD_ACCOUNT_HISTORY_SUB_TAB',
-  dashboard_account_sub_tab: 'DASHBOARD_ACCOUNT_SUB_TAB',
-  dashboard_indexes_sub_tab: 'DASHBOARD_INDEXES_SUB_TAB',
-  explorer_current_tab: 'EXPLORER_CURRENT_TAB',
-  names_current_tab: 'NAMES_CURRENT_TAB',
-  settings_current_tab: 'SETTINGS_CURRENT_TAB',
-  support_current_tab: 'SUPPORT_CURRENT_TAB',
-  menu_expanded: 'MENU_EXPANDED',
-  status_expanded: 'STATUS_EXPANDED',
-  help_expanded: 'HELP_EXPANDED',
-};
-
 export function goToUrl(href: string) {
-  var a = document.createElement('a');
+  const a = document.createElement('a');
   a.href = href;
   a.setAttribute('target', '_blank');
   a.click();
@@ -561,3 +547,43 @@ export const chartColors = [
 //   element.focus();
 //   element.dispatchEvent(event);
 // }
+
+//-------------------------------------------------------------------------
+export const downloadRecords = (theData: any, columns: any, delim: string, surr: string) => {
+  const ext = delim === ',' ? '.csv' : '.txt';
+  const exportFileName = `Txs_${
+    new Date()
+      .toISOString()
+      .replace(/[ -.T]/g, '_')
+      .replace(/Z/, '')
+  }${ext}`;
+
+  const theHeader = columns
+    .map((column: any) => surr + (!column.title ? column.dataIndex : column.title) + surr)
+    .join(delim);
+
+  const theRows = theData.map((record: any, index: number) => {
+    const row = columns.map((column: any) => {
+      if (column.render) {
+        let value = column.render(record[column.dataIndex], record);
+        if (!value || value === undefined) value = '';
+        return surr + value + surr;
+      }
+      if (!column) return `${surr}${surr}`;
+      if (!record[column.dataIndex] || record[column.dataIndex] === '') return `${surr}${surr}`;
+      return surr + record[column.dataIndex] + surr;
+    });
+    return row.join(delim);
+  });
+
+  const theOutput = `${theHeader}\n${theRows.join('\n')}`;
+  sendTheExport(exportFileName, 'CSV', theOutput);
+};
+
+const sendTheExport = (fileName: string, outFmt: string, theOutput: string) => {
+  const expElement = document.createElement('a');
+  expElement.href = `data:text/${outFmt};charset=utf-8,${encodeURI(theOutput)}`;
+  expElement.target = '_blank';
+  expElement.download = fileName;
+  expElement.click();
+};

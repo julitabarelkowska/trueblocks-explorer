@@ -1,6 +1,8 @@
-import { address, blknum, int256, timestamp, uint64 } from '@modules/types';
+import {
+  address, blknum, int256, timestamp, uint64,
+} from '@modules/types';
 
-export declare type Reconciliation = {
+export type Reconciliation = {
   blockNumber: blknum;
   transactionIndex: blknum;
   timestamp: timestamp;
@@ -27,9 +29,12 @@ export declare type Reconciliation = {
   endBalCalc: int256;
   endBalDiff: int256;
   amountNet: int256;
+  spotPrice: int256;
+  priceSource: string;
   reconciliationType: string;
   reconciled: boolean;
   totalIn: int256;
   totalOut: int256;
+  totalOutLessGas: int256;
 };
-export declare type ReconciliationArray = Reconciliation[];
+export type ReconciliationArray = Reconciliation[];

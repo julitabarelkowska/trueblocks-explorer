@@ -1,14 +1,14 @@
+import React from 'react';
+
 import { Loading } from '@components/Loading';
-import { useCommand } from '@hooks/useCommand';
+import { useFetchData } from '@hooks/useFetchData';
 import { createErrorNotification } from '@modules/error_notification';
-import React, { useCallback } from 'react';
 
 export const Traces = () => {
-  const [data, loading] = useCommand('traces', { transactions: 'latest', articulate: true });
-  const getData = useCallback((response) => (response.status === 'fail' ? [] : response.data), []);
+  // TODO(tjayrush): hard coded data
+  const { theData, loading, status } = useFetchData('traces', { transactions: '12001001.0', articulate: true });
 
-  const theItem = getData(data);
-  if (data.status === 'fail') {
+  if (status === 'fail') {
     createErrorNotification({
       description: 'Could not fetch traces',
     });
@@ -16,7 +16,7 @@ export const Traces = () => {
 
   return (
     <Loading loading={loading}>
-      <pre>{JSON.stringify(theItem, null, 2)}</pre>
+      <pre>{JSON.stringify(theData, null, 2)}</pre>
     </Loading>
   );
 };
