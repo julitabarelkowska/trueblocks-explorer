@@ -37,6 +37,7 @@ export const DashboardView = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [period, setPeriod] = useState('by tx');
   const [cancel, setCancel] = useState(false);
+  const { denom } = useGlobalState();
 
   const { currentAddress } = useGlobalState();
   const { namesMap } = useGlobalNames();
@@ -173,7 +174,13 @@ export const DashboardView = () => {
         if (found) {
           unique[index].balHistory = [
             ...unique[index].balHistory,
-            { balance: found.endBal, date: new Date(found.timestamp * 1000), reconciled: found.reconciled },
+            {
+              balance: (denom === 'dollars'
+                ? parseInt(found.endBal.toString() || '0', 10) * Number(found.spotPrice)
+                : parseInt(found.endBal.toString() || '0', 10)),
+              date: new Date(found.timestamp * 1000),
+              reconciled: found.reconciled,
+            },
           ];
         }
       });
@@ -192,11 +199,11 @@ export const DashboardView = () => {
     return unique.filter((asset: AssetHistory) => {
       if (asset.balHistory.length === 0) return false;
       const show = hideZero === 'all'
-        || (hideZero === 'show' && Number(asset.balHistory[asset.balHistory.length - 1].balance) === 0)
-        || (hideZero === 'hide' && Number(asset.balHistory[asset.balHistory.length - 1].balance) > 0);
+        || (hideZero === 'show' && asset.balHistory[asset.balHistory.length - 1].balance === 0)
+        || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
       return show && (!hideNamed || !namesMap.get(asset.assetAddr));
     });
-  }, [hideNamed, hideZero, namesMap, theData]);
+  }, [hideNamed, hideZero, namesMap, theData, denom]);
 
   const params: AccountViewParams = {
     loading,
@@ -214,6 +221,7 @@ export const DashboardView = () => {
       setShowDetails,
       period,
       setPeriod,
+      denom,
     },
     totalRecords,
     theData,
@@ -255,6 +263,7 @@ export type UserPrefs = {
   setShowDetails: stateSetter<boolean>;
   period: string;
   setPeriod: stateSetter<string>;
+  denom: string;
 };
 
 export type AccountViewParams = {
