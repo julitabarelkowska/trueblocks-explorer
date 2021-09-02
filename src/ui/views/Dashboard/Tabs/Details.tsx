@@ -141,8 +141,8 @@ const ViewOptions = ({ params }: { params: AccountViewParams }) => {
         onChange={(newValue) => prefs.setPeriod(newValue)}
         style={{ width: '100%' }}
       >
-        {repOptions.map((item, index) => (
-          <Select.Option key={index} value={item}>
+        {repOptions.map((item) => (
+          <Select.Option key={item} value={item}>
             {item}
           </Select.Option>
         ))}
@@ -344,7 +344,7 @@ export const transactionSchema: ColumnsType<Transaction> = [
     dataIndex: 'date',
     configuration: {
       width: '15%',
-      render: (field: any, record: Transaction) => {
+      render: (date, record) => {
         if (!record) return <div />;
         return (
           <pre>
