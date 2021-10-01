@@ -13,11 +13,13 @@ import {
   wei,
 } from '@modules/types';
 
+// TODO(data): Should we abstract out a new type - needs to be documented
 type ArticulatedTx = {
   name: string,
   inputs: {}
 };
 
+// TODO(data): check to see if these data include all fields when generated from API_MODE=true command line. If yes, remove these 'optional' marks
 export type Transaction = {
   id?: string;
   hash: hash;
@@ -46,7 +48,6 @@ export type Transaction = {
   finalized?: boolean;
   date: date;
   // Added on front end
-  // TODO: move it to a separate type
   fromName?: Accountname;
   toName?: Accountname;
   extraData?: string;
