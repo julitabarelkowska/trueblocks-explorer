@@ -48,6 +48,7 @@ export type Transaction = {
   finalized?: boolean;
   date: date;
   // Added on front end
+  // TODO: move it to a separate type
   fromName?: Accountname;
   toName?: Accountname;
   extraData?: string;
