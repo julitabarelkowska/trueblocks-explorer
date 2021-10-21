@@ -7,42 +7,59 @@ import {
 } from '@modules/types';
 
 import { sendTheExport } from '../../../../../../Utilities';
-import { headers, incomeFields, outflowFields } from './ExportText';
+import { incomeFields, outflowFields } from './ExportText';
 
 //-------------------------------------------------------------------------
 export const exportToOfx = (theData: TransactionArray) => {
-  // let x = convertToOfx(theData);
-  const timestamp = 1634781444;
   const transactions = {
-    assetSymbol: 'Moe',
-    transactions: [
-      {
-        amount: '-0.1',
-        type: 'DEBIT',
-        date: dayjs.unix(timestamp).format('YYYYMMDDHHmmss'),
-        blockNum: 3001010,
-        txId: 10,
-        txHash: '0x1232432432423423432',
-      },
-      {
-        amount: '0.1',
-        type: 'CREDIT',
-        date: dayjs.unix(timestamp).format('YYYYMMDDHHmmss'),
-        blockNum: 8001010,
-        txId: 2,
-        txHash: '0x999991232432432423423432',
-      },
-    ],
+    assetSymbol: 'USD',
+    transactions: JSON.parse(convertToOfx(theData)),
   };
 
-  const x = Mustache.render(templateString, transactions);
-  sendTheExport('csv', x);
+  sendTheExport('ofx', Mustache.render(templateString, transactions));
 };
 
-// const templateString = `{{#stooges}}
-// <b>{{name}}</b>
-// {{/stooges}}`;
+//-------------------------------------------------------------------------
+export const convertToOfx = (theData: any) => {
+  const sorted = theData;
+  const transactions = [sorted.flatMap((trans: any) => trans.statements.flatMap((statement: any) => {
+    const {
+      hash, blockNumber, transactionIndex, compressedTx,
+    } = trans;
+    const { assetAddr, assetSymbol, timestamp } = statement;
+    const date = dayjs.unix(timestamp).format('YYYYMMDDHHmmss');
+    const parts = compressedTx.split('(');
+    const func = parts.length > 0 ? parts[0] : '';
 
+    const inflows = incomeFields.map((field: any) => ({
+      id: `${assetAddr}`,
+      type: 'CREDIT',
+      amount: statement[field],
+      date,
+      checkNum: `${blockNumber}.${transactionIndex}`,
+      refNum: `${hash}`,
+      memo: `${field}-${assetSymbol}-${func}`,
+    }));
+
+    const outflows = outflowFields.map((field: any) => ({
+      id: `${assetAddr}`,
+      type: 'DEBIT',
+      amount: `-${statement[field]}`,
+      date,
+      checkNum: `${blockNumber}.${transactionIndex}`,
+      refNum: `${hash}`,
+      memo: `${field}-${assetSymbol}-${func}`,
+    }));
+
+    return inflows
+      .concat(outflows)
+      .filter(({ amount }) => amount.length > 0);
+  }))];
+
+  return `${transactions.map((row: any) => JSON.stringify(row, null, 2)).join('\n')}\n`;
+};
+
+//-------------------------------------------------------------------------
 const header = `OFXHEADER:100
 DATA:OFXSGML
 VERSION:102
@@ -66,6 +83,7 @@ const templateString = `${header}
       </STATUS>
       <STMTRS>
       <CURDEF>USD
+
       <BANKACCTFROM>
         <BANKID>Crypto-Bankless
         <ACCTID>{{assetSymbol}}
@@ -78,57 +96,68 @@ const templateString = `${header}
           <FITID>{{id}}
           <TRNTYPE>{{type}}
           <TRNAMT>{{amount}}
-          <MEMO>{{txIndex}}/{{field}}/{{assetAddr}}
+          <CHECKNUM>{{checkNum}}
+          <REFNUM>{{refNum}}
+          <MEMO>{{memo}}
           <DTPOSTED>{{date}}
         </STMTTRN>
 
         {{/transactions}}
       </BANKTRANLIST>
+
     </STMTTRNRS>
   </BANKMSGSRSV1>
 </OFX>
 `;
 
-// //-------------------------------------------------------------------------
-// const compiledTemplate = Handlebars.compile(templateString);
-
-//-------------------------------------------------------------------------
-export const convertToOfx = (theData: any) => {
-  const sorted = theData;
-  const transactions = sorted.flatMap((trans: any) => trans.statements.flatMap((statment: any) => {
-    const date = dayjs.unix(statment.timestamp).format('YYYYMMDDHHmmss');
-    const { assetAddr } = statment;
-    const txHash = trans.hash;
-    const txIndex = trans.transactionIndex;
-
-    const inflows = incomeFields.map((field: any) => ({
-      id: `${txHash}/${txIndex}/${field}`,
-      type: 'CREDIT',
-      amount: statment[field],
-      date,
-      assetAddr,
-      txIndex,
-      field,
-    }));
-
-    const outflows = outflowFields.map((field: any) => ({
-      id: `${txHash}/${txIndex}/${field}`,
-      type: 'DEBIT',
-      amount: `-${statment[field]}`,
-      date,
-      assetAddr,
-      txIndex,
-      field,
-    }));
-
-    return inflows
-      .concat(outflows)
-      .filter(({ amount }) => amount.length > 0 && amount !== '-');
-  }));
-
-  transactions.unshift(headers);
-  return `${transactions.map((row: any) => JSON.stringify(row, null, 2)).join('\n')}\n`;
-  // const startDate = 'TODO';
-  // const endDate = 'TODO';
-  // return compiledTemplate({ startDate, endDate, transactions });
-};
+/*
+BANKTRANLIST, BankTransactionList
+    DTSTART, DateTimeType
+    DTEND, DateTimeType
+    STMTTRN, StatementTransaction
+        TRNTYPE, TransactionEnum,
+          one of [
+            CREDIT|DEBIT|INT|DIV|FEE|SRVCHG|DEP|ATM|POS|XFER|CHECK|
+            PAYMENT|CASH|DIRECTDEP|DIRECTDEBIT|REPEATPMT|HOLD|OTHER
+          ]
+        DTPOSTED, DateTimeType, at least 8 chars,
+          format:
+            [0-9]{4}
+              ((0[1-9])|(1[0-2]))((0[1-9])|([1-2][0-9])|(3[0-1]))|
+            [0-9]{4}
+              ((0[1-9])|(1[0-2]))((0[1-9])|([1-2][0-9])|(3[0-1]))(([0-1][0-9])|(2[0-3]))[0-5][0-9](([0-5][0-9])|(60))|
+            [0-9]{4}
+              ((0[1-9])|(1[0-2]))((0[1-9])|([1-2][0-9])|(3[0-1]))(([0-1][0-9])|(2[0-3]))[0-5][0-9](([0-5][0-9])|(60))
+                \.[0-9]{3}|
+            [0-9]{4}
+              ((0[1-9])|(1[0-2]))((0[1-9])|([1-2][0-9])|(3[0-1]))(([0-1][0-9])|(2[0-3]))[0-5][0-9](([0-5][0-9])|(60))
+                \.[0-9]{3}(\[[\+\-]?.+(:.+)?\])?
+        TRNAMT, AmountType, at most 32 chars,
+          format:
+            [\+\-]?[0-9]*(([0-9][,\.]?)|([,\.][0-9]))[0-9]*
+        LOANPMTINFO, LoanPaymentInfo,
+          object:
+            {
+              PRINAMT, AmountType
+              INTAMT, AmountType
+              ESCRWAMT, EscrowAmount
+              INSURANCE, AmountType
+              LATEFEEAMT, AmountType
+              OTHERAMT, AmountType
+            }
+        FITID, FinancialInstitutionTransactionIdType
+          max 255 chars,
+        SRVRTID, ServerIdType
+          max 10 chars
+        CHECKNUM, CheckNumberType
+          max 12 chars
+        REFNUM, ReferenceNumberType
+          max 32 chars
+        SIC, StandardIndustryCodeType
+        PAYEEID, PayeeIdType
+          max 12 chars
+        MEMO, MessageType
+          max 256 chars
+        IMAGEDATA, ImageData
+        INV401KSOURCE, Investment401kSourceEnum
+*/

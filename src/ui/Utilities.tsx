@@ -15,7 +15,7 @@ export const sendTheExport = (format: string, theOutput: string) => {
   const a = document.createElement('a');
   a.href = fileDownloadUrl;
   a.style.display = 'none';
-  a.download = getExportFn(`.${format}`);
+  a.download = getExportFn(`${format}`);
   document.body.appendChild(a);
   a.click();
 
