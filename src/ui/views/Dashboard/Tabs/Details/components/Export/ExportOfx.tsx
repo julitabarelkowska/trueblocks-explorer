@@ -24,7 +24,7 @@ export const convertToOfx = (theData: any) => {
   const sorted = theData;
   const transactions = [sorted.flatMap((trans: any) => trans.statements.flatMap((statement: any) => {
     const {
-      hash, blockNumber, transactionIndex, compressedTx,
+      hash, blockNumber, transactionIndex, compressedTx, toName, to,
     } = trans;
     const { assetAddr, assetSymbol, timestamp } = statement;
     const date = dayjs.unix(timestamp).format('YYYYMMDDHHmmss');
@@ -38,7 +38,7 @@ export const convertToOfx = (theData: any) => {
       date,
       checkNum: `${blockNumber}.${transactionIndex}`,
       refNum: `${hash}`,
-      memo: `${field}-${assetSymbol}-${func}`,
+      memo: `${field} - ${toName.name} - ${to} - ${assetSymbol} - ${func}`,
     }));
 
     const outflows = outflowFields.map((field: any) => ({
@@ -48,12 +48,12 @@ export const convertToOfx = (theData: any) => {
       date,
       checkNum: `${blockNumber}.${transactionIndex}`,
       refNum: `${hash}`,
-      memo: `${field}-${assetSymbol}-${func}`,
+      memo: `${field} - ${toName.name} - ${to} - ${assetSymbol} - ${func}`,
     }));
 
     return inflows
       .concat(outflows)
-      .filter(({ amount }) => amount.length > 0);
+      .filter(({ amount }) => amount.length > 0 && amount !== '-');
   }))];
 
   return `${transactions.map((row: any) => JSON.stringify(row, null, 2)).join('\n')}\n`;
