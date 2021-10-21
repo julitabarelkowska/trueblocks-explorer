@@ -8,12 +8,12 @@ import { sendTheExport } from '../../../../../../Utilities';
 
 //-------------------------------------------------------------------------
 export const exportToCsv = (theData: TransactionArray) => {
-  sendTheExport('csv', convertForExport(theData, ','));
+  sendTheExport('csv', convertToText(theData, ','));
 };
 
 //-------------------------------------------------------------------------
 export const exportToTxt = (theData: TransactionArray) => {
-  sendTheExport('txt', convertForExport(theData, '\t'));
+  sendTheExport('txt', convertToText(theData, '\t'));
 };
 
 //-------------------------------------------------------------------------
@@ -33,7 +33,7 @@ const headers = [
 ];
 
 //-------------------------------------------------------------------------
-const incomeFields = [
+export const incomeFields = [
   'amountIn',
   'internalIn',
   'selfDestructIn',
@@ -45,10 +45,10 @@ const incomeFields = [
 ];
 
 //-------------------------------------------------------------------------
-const outflowFields = ['amountOut', 'internalOut', 'selfDestructOut', 'gasCostOut'];
+export const outflowFields = ['amountOut', 'internalOut', 'selfDestructOut', 'gasCostOut'];
 
 //-------------------------------------------------------------------------
-export const convertForExport = (theData: TransactionArray, delim: string) => {
+export const convertToText = (theData: TransactionArray, delim: string) => {
   const sorted = theData;
   const txs = sorted.flatMap((trans: any) => trans.statements.flatMap((statement: any) => {
     const inflows = incomeFields
