@@ -17,7 +17,7 @@ export const exportToTxt = (theData: TransactionArray) => {
 };
 
 //-------------------------------------------------------------------------
-const headers = [
+export const headers = [
   'blockNumber',
   'transactionIndex',
   'date',
