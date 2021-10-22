@@ -4,16 +4,12 @@ import { createUseStyles } from 'react-jss';
 import {
   Button, Checkbox, Select,
 } from 'antd';
-import { ColumnsType } from 'antd/lib/table';
-
-import { addColumn } from '@components/Table';
-import {
-  Transaction,
-} from '@modules/types';
 
 import { useGlobalState } from '../../../../../State';
-import { downloadRecords } from '../../../../../Utilities';
 import { AccountViewParams } from '../../../Dashboard';
+import {
+  exportToCsv, exportToJson, exportToOfx, exportToTxt,
+} from './Export';
 
 export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   const { denom, setDenom } = useGlobalState();
@@ -40,11 +36,16 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   };
 
   const onExportCSV = () => {
-    downloadRecords(params.theData, exportColumns, ',', '"');
+    exportToCsv(params.theData);
   };
-
   const onExportTXT = () => {
-    downloadRecords(params.theData, exportColumns, '\t', '');
+    exportToTxt(params.theData);
+  };
+  const onExportOFX = () => {
+    exportToOfx(params.theData);
+  };
+  const onExportJson = () => {
+    exportToJson(params.theData);
   };
 
   const repOptions = ['by tx', 'by hour', 'by day', 'by week', 'by month', 'by quarter', 'by year'];
@@ -115,46 +116,15 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
       <Button onClick={onExportTXT} className={styles.exportBtn}>
         TXT...
       </Button>
-      <Button className={styles.exportBtn}>QB...</Button>
+      <Button onClick={onExportJson} className={styles.exportBtn}>
+        JSON...
+      </Button>
+      <Button onClick={onExportOFX} className={styles.exportBtn}>
+        QB...
+      </Button>
     </div>
   );
 };
-
-const exportColumns: ColumnsType<Transaction> = [
-  addColumn({
-    title: 'bn.txid',
-    dataIndex: 'blockNumber',
-    configuration: {
-      render: (unused, record) => `${record.blockNumber}.${record.transactionIndex}`,
-    },
-  }),
-  addColumn({
-    title: 'Hash',
-    dataIndex: 'hash',
-  }),
-  addColumn({
-    title: 'From Address',
-    dataIndex: 'from',
-  }),
-  addColumn({
-    title: 'From Name',
-    dataIndex: 'fromName',
-    configuration: {
-      render: (item) => item.name,
-    },
-  }),
-  addColumn({
-    title: 'To Address',
-    dataIndex: 'to',
-  }),
-  addColumn({
-    title: 'To Name',
-    dataIndex: 'toName',
-    configuration: {
-      render: (item) => item.name,
-    },
-  }),
-];
 
 const useStyles = createUseStyles({
   smallHeader: {

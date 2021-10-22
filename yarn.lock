@@ -1269,6 +1269,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/mustache@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "@types/mustache@npm:4.1.2"
+  checksum: 6dc61434e09d3b51cdc096c5f79ab9cb74609e9764eaa69c0ab367cfc2b1bda2cb65e420fb9ec8201376c046c9b1012017e704698f9dd7ac594277a307083b6e
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*":
   version: 16.3.1
   resolution: "@types/node@npm:16.3.1"
@@ -8847,6 +8854,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mustache@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "mustache@npm:4.2.0"
+  bin:
+    mustache: bin/mustache
+  checksum: 55540771ed2ca0a72d44c747bd57531ca70fd54c4b420eee580ef5ea021101359e679fbadf40f467e69be2b9086fa6a7be8613e91261fa072d5e321f66eaa748
+  languageName: node
+  linkType: hard
+
 "nanoid@npm:^3.1.23":
   version: 3.1.23
   resolution: "nanoid@npm:3.1.23"
@@ -12630,6 +12646,7 @@ resolve@^2.0.0-next.3:
     "@types/jest": ^26.0.20
     "@types/js-cookie": ^2.2.6
     "@types/mousetrap": ^1.6.8
+    "@types/mustache": ^4.1.2
     "@types/react-dom": ^17.0.2
     "@types/react-highlight-words": ^0.16.2
     "@types/react-router-dom": ^5.1.7
@@ -12666,6 +12683,7 @@ resolve@^2.0.0-next.3:
     jest-fetch-mock: ^3.0.3
     js-cookie: ^2.2.1
     mousetrap: ^1.6.5
+    mustache: ^4.2.0
     path-browserify: ^1.0.1
     prop-types: ^15.7.2
     react: ^17.0.1
