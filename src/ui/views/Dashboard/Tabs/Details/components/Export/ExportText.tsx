@@ -22,13 +22,17 @@ export const headers = [
   'transactionIndex',
   'date',
   'time',
+  'assetAddr',
   'assetSymbol',
   'amountIn',
   'amountOut',
+  'spotPrice',
   'type',
-  'assetAddr',
+  'function',
   'from',
   'to',
+  'fromName',
+  'toName',
   'txHash',
 ];
 
@@ -51,38 +55,55 @@ export const outflowFields = ['amountOut', 'internalOut', 'selfDestructOut', 'ga
 export const convertToText = (theData: TransactionArray, delim: string) => {
   const sorted = theData;
   const txs = sorted.flatMap((trans: any) => trans.statements.flatMap((statement: any) => {
+    const {
+      blockNumber, transactionIndex, from, to, hash, fromName, toName, timestamp, compressedTx,
+    } = trans;
+    const {
+      assetAddr, assetSymbol, spotPrice,
+    } = statement;
+    const parts = compressedTx.split('(');
+    const func = parts.length > 0 ? parts[0] : '';
+
     const inflows = incomeFields
-      .filter((field: any) => statement[field].length > 0)
+      .filter((field: any) => !trans.isError && statement[field].length > 0 && statement.amountNet !== 0)
       .map((field: string) => [
-        trans.blockNumber,
-        trans.transactionIndex,
-        dayjs.unix(trans.timestamp).format('YYYY/MM/DD'),
-        dayjs.unix(trans.timestamp).format('HH:mm:ss'),
-        statement.assetSymbol,
+        blockNumber,
+        transactionIndex,
+        dayjs.unix(timestamp).format('YYYY/MM/DD'),
+        dayjs.unix(timestamp).format('HH:mm:ss'),
+        assetAddr,
+        assetSymbol,
         statement[field],
         '0.0000000',
+        spotPrice,
         field,
-        statement.assetAddr,
-        trans.from,
-        trans.to,
-        trans.hash,
+        func,
+        from,
+        to,
+        fromName.name,
+        toName.name,
+        hash,
       ]);
 
     const outflows = outflowFields
-      .filter((field: any) => statement[field].length > 0)
+      .filter((field: any) => !trans.isError && statement[field].length > 0 && statement.amountNet !== 0)
       .map((field: string) => [
-        trans.blockNumber,
-        trans.transactionIndex,
-        dayjs.unix(trans.timestamp).format('YYYY/MM/DD'),
-        dayjs.unix(trans.timestamp).format('HH:mm:ss'),
-        statement.assetSymbol,
+        blockNumber,
+        transactionIndex,
+        dayjs.unix(timestamp).format('YYYY/MM/DD'),
+        dayjs.unix(timestamp).format('HH:mm:ss'),
+        assetAddr,
+        assetSymbol,
         '0.0000000',
         statement[field],
+        spotPrice,
         field,
-        statement.assetAddr,
-        trans.from,
-        trans.to,
-        trans.hash,
+        func,
+        from,
+        to,
+        fromName.name,
+        toName.name,
+        hash,
       ]);
 
     return inflows.concat(outflows);
