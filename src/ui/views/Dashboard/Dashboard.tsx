@@ -88,7 +88,7 @@ export const DashboardView = () => {
     {
       addrs: currentAddress as string,
       fmt: 'json',
-      cache_txs: '',
+      cache: '',
       cache_traces: '',
       // staging: false, // staging,
       // unripe: false, // unripe: '',
