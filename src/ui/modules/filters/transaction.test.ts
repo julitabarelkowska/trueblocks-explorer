@@ -1,11 +1,10 @@
+import { Transaction } from '@sdk';
 import { option as Option } from 'fp-ts';
-
-import { Transaction, TransactionArray } from '@modules/types';
 
 import sampleTransactions from './sample_transactions.json';
 import * as TransactionFilters from './transaction';
 
-const typedSampleTransactions: TransactionArray = sampleTransactions;
+const typedSampleTransactions: Transaction[] = sampleTransactions as unknown as Transaction[];
 const getResults = Option.fold(
   () => [],
   (someTransactions) => someTransactions,
@@ -31,7 +30,7 @@ describe('filterTransactionsByAsset', () => {
 
     const result = getResults(
       TransactionFilters.filterTransactionsByAsset(assetAddress, typedSampleTransactions),
-    ) as TransactionArray;
+    ) as Transaction[];
 
     const expected = typedSampleTransactions
       .filter(
@@ -49,7 +48,7 @@ describe('filterTransactionsByEventName', () => {
 
     const result = getResults(
       TransactionFilters.filterTransactionsByEventName(eventName, typedSampleTransactions),
-    ) as TransactionArray;
+    ) as Transaction[];
 
     const expected = typedSampleTransactions
       .filter(({ receipt }) => receipt?.logs?.find?.(({ articulatedLog }) => articulatedLog?.name === eventName));
@@ -64,7 +63,7 @@ describe('filterTransactionsByFunctionName', () => {
 
     const result = getResults(
       TransactionFilters.filterTransactionsByFunctionName(eventName, typedSampleTransactions),
-    ) as TransactionArray;
+    ) as Transaction[];
 
     const expected = typedSampleTransactions
       .filter(({ articulatedTx }) => articulatedTx?.name === eventName);

@@ -2,7 +2,7 @@ import * as ApiCallers from "../lib/api_callers";
 import { address, blknum, Transaction } from "../types";
 
 export function getSlurp(
-  parameters: {
+  parameters?: {
     addrs: address[],
     blocks?: blknum[],
     types?: string[],

@@ -1,3 +1,4 @@
+import SwaggerParser from '@apidevtools/swagger-parser';
 import { OpenAPIV3 } from 'openapi-types';
 
 import * as pathFile from '../path_file';
@@ -43,7 +44,7 @@ describe('makeFunctionParameters', () => {
         schema: { type: 'boolean' } as OpenAPIV3.NonArraySchemaObject,
       },
     ];
-    const result = pathFile.makeFunctionParameters(input);
+    const result = pathFile.makeFunctionParameters({} as SwaggerParser.$Refs, input);
 
     expect(result.names).toEqual([
       'addrs',

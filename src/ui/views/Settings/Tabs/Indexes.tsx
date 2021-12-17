@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 
+import { getStatus, PinnedChunk } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 
 import { BaseView } from '@components/BaseView';
 import { addColumn, addNumColumn } from '@components/Table';
-import { useFetchDataCaches } from '@hooks/useFetchData';
+import { useSdk } from '@hooks/useSdk';
+import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
-import { Chunk } from '@modules/types';
+import { createEmptyStatus } from '@modules/types/Status';
 
+// import { Chunk } from '@modules/types';
 import {
   SettingsIndexesChartsLocation,
   SettingsIndexesGridLocation,
@@ -20,28 +23,36 @@ import { IndexManifest } from './SubTabs/IndexManifest';
 import { IndexTable } from './SubTabs/IndexTable';
 
 export const IndexesView = () => {
-  const { theData, loading, status } = useFetchDataCaches('status', { mode: 'index', details: '' });
-  if (status === 'fail') {
-    createErrorNotification({
-      description: 'Could not fetch indexes',
-    });
-  }
+  const statusCall = useSdk(() => getStatus({ modes: ['index'], details: true }));
+  const theData = useMemo(() => {
+    if (isSuccessfulCall(statusCall)) return statusCall.data;
+
+    return [createEmptyStatus()];
+  }, [statusCall]);
+
+  useEffect(() => {
+    if (isFailedCall(statusCall)) {
+      createErrorNotification({
+        description: 'Could not fetch indexes',
+      });
+    }
+  }, [statusCall]);
 
   const tabs = [
     {
       name: 'Grid',
       location: SettingsIndexesGridLocation,
-      component: <IndexGrid key='grid' theData={theData} loading={loading} />,
+      component: <IndexGrid key='grid' theData={theData} loading={statusCall.loading} />,
     },
     {
       name: 'Table',
       location: SettingsIndexesTableLocation,
-      component: <IndexTable key='table' theData={theData} loading={loading} />,
+      component: <IndexTable key='table' theData={theData} loading={statusCall.loading} />,
     },
     {
       name: 'Charts',
       location: SettingsIndexesChartsLocation,
-      component: <IndexCharts key='chart' theData={theData} loading={loading} />,
+      component: <IndexCharts key='chart' theData={theData} loading={statusCall.loading} />,
     },
     {
       name: 'Manifest',
@@ -59,7 +70,7 @@ function padLeft(num: number, size: number, char: string = '0') {
   return s;
 }
 
-const renderBlockRange = (record: Chunk) => (
+const renderBlockRange = (record: PinnedChunk) => (
   <div>
     <div>
       {padLeft(record.firstApp, 9)}
@@ -74,7 +85,7 @@ const renderBlockRange = (record: Chunk) => (
   </div>
 );
 
-export const indexSchema: ColumnsType<Chunk> = [
+export const indexSchema: ColumnsType<PinnedChunk> = [
   addColumn({
     title: 'Block Range',
     dataIndex: 'firstApp',

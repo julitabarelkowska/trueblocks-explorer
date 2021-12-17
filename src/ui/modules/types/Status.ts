@@ -1,10 +1,6 @@
-// FIXME: this is a temporary file and it should never get merged
+import { Status } from '@sdk';
 
-import { Cache, Status } from '@sdk';
-
-export type FixedStatus = Status & { cache: Cache[] };
-
-export function createEmptyStatus(): FixedStatus {
+export function createEmptyStatus(): Status {
   return {
     clientVersion: '',
     clientIds: '',
@@ -24,8 +20,9 @@ export function createEmptyStatus(): FixedStatus {
     hasEskey: false,
     hasPinkey: false,
     ts: 0,
-    cache: [
+    caches: [
       {
+        items: [],
         type: '',
         path: '',
         nFiles: 0,
@@ -33,6 +30,7 @@ export function createEmptyStatus(): FixedStatus {
         sizeInBytes: 0,
       },
       {
+        items: [],
         type: '',
         path: '',
         nFiles: 0,
@@ -40,6 +38,7 @@ export function createEmptyStatus(): FixedStatus {
         sizeInBytes: 0,
       },
       {
+        items: [],
         type: '',
         path: '',
         nFiles: 0,
@@ -47,6 +46,7 @@ export function createEmptyStatus(): FixedStatus {
         sizeInBytes: 0,
       },
       {
+        items: [],
         type: '',
         path: '',
         nFiles: 0,
@@ -54,15 +54,5 @@ export function createEmptyStatus(): FixedStatus {
         sizeInBytes: 0,
       },
     ],
-  };
-}
-
-export function createEmptyMeta() {
-  return {
-    unripe: 0,
-    ripe: 0,
-    staging: 0,
-    finalized: 0,
-    client: 0,
   };
 }

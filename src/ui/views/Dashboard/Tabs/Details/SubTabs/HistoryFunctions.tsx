@@ -1,8 +1,7 @@
 import React from 'react';
 
+import { Transaction } from '@sdk';
 import { Card } from 'antd';
-
-import { Transaction } from '@modules/types';
 
 import { useAcctStyles } from '..';
 

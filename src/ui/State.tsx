@@ -7,19 +7,13 @@ import React, {
 } from 'react';
 import { ReactNode } from 'react-markdown';
 
+import { address as Address, Name, Transaction } from '@sdk';
 import Cookies from 'js-cookie';
 
 import {
   getThemeByName, Theme, ThemeName,
 } from '@modules/themes';
-import {
-  Accountname,
-  address as Address,
-  createEmptyTransactionsQuery,
-  createTransactionsQuery,
-  TransactionArray,
-  TransactionsQueryState,
-} from '@modules/types';
+import { createEmptyMeta, Meta } from '@modules/types/Meta';
 
 const THEME: ThemeName = Cookies.get('theme') as ThemeName || 'default';
 const ADDRESS = Cookies.get('address');
@@ -37,11 +31,12 @@ type State = {
   theme: Theme,
   denom: string,
   currentAddress?: string,
-  namesMap: Map<Address, Accountname>
-  namesArray?: Accountname[],
+  namesMap: Map<Address, Name>
+  namesArray?: Name[],
   namesEditModalVisible: boolean,
   namesEditModal: NamesEditModalState,
-  transactions: TransactionsQueryState,
+  transactions: Transaction[],
+  meta: Meta
   totalRecords: number,
 }
 
@@ -61,7 +56,8 @@ const initialState: State = {
   namesArray: [],
   namesEditModalVisible: false,
   namesEditModal: getDefaultNamesEditModalValue(),
-  transactions: createEmptyTransactionsQuery(),
+  transactions: [],
+  meta: createEmptyMeta(),
   totalRecords: 0,
 };
 
@@ -107,7 +103,12 @@ type SetTransactions = {
 
 type AddTransactions = {
   type: 'ADD_TRANSACTIONS',
-  transactions: TransactionArray,
+  transactions: State['transactions'],
+};
+
+type SetMeta = {
+  type: 'SET_META',
+  meta: State['meta'],
 };
 
 type SetTotalRecords = {
@@ -125,6 +126,7 @@ type GlobalAction =
   | SetNamesEditModalVisible
   | SetTransactions
   | AddTransactions
+  | SetMeta
   | SetTotalRecords;
 
 const GlobalStateContext = createContext<[
@@ -154,7 +156,7 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         return {
           ...state,
           currentAddress: action.address,
-          transactions: createEmptyTransactionsQuery(),
+          transactions: [],
           totalRecords: 0,
         };
       }
@@ -186,19 +188,19 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         transactions: action.transactions,
       };
     case 'ADD_TRANSACTIONS': {
-      const currentTransactions = state.transactions.result.data;
-
       return {
         ...state,
-        transactions: createTransactionsQuery({
-          queryData: [
-            ...(typeof currentTransactions === 'string' ? [] : currentTransactions),
-            ...action.transactions,
-          ],
-          meta: state.transactions.result.meta,
-        }),
+        transactions: [
+          ...state.transactions,
+          ...action.transactions,
+        ],
       };
     }
+    case 'SET_META':
+      return {
+        ...state,
+        meta: action.meta,
+      };
     case 'SET_TOTAL_RECORDS':
       return {
         ...state,
@@ -244,8 +246,12 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_TRANSACTIONS', transactions });
   }, [dispatch]);
 
-  const addTransactions = useCallback((transactions: TransactionArray) => {
+  const addTransactions = useCallback((transactions: AddTransactions['transactions']) => {
     dispatch({ type: 'ADD_TRANSACTIONS', transactions });
+  }, [dispatch]);
+
+  const setMeta = useCallback((meta: SetMeta['meta']) => {
+    dispatch({ type: 'SET_META', meta });
   }, [dispatch]);
 
   const setTotalRecords = useCallback((records: SetTotalRecords['records']) => {
@@ -268,12 +274,10 @@ export const useGlobalState = () => {
     namesEditModalVisible: state.namesEditModalVisible,
     setNamesEditModalVisible,
     transactions: state.transactions,
-    transactionsStatus: state.transactions.result.status,
-    transactionsData: state.transactions.result.data,
-    transactionsMeta: state.transactions.result.meta,
-    transactionsLoading: state.transactions.loading,
     setTransactions,
     addTransactions,
+    meta: state.meta,
+    setMeta,
     totalRecords: state.totalRecords,
     setTotalRecords,
   };

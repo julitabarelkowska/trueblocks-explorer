@@ -6,6 +6,7 @@ export type TypeModel = {
   name: string,
   isArray: boolean,
   isRequired: boolean,
+  doNotImport?: boolean,
 }
 
 /**
@@ -134,6 +135,20 @@ export function capitalizeType(lowercaseTypeName: string): string {
   return helpers.capitalize(lowercaseTypeName);
 }
 
+function getObjectOrArrayType(name: string, property: OpenAPIV3.ArraySchemaObject) {
+  if (!property.additionalProperties) {
+    return getNameFromRef((property.items as OpenAPIV3.ReferenceObject).$ref);
+  }
+
+  const { additionalProperties } = property;
+
+  if (typeof additionalProperties === 'object' && helpers.isSchema(additionalProperties)) {
+    return `Record<string, ${additionalProperties.type}>`;
+  }
+
+  throw new Error(`Unsupported format in property ${name}`);
+}
+
 /**
  * Extracts type data from OpenAPI SchemaObject
  */
@@ -148,11 +163,12 @@ export function getTypesFromSchemaProperties(
     types.push({
       name: capitalizeType(
         helpers.isObjectOrArraySchema(property)
-          ? getNameFromRef(property.items.$ref)
+          ? getObjectOrArrayType(name, property)
           : property.format || property.type,
       ),
       isRequired: true,
       isArray: property.type === 'array',
+      doNotImport: Boolean(property.additionalProperties),
     });
   });
 

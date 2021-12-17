@@ -1,3 +1,4 @@
+import SwaggerParser from '@apidevtools/swagger-parser';
 import { StandardizedFilePath } from '@ts-morph/common';
 import { OpenAPIV3 } from 'openapi-types';
 import { basename } from 'path';
@@ -16,23 +17,32 @@ export type PathModel = {
 /**
  * Generates parameters for REST request functions based on OpenAPI schema
  */
-export function makeFunctionParameters(parameters: OpenAPIV3.ParameterObject[]) {
+export function makeFunctionParameters(refs: SwaggerParser.$Refs, parameters: OpenAPIV3.OperationObject['parameters']) {
   // We want to get both parameters' names and types
   const names: string[] = [];
   const extractedTypes: types.TypeModel[] = [];
+  const isRef = (parameter: OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject): parameter is OpenAPIV3.ReferenceObject => '$ref' in parameter;
+  const enumToUnion = (enumItems: string[]): string => enumItems
+    .map((item) => (item === 'true' || item === 'false' || parseInt(item, 10) || parseFloat(item) ? item : `'${item}'`))
+    .join(' | ');
 
-  parameters.forEach((parameter) => {
-    names.push(`${parameter.name}${parameter.required ? '' : '?'}`);
+  (parameters || []).forEach((parameter) => {
+    const parameterConfig = isRef(parameter) ? refs.get(parameter.$ref) : parameter;
+    names.push(`${parameterConfig.name}${parameterConfig.required ? '' : '?'}`);
 
-    const schema = (parameter.schema as OpenAPIV3.SchemaObject);
+    const { schema } = parameterConfig;
+
     const parameterType = (() => {
       if (schema.type !== 'object' && schema.type !== 'array') {
         // if it's not object or an array, the types are defined in `format` or `type`
-        // fields directly
+        // fields directly.
+        // Or it can be an enum:
+        const name = schema.enum ? enumToUnion(schema.enum) : (schema.format || schema.type) as string;
         return {
-          name: (schema.format || schema.type) as string,
+          name,
           isArray: false,
           isRequired: false,
+          doNotImport: Boolean(schema.enum),
         };
       }
 
@@ -57,7 +67,7 @@ export function makeFunctionParameters(parameters: OpenAPIV3.ParameterObject[]) 
 /**
  * Generates all REST functions operating on a given resource in the same file
  */
-export function makePathsInSameFile(project: Project, models: PathModel[]) {
+export function makePathsInSameFile(project: Project, refs: SwaggerParser.$Refs, models: PathModel[]) {
   // Cut the leading slash
   const endpointName = models[0].route.replace(/^\//, '');
   // Keep a list of types used, so that we can import them
@@ -67,13 +77,16 @@ export function makePathsInSameFile(project: Project, models: PathModel[]) {
 
   const source = project.createSourceFile(`${helpers.pathsOutDir}/${endpointName}.ts`, (writer) => {
     models.forEach(({ route, method, path }) => {
+      // eslint-disable-next-line
+      console.log('[path]', method.toUpperCase(), route);
       // Get function parameters (the options that we want to send with the request)
-      const parameters = makeFunctionParameters(path.parameters as OpenAPIV3.ParameterObject[]);
+      const parameters = makeFunctionParameters(refs, path.parameters as OpenAPIV3.ParameterObject[]);
       // Get the type of the data we will get in the response
       const responseType = types.getResponseBodyType(path);
       // Save all types so we can import them (unless they are built in)
       [...parameters.types, ...responseType]
         .filter(types.isNotBuiltinType)
+        .filter((type) => !type.doNotImport)
         .forEach(({ name }) => typesToImport.add(name));
 
       const functionName = `${method}${helpers.capitalize(endpointName)}`;

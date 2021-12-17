@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import { Transaction } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 
 import { Loading } from '@components/Loading';
@@ -8,12 +9,12 @@ import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
 import { createWrapper } from '@hooks/useSearchParams';
 import {
-  ItemCounter, ItemCounterArray, Transaction, TransactionArray,
+  ItemCounter, ItemCounterArray,
 } from '@modules/types';
 
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 
-export const Functions = ({ theData, loading }: { theData: TransactionArray; loading: boolean }) => {
+export const Functions = ({ theData, loading }: { theData: Transaction[]; loading: boolean }) => {
   if (!theData) return <></>;
 
   const counts: Record<string, number> = {};

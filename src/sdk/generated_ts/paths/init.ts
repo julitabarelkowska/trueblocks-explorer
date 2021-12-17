@@ -2,7 +2,7 @@ import * as ApiCallers from "../lib/api_callers";
 import { PinnedChunk, Manifest } from "../types";
 
 export function getInit(
-  parameters: {
+  parameters?: {
     all?: boolean,
   },
   options?: RequestInit,

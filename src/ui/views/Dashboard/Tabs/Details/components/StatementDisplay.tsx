@@ -1,9 +1,7 @@
 import React from 'react';
 import { createUseStyles } from 'react-jss';
 
-import {
-  Transaction,
-} from '@modules/types';
+import { Reconciliation, Transaction } from '@sdk';
 
 import { Statement } from './Statement';
 
@@ -22,7 +20,7 @@ export const StatementDisplay = ({ record }: { record: Transaction}) => {
       <div>
         <table>
           <tbody>
-            {record.statements?.map((statement, i) => (
+            {(record.statements as unknown as Reconciliation[])?.map((statement, i) => (
               <Statement
                 key={`statement.assetAddr + ${i.toString()}`}
                 statement={statement}

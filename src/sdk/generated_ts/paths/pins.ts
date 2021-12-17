@@ -2,7 +2,8 @@ import * as ApiCallers from "../lib/api_callers";
 import { PinnedChunk, Manifest } from "../types";
 
 export function getPins(
-  parameters: {
+  parameters?: {
+    fmt?: 'json' | 'csv' | 'txt' | 'api',
     list?: boolean,
     init?: boolean,
     all?: boolean,

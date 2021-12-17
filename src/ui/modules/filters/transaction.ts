@@ -1,7 +1,6 @@
+import { Transaction } from '@sdk';
 import { Eq } from 'fp-ts/lib/Eq';
 import { none, some } from 'fp-ts/lib/Option';
-
-import { Transaction, TransactionArray } from '@modules/types';
 
 export const TransactionEquality: Eq<Transaction> = {
   equals({ hash: firstHash }: Transaction, { hash: secondHash }: Transaction) {
@@ -10,9 +9,9 @@ export const TransactionEquality: Eq<Transaction> = {
 };
 
 export function createTransactionFilter(
-  filter: (valueToFilterBy: string, transactions: TransactionArray) => TransactionArray,
+  filter: (valueToFilterBy: string, transactions: Transaction[]) => Transaction[],
 ) {
-  return (valueToFilterBy: string, transactions: TransactionArray) => {
+  return (valueToFilterBy: string, transactions: Transaction[]) => {
     if (!valueToFilterBy) return none;
 
     const foundTransactions = filter(valueToFilterBy, transactions);
@@ -61,7 +60,7 @@ export function hasTransactionFunction({ articulatedTx }: Transaction, functionN
 }
 
 export function applyFilters(
-  transactions: TransactionArray,
+  transactions: Transaction[],
   { assetAddress, eventName, functionName }: { assetAddress?: string, eventName?: string, functionName?: string },
 ) {
   return transactions.filter((transaction) => {

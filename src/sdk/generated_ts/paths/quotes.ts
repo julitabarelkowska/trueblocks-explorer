@@ -2,10 +2,11 @@ import * as ApiCallers from "../lib/api_callers";
 import { Quote } from "../types";
 
 export function getQuotes(
-  parameters: {
-    period?: string,
+  parameters?: {
+    fmt?: 'json' | 'csv' | 'txt' | 'api',
+    period?: 5 | 15 | 30 | 60 | 120 | 240 | 1440 | 10080 | 'hourly' | 'daily' | 'weekly',
     pair?: string,
-    feed?: string,
+    feed?: 'poloniex' | 'maker' | 'tellor',
   },
   options?: RequestInit,
 ) {

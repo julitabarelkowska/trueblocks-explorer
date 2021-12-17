@@ -2,7 +2,8 @@ import * as ApiCallers from "../lib/api_callers";
 import { address, blknum, Token } from "../types";
 
 export function getTokens(
-  parameters: {
+  parameters?: {
+    fmt?: 'json' | 'csv' | 'txt' | 'api',
     addrs2: address[],
     blocks?: blknum[],
     parts?: string[],

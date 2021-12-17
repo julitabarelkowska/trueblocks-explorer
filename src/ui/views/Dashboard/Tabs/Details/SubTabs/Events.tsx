@@ -1,18 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import { Transaction } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
 import { createWrapper } from '@hooks/useSearchParams';
 import {
-  ItemCounter, ItemCounterArray, Transaction, TransactionArray,
+  ItemCounter, ItemCounterArray,
 } from '@modules/types';
 
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 
-export const Events = ({ theData, loading }: { theData: TransactionArray; loading: boolean }) => {
+export const Events = ({ theData }: { theData: Transaction[] }) => {
   if (!theData) return <></>;
 
   const counts: Record<string, number> = {};

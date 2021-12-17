@@ -3,20 +3,21 @@ import React, {
 } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import {
+  getExport, getList, ListStats, Reconciliation, Transaction,
+} from '@sdk';
 import Mousetrap from 'mousetrap';
 
 import { BaseView } from '@components/BaseView';
-import {
-  useCommand,
-} from '@hooks/useCommand';
+import { useSdk } from '@hooks/useSdk';
+import { CallStatus, isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 import {
+  // This type seems like a part of UI (presentation layer)
   AssetHistory,
   AssetHistoryArray,
   createEmptyAccountname,
-  Reconciliation,
-  Transaction,
-  TransactionArray,
+  // Reconciliation,
 } from '@modules/types';
 
 import {
@@ -44,9 +45,8 @@ export const DashboardView = () => {
   const { namesMap } = useGlobalNames();
   const { totalRecords, setTotalRecords } = useGlobalState();
   const {
-    transactionsStatus,
-    transactionsData: transactions, // rename GlobalState.transactionsData to transactions here
-    transactionsMeta,
+    transactions,
+    meta: transactionsMeta,
     setTransactions,
     addTransactions,
   } = useGlobalState();
@@ -61,14 +61,6 @@ export const DashboardView = () => {
     }
   }, [searchParams, setCurrentAddress]);
 
-  useEffect(() => {
-    if (transactionsStatus === 'fail') {
-      createErrorNotification({
-        description: 'Could not fetch transactions',
-      });
-    }
-  }, [transactionsStatus]);
-
   // clean up mouse control when we unmount
   useEffect(() => {
     Mousetrap.bind('esc', () => setCancel(true));
@@ -78,74 +70,75 @@ export const DashboardView = () => {
     };
   }, []);
 
-  const [listRequest] = useCommand(
-    'list',
-    {
-      count: '',
-      appearances: '',
-      addrs: currentAddress as string,
-    },
-    () => currentAddress?.slice(0, 2) === '0x',
-    [currentAddress],
-  );
+  const listRequest = useSdk(() => getList({
+    count: true,
+    appearances: true,
+    addrs: [currentAddress as string],
+  }),
+  () => currentAddress?.slice(0, 2) === '0x',
+  [currentAddress]) as CallStatus<ListStats[]>;
 
   useEffect(() => {
-    setTotalRecords(listRequest.status === 'success' ? listRequest.data[0]?.nRecords : 0);
-  }, [listRequest.data, listRequest.status, setTotalRecords]);
+    if (!isSuccessfulCall(listRequest)) return;
+    setTotalRecords(listRequest.data[0]?.nRecords);
+  }, [listRequest, listRequest.type, setTotalRecords]);
 
   // Run this effect until we fetch the last transaction
-  const [transactionsRequest, transactionsLoading] = useCommand(
-    'export',
-    {
-      addrs: currentAddress as string,
-      fmt: 'json',
-      cache: '',
-      cacheTraces: '',
-      // staging: false, // staging,
-      // unripe: false, // unripe: '',
-      ether: '',
-      // dollars: false,
-      articulate: '',
-      accounting: '',
-      // reversed: false,
-      relevant: '',
-      // summarize_by: 'monthly',
-      // If there's only 1 transaction, it's probably the default empty one, so we can
-      // start from 0
-      firstRecord: transactions.length === 1 ? 0 : transactions.length,
-      maxRecords: (() => {
-        if (transactions.length < 50) return 10;
+  const transactionsRequest = useSdk(() => getExport({
+    addrs: [currentAddress as string],
+    fmt: 'json',
+    cache: true,
+    cacheTraces: true,
+    // staging: false, // staging,
+    // unripe: false, // unripe: '',
+    ether: true,
+    // dollars: false,
+    articulate: true,
+    accounting: true,
+    // reversed: false,
+    relevant: true,
+    // summarize_by: 'monthly',
+    firstRecord: transactions.length,
+    maxRecords: String((() => {
+      if (transactions.length < 50) return 10;
 
-        if (transactions.length < 150) return 71;
+      if (transactions.length < 150) return 71;
 
-        if (transactions.length < 1500) return 239;
+      if (transactions.length < 1500) return 239;
 
-        return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
-      })(),
-    },
-    () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
-    [currentAddress, totalRecords, transactions.length],
-  );
+      return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
+    })()),
+  }),
+  () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
+  [currentAddress, totalRecords, transactions.length]);
 
   useEffect(() => {
-    const stateToSet = !transactionsLoading ? false : transactions.length < 10;
+    if (isFailedCall(transactionsRequest)) {
+      createErrorNotification({
+        description: 'Could not fetch transactions',
+      });
+    }
+  }, [transactionsRequest]);
+
+  useEffect(() => {
+    const stateToSet = !transactionsRequest.loading ? false : transactions.length < 10;
 
     setLoading(stateToSet);
-  }, [transactions.length, transactionsLoading]);
+  }, [transactions.length, transactionsRequest.loading]);
 
   useEffect(() => {
-    if (!transactionsRequest.data.length) return;
+    if (!isSuccessfulCall(transactionsRequest)) return;
 
     addTransactions(
-      transactionsRequest.data as TransactionArray,
+      transactionsRequest.data as Transaction[],
     );
-  }, [addTransactions, transactionsRequest, transactionsRequest.data]);
+  }, [addTransactions, transactionsRequest]);
 
   // Store raw data, because it can be huge and we don't want to have to reload it
   // every time a user toggles "hide reconciled".
-  const transactionModels = useMemo(() => (transactions as Transaction[])
-    // TODO: remove this filter when we fix emptyData in useCommand (it should never
-    // return an array with an empty object)
+  const transactionModels = useMemo(() => transactions
+  // TODO: remove this filter when we fix emptyData in useCommand (it should never
+  // return an array with an empty object)
     .filter(({ hash }) => Boolean(hash))
     .map((transaction, index) => {
       const newId = String(index + 1);

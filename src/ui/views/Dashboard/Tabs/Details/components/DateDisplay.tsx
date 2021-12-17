@@ -1,10 +1,7 @@
 import React from 'react';
 
+import { Transaction } from '@sdk';
 import dayjs from 'dayjs';
-
-import {
-  Transaction,
-} from '@modules/types';
 
 export const DateDisplay = ({ record }: { record: Transaction}) => {
   if (!record) return <div />;

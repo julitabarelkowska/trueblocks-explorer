@@ -1,10 +1,7 @@
 import React from 'react';
 
-import {
-  Transaction,
-} from '@modules/types';
-
-import { useGlobalNames } from '../../../../../State';
+import { Transaction } from '@sdk';
+import { useGlobalNames } from '@state';
 
 export const RenderedAddress = ({ record, which }: {record: Transaction, which: string}) => {
   const { namesMap } = useGlobalNames();

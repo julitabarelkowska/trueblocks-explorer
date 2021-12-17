@@ -2,7 +2,8 @@ import * as ApiCallers from "../lib/api_callers";
 import { tx_id, Receipt } from "../types";
 
 export function getReceipts(
-  parameters: {
+  parameters?: {
+    fmt?: 'json' | 'csv' | 'txt' | 'api',
     transactions: tx_id[],
     articulate?: boolean,
   },

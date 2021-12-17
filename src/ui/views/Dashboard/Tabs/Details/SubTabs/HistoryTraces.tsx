@@ -1,8 +1,7 @@
 import React from 'react';
 
+import { Log, Transaction } from '@sdk';
 import { Card } from 'antd';
-
-import { LogentryArray, Transaction } from '@modules/types';
 
 import { useAcctStyles } from '..';
 
@@ -32,10 +31,10 @@ export const AccountHistoryTraces = ({ record }: { record: Transaction }) => {
 };
 
 //-----------------------------------------------------------------
-const showLogs = (logs: LogentryArray) => {
+const showLogs = (logs: Log[]) => {
   if (!logs) return <></>;
   return logs.map((log, index) => (
-    <pre key={index}>
+    <pre key={log.address}>
       [
       {index}
       ]:

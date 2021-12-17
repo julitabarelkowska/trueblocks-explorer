@@ -4,11 +4,8 @@ import { createUseStyles } from 'react-jss';
 import {
   Card, Col, Row, Switch,
 } from 'antd';
-import { either } from 'fp-ts';
-import { pipe } from 'fp-ts/lib/function';
 
-import { ScraperResult, toFailedScrapeResult, toSuccessfulScraperData } from '@hooks/useCommand';
-import { JsonResponse, runCommand } from '@modules/core';
+import { JsonResponse } from '@modules/core';
 
 const useStyles = createUseStyles({
   card: {
@@ -19,54 +16,71 @@ const useStyles = createUseStyles({
   },
 });
 
-const formatResponse = (response: either.Either<Error, Record<string, any>>) => {
-  const result: ScraperResult = pipe(
-    response,
-    either.fold(toFailedScrapeResult, (serverResponse) => toSuccessfulScraperData(serverResponse) as ScraperResult),
-  );
-  return result;
-};
-
 export const Scrapers = () => {
-  const [indexer, setIndexer] = useState({} as JsonResponse);
-  const [monitors, setMonitors] = useState({} as JsonResponse);
+  const [indexer] = useState({} as JsonResponse);
+  const [monitors] = useState({} as JsonResponse);
 
   const toggleIndexer = async () => {
-    const response = await runCommand('scraper', {
-      toggle: 'indexer',
-      mode: !indexer.Running,
-    });
-    const result = formatResponse(response);
-    setIndexer(result.indexer);
+    // FIXME: This route is broken right now
+    // const scraperCall = wrapResponse(await sdkFetch<ScraperState>({
+    //   endpoint: 'scrape',
+    //   method: 'get',
+    //   parameters: {
+    //     toggle: 'indexer',
+    //     mode: !indexer.Running,
+    //   },
+    // }));
+
+    // if (isSuccessfulCall(scraperCall)) {
+    //   setIndexer(scraperCall.data.indexer);
+    // }
   };
 
   const toggleMonitors = async () => {
-    const response = await runCommand('scraper', {
-      toggle: 'monitors',
-      mode: !monitors.Running,
-    });
-    const result = formatResponse(response);
-    setMonitors(result.monitor);
+    // const scraperCall = wrapResponse(await sdkFetch<FixedScrape>({
+    //   endpoint: 'scrape',
+    //   method: 'get',
+    //   parameters: {
+    //     toggle: 'monitors',
+    //     mode: !monitors.Running,
+    //   },
+    // }));
+
+    // if (isSuccessfulCall(scraperCall)) {
+    //   setMonitors(scraperCall.data.monitor);
+    // }
   };
 
   const toggleBoth = async () => {
-    const bothOn = !(indexer.Running && monitors.Running);
-    const response = await runCommand('scraper', {
-      toggle: 'both',
-      mode: bothOn,
-    });
-    const result = formatResponse(response);
-    setIndexer(result.indexer);
-    setMonitors(result.monitor);
+    // const bothOn = !(indexer.Running && monitors.Running);
+    // const scraperCall = wrapResponse(await sdkFetch<FixedScrape>({
+    //   endpoint: 'scrape',
+    //   method: 'get',
+    //   parameters: {
+    //     toggle: 'both',
+    //     mode: bothOn,
+    //   },
+    // }));
+
+    // if (isSuccessfulCall(scraperCall)) {
+    //   setIndexer(scraperCall.data.indexer);
+    //   setMonitors(scraperCall.data.monitor);
+    // }
   };
 
   useEffect(() => {
-    (async () => {
-      const response = await runCommand('scraper', { status: 'both' });
-      const result = formatResponse(response);
-      setIndexer(result.indexer);
-      setMonitors(result.monitor);
-    })();
+    // (async () => {
+    //   const scraperCall = wrapResponse(await sdkFetch<FixedScrape>({
+    //     endpoint: 'scrape',
+    //     method: 'get',
+    //     parameters: { status: 'both' },
+    //   }));
+
+    //   if (isSuccessfulCall(scraperCall)) {
+    //     setIndexer(scraperCall.data.indexer);
+    //     setMonitors(scraperCall.data.monitor);
+    //   }
+    // })();
   }, []);
 
   const styles = useStyles();

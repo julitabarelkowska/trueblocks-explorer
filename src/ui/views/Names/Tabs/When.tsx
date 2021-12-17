@@ -1,24 +1,24 @@
 import React from 'react';
 
+import { Block, getWhen } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 
+import { ResourceTable } from '@components/ResourceTable';
 import {
-  addActionsColumn, addColumn, addNumColumn, BaseTable, TableActions,
+  addActionsColumn, addColumn, addNumColumn, TableActions,
 } from '@components/Table';
-import { useFetchData } from '@hooks/useFetchData';
-import { createErrorNotification } from '@modules/error_notification';
-import { Block } from '@modules/types';
+import { useSdk } from '@hooks/useSdk';
 
 export const When = () => {
-  const { theData, loading, status } = useFetchData('when', { list: '' });
+  const dataCall = useSdk(() => getWhen({ list: true }));
 
-  if (status === 'fail') {
-    createErrorNotification({
-      description: 'Could not fetch named blocks',
-    });
-  }
-
-  return <BaseTable dataSource={theData} columns={whenSchema} loading={loading} />;
+  return (
+    <ResourceTable
+      resourceName='tags'
+      call={dataCall}
+      columns={whenSchema}
+    />
+  );
 };
 
 const whenSchema: ColumnsType<Block> = [
