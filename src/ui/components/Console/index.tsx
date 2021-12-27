@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { addActionListener, removeListener } from '../../websockets';
+import { useGlobalState } from '../../State';
 
 function getProgress(string: string) {
   const str = string.replace(/\s+/g, ' ');
@@ -19,7 +20,10 @@ export const Console = (props: any) => {
       if (content) {
         const { msg, done, total } = getProgress(content);
         const toPercent = () => ((parseInt(done, 10) / parseInt(total, 10)) * 100).toFixed(0);
-        const completed = msg.includes('Finished') || msg.includes('Completed');
+        const completed = done == total;
+        content = content.replace("Completed", "Fetching");
+        content = content.replace("Finished", "Fetching");
+        content = content.replace("\n", "");
         const progressPercentage = completed ? 0 : toPercent();
         setOp(completed ? '' : content);
         setProgressPct(progressPercentage);
@@ -29,34 +33,24 @@ export const Console = (props: any) => {
     return () => removeListener(listener);
   }, []);
 
-  const { asText, style } = props;
-  const item = asText ? (
-    <pre>
-      {op}
-    </pre>
-  ) : <progress max='100' value={progPct} />;
-
   if (finished) return <></>;
+
   return (
-    <>
-      {asText ? (
-        <div
-          style={{
-            backgroundColor: 'black',
-            color: 'yellow',
-            borderRadius: '4px',
-            padding: '4px',
-            minWidth: '600px',
-            width: '50%',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          {item}
-        </div>
-      ) : (
-        <div style={{ ...style }}>{item}</div>
-      )}
-    </>
+    <div>
+      <progress style={{width: '800px', height: '30px'}} value={progPct} max='100'/>
+      <div
+        style={{
+          backgroundColor: 'black',
+          color: 'yellow',
+          borderRadius: '4px',
+          padding: '4px',
+          minWidth: '800px',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{fontFamily: 'Courier New,monospace'}}>{op}</div>
+      </div>
+    </div>
   );
 };

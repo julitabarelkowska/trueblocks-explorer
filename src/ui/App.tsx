@@ -146,7 +146,7 @@ export const App = () => {
           </Layout>
           <Footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div />
-            <Console asText />
+            <Console />
             <div />
           </Footer>
         </Layout>
