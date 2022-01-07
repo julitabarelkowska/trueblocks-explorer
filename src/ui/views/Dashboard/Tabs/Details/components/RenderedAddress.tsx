@@ -1,10 +1,9 @@
 import React from 'react';
 
+import { Transaction } from '@sdk';
 import { useGlobalNames } from '@state';
 
-import { FixedTransaction } from '@modules/type_fixes';
-
-export const RenderedAddress = ({ record, which }: {record: FixedTransaction, which: string}) => {
+export const RenderedAddress = ({ record, which }: {record: Transaction, which: string}) => {
   const { namesMap } = useGlobalNames();
 
   let address = which === 'from' ? record.from : record.to;

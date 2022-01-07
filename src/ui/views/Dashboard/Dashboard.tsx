@@ -4,7 +4,7 @@ import React, {
 import { useLocation } from 'react-router-dom';
 
 import {
-  getExport, getList, Reconciliation, Transaction,
+  getExport, getList, ListStats, Reconciliation, Transaction,
 } from '@sdk';
 import Mousetrap from 'mousetrap';
 
@@ -12,7 +12,6 @@ import { BaseView } from '@components/BaseView';
 import { useSdk } from '@hooks/useSdk';
 import { CallStatus, isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
-import { FixedExportParameters, FixedListCount } from '@modules/type_fixes';
 import {
   // This type seems like a part of UI (presentation layer)
   AssetHistory,
@@ -77,7 +76,7 @@ export const DashboardView = () => {
     addrs: [currentAddress as string],
   }),
   () => currentAddress?.slice(0, 2) === '0x',
-  [currentAddress]) as CallStatus<FixedListCount[]>;
+  [currentAddress]) as CallStatus<ListStats[]>;
 
   useEffect(() => {
     if (!isSuccessfulCall(listRequest)) return;
@@ -109,7 +108,7 @@ export const DashboardView = () => {
 
       return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
     })()),
-  } as unknown as FixedExportParameters),
+  }),
   () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
   [currentAddress, totalRecords, transactions.length]);
 
@@ -131,8 +130,7 @@ export const DashboardView = () => {
     if (!isSuccessfulCall(transactionsRequest)) return;
 
     addTransactions(
-      // FIXME: typecast needed to make it work
-      transactionsRequest.data as unknown as Transaction[],
+      transactionsRequest.data as Transaction[],
     );
   }, [addTransactions, transactionsRequest]);
 

@@ -1,18 +1,17 @@
+import { Transaction } from '@sdk';
 import { Eq } from 'fp-ts/lib/Eq';
 import { none, some } from 'fp-ts/lib/Option';
 
-import { FixedTransaction } from '@modules/type_fixes';
-
-export const TransactionEquality: Eq<FixedTransaction> = {
-  equals({ hash: firstHash }: FixedTransaction, { hash: secondHash }: FixedTransaction) {
+export const TransactionEquality: Eq<Transaction> = {
+  equals({ hash: firstHash }: Transaction, { hash: secondHash }: Transaction) {
     return firstHash === secondHash;
   },
 };
 
 export function createTransactionFilter(
-  filter: (valueToFilterBy: string, transactions: FixedTransaction[]) => FixedTransaction[],
+  filter: (valueToFilterBy: string, transactions: Transaction[]) => Transaction[],
 ) {
-  return (valueToFilterBy: string, transactions: FixedTransaction[]) => {
+  return (valueToFilterBy: string, transactions: Transaction[]) => {
     if (!valueToFilterBy) return none;
 
     const foundTransactions = filter(valueToFilterBy, transactions);
@@ -36,7 +35,7 @@ export const filterTransactionsByFunctionName = createTransactionFilter(
     .filter((transaction) => hasTransactionFunction(transaction, functionName)),
 );
 
-export function hasTransactionAsset({ statements }: FixedTransaction, assetAddress: string) {
+export function hasTransactionAsset({ statements }: Transaction, assetAddress: string) {
   if (!assetAddress) return false;
 
   return Boolean(
@@ -45,7 +44,7 @@ export function hasTransactionAsset({ statements }: FixedTransaction, assetAddre
   );
 }
 
-export function hasTransactionEvent({ receipt }: FixedTransaction, eventName: string) {
+export function hasTransactionEvent({ receipt }: Transaction, eventName: string) {
   if (!eventName) return false;
 
   return Boolean(
@@ -54,14 +53,14 @@ export function hasTransactionEvent({ receipt }: FixedTransaction, eventName: st
   );
 }
 
-export function hasTransactionFunction({ articulatedTx }: FixedTransaction, functionName: string) {
+export function hasTransactionFunction({ articulatedTx }: Transaction, functionName: string) {
   if (!functionName) return false;
 
   return articulatedTx?.name === functionName;
 }
 
 export function applyFilters(
-  transactions: FixedTransaction[],
+  transactions: Transaction[],
   { assetAddress, eventName, functionName }: { assetAddress?: string, eventName?: string, functionName?: string },
 ) {
   return transactions.filter((transaction) => {

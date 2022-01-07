@@ -2,9 +2,9 @@ import * as ApiCallers from "../lib/api_callers";
 import { PinnedChunk, Manifest } from "../types";
 
 export function getScrape(
-  parameters: {
+  parameters?: {
     modes: string[],
-    action?: string,
+    action?: 'toggle' | 'run' | 'restart' | 'pause' | 'quit',
     sleep?: number,
     pin?: boolean,
     publish?: boolean,

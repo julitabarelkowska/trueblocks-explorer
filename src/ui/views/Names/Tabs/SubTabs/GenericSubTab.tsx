@@ -4,7 +4,6 @@ import { Function, getAbis } from '@sdk';
 
 import { ResourceTable } from '@components/ResourceTable';
 import { useSdk } from '@hooks/useSdk';
-import { CallStatus } from '@modules/api/call_status';
 
 import { abiSignature } from '../Signatures';
 
@@ -15,12 +14,12 @@ type GenericSubTabProps = {
 
 // This component encapsulates all the similarities that Event and Function signatures tabs share
 export function GenericSubTab({ filterFunc, resourceName }: GenericSubTabProps) {
-  // FIXME: type casts (wrong function parameters in OpenAPI.yaml, wrong return type
   const dataCall = useSdk(() => getAbis({
+    addrs: [],
     known: true,
     source: true,
     logLevel: 2,
-  } as unknown as Parameters<typeof getAbis>[0])) as CallStatus<Function[]>;
+  }));
 
   return (
     <ResourceTable

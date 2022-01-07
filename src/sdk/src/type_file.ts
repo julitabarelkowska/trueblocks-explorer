@@ -18,6 +18,9 @@ export function makeType(project: Project, typeName: string, schema: OpenAPIV3.S
   // This is a utility type that we don't really need
   if (typeName === 'response') return '';
 
+  // eslint-disable-next-line
+  console.log('[type]', typeName);
+
   // We want to use capital letters for complex types (objects)
   const uppercased = helpers.capitalize(typeName);
   const fileName = `${typeName}`;
@@ -28,6 +31,7 @@ export function makeType(project: Project, typeName: string, schema: OpenAPIV3.S
   // Save the names of the types that we use, so we can import them
   namesAndTypes.types
     .filter(types.isNotBuiltinType)
+    .filter((type) => !type.doNotImport)
     // Don't import the type if we're using recursive types
     .filter(({ name }) => name !== uppercased)
     .forEach(({ name }) => typesToImport.add(name));

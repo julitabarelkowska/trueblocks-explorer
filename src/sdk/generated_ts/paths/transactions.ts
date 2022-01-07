@@ -2,7 +2,8 @@ import * as ApiCallers from "../lib/api_callers";
 import { tx_id, Transaction } from "../types";
 
 export function getTransactions(
-  parameters: {
+  parameters?: {
+    fmt?: 'json' | 'csv' | 'txt' | 'api',
     transactions: tx_id[],
     articulate?: boolean,
     trace?: boolean,

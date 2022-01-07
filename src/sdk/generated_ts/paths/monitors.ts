@@ -2,7 +2,8 @@ import * as ApiCallers from "../lib/api_callers";
 import { address, Monitor } from "../types";
 
 export function getMonitors(
-  parameters: {
+  parameters?: {
+    fmt?: 'json' | 'csv' | 'txt' | 'api',
     addrs: address[],
     appearances?: boolean,
     count?: boolean,

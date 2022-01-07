@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 
+import { Reconciliation } from '@sdk';
 import { useGlobalState } from '@state';
 
 import {
   priceReconciliation,
-  Reconciliation,
 } from '@modules/types';
 
 import { ReconIcon } from './ReconIcon';

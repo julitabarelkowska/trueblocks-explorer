@@ -8,7 +8,6 @@ import {
   addActionsColumn, addColumn, TableActions,
 } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
-// FIXME: type missing in SDK
 import { Tag } from '@modules/types/Tag';
 
 export const Tags = () => {

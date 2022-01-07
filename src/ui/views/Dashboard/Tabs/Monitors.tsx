@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 
 import { PlusCircleFilled, SearchOutlined } from '@ant-design/icons';
-import { getStatus } from '@sdk';
+import { getStatus, Monitor, Status } from '@sdk';
 import {
   Button, Input,
 } from 'antd';
@@ -19,7 +19,6 @@ import {
 } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 import { renderClickableAddress } from '@modules/renderers';
-import { FixedMonitor, FixedStatus } from '@modules/type_fixes';
 
 import { useGlobalState } from '../../../State';
 import { goToUrl } from '../../../Utilities';
@@ -38,7 +37,7 @@ export const Monitors = () => {
   const [selectedNameTags] = useState('');
   const [loadingEdit, setLoadingEdit] = useState(false);
 
-  const monitorsCall = useSdk(() => getStatus({ modes: ['monitors'], details: true })) as CallStatus<FixedStatus[]>;
+  const monitorsCall = useSdk(() => getStatus({ modes: ['monitors'], details: true })) as CallStatus<Status[]>;
   if (isFailedCall(monitorsCall)) {
     createErrorNotification({
       description: 'Could not fetch monitors',
@@ -233,7 +232,7 @@ const ResetButton = ({ onClick }: { onClick: any }) => (
   </Button>
 );
 
-const monitorSchema: ColumnsType<FixedMonitor> = [
+const monitorSchema: ColumnsType<Monitor> = [
   addColumn({
     title: 'Name / Address',
     dataIndex: 'searchStr',
@@ -274,7 +273,7 @@ const monitorSchema: ColumnsType<FixedMonitor> = [
     title: 'sizeInBytes',
     dataIndex: 'sizeInBytes',
   }),
-  addActionsColumn<FixedMonitor>(
+  addActionsColumn<Monitor>(
     {
       title: 'Actions',
       dataIndex: '',
@@ -289,7 +288,7 @@ const monitorSchema: ColumnsType<FixedMonitor> = [
   ),
 ];
 
-function getTableActions(item: FixedMonitor) {
+function getTableActions(item: Monitor) {
   const onClick = (action: string, monitor: typeof item) => {
     switch (action) {
       case 'info':

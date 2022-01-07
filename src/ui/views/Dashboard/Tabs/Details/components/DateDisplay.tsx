@@ -1,10 +1,9 @@
 import React from 'react';
 
+import { Transaction } from '@sdk';
 import dayjs from 'dayjs';
 
-import { FixedTransaction } from '@modules/type_fixes';
-
-export const DateDisplay = ({ record }: { record: FixedTransaction}) => {
+export const DateDisplay = ({ record }: { record: Transaction}) => {
   if (!record) return <div />;
 
   // Convert the date to standard ISO 8601 format that JavaScript understands

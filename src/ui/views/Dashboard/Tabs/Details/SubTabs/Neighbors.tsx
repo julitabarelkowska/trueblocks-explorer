@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { FixedTransaction } from '@modules/type_fixes';
+import { Transaction } from '@sdk';
 
 export const Neighbors = ({
   theData,
 }: {
-  theData: FixedTransaction[],
+  theData: Transaction[],
 }) => {
   const neighbors = theData.flatMap((item) => [
     {

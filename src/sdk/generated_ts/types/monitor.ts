@@ -8,4 +8,10 @@ export type Monitor = {
   tags: string
   address: address
   isCustom: boolean
+  name: string
+  symbol: string
+  source: string
+  decimals: number
+  isContract: boolean
+  isValid: boolean
 }

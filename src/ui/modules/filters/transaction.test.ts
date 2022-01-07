@@ -1,12 +1,10 @@
+import { Transaction } from '@sdk';
 import { option as Option } from 'fp-ts';
-
-import { FixedTransaction } from '@modules/type_fixes';
 
 import sampleTransactions from './sample_transactions.json';
 import * as TransactionFilters from './transaction';
 
-// FIXME: typecast
-const typedSampleTransactions: FixedTransaction[] = sampleTransactions as unknown as FixedTransaction[];
+const typedSampleTransactions: Transaction[] = sampleTransactions as unknown as Transaction[];
 const getResults = Option.fold(
   () => [],
   (someTransactions) => someTransactions,
@@ -21,7 +19,7 @@ describe('createTransactionFilter', () => {
   it('returns Option.some when match', () => {
     const result = TransactionFilters.createTransactionFilter(
       (value, transactions) => transactions.filter((item) => item.blockHash === value),
-    )('deadbeaf', [{ blockHash: 'deadbeaf' } as FixedTransaction]);
+    )('deadbeaf', [{ blockHash: 'deadbeaf' } as Transaction]);
     expect(Option.isSome(result)).toBe(true);
   });
 });
@@ -32,7 +30,7 @@ describe('filterTransactionsByAsset', () => {
 
     const result = getResults(
       TransactionFilters.filterTransactionsByAsset(assetAddress, typedSampleTransactions),
-    ) as FixedTransaction[];
+    ) as Transaction[];
 
     const expected = typedSampleTransactions
       .filter(
@@ -50,7 +48,7 @@ describe('filterTransactionsByEventName', () => {
 
     const result = getResults(
       TransactionFilters.filterTransactionsByEventName(eventName, typedSampleTransactions),
-    ) as FixedTransaction[];
+    ) as Transaction[];
 
     const expected = typedSampleTransactions
       .filter(({ receipt }) => receipt?.logs?.find?.(({ articulatedLog }) => articulatedLog?.name === eventName));
@@ -65,7 +63,7 @@ describe('filterTransactionsByFunctionName', () => {
 
     const result = getResults(
       TransactionFilters.filterTransactionsByFunctionName(eventName, typedSampleTransactions),
-    ) as FixedTransaction[];
+    ) as Transaction[];
 
     const expected = typedSampleTransactions
       .filter(({ articulatedTx }) => articulatedTx?.name === eventName);

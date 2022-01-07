@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TransactionModel } from '@modules/type_fixes';
+import { TransactionModel } from '@modules/types/models/Transaction';
 
 import { Pills } from './Pills';
 import { RenderedAddress } from './RenderedAddress';

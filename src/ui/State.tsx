@@ -13,7 +13,7 @@ import Cookies from 'js-cookie';
 import {
   getThemeByName, Theme, ThemeName,
 } from '@modules/themes';
-import { createEmptyMeta, Meta } from '@modules/type_fixes';
+import { createEmptyMeta, Meta } from '@modules/types/Meta';
 
 const THEME: ThemeName = Cookies.get('theme') as ThemeName || 'default';
 const ADDRESS = Cookies.get('address');

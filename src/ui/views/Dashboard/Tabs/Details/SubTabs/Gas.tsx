@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TransactionModel } from '@modules/type_fixes';
+import { TransactionModel } from '@modules/types/models/Transaction';
 
 export const Gas = ({ theData }: { theData: TransactionModel[] }) => {
   if (!theData) return <></>;

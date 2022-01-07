@@ -1,12 +1,11 @@
 import React from 'react';
 import { createUseStyles } from 'react-jss';
 
-import { FixedTransaction } from '@modules/type_fixes';
-import { Reconciliation } from '@modules/types';
+import { Reconciliation, Transaction } from '@sdk';
 
 import { Statement } from './Statement';
 
-export const StatementDisplay = ({ record }: { record: FixedTransaction}) => {
+export const StatementDisplay = ({ record }: { record: Transaction}) => {
   const style = useStyles();
 
   if (record.statements === null) return <></>;

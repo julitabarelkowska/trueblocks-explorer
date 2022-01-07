@@ -2,7 +2,8 @@ import * as ApiCallers from "../lib/api_callers";
 import { address, topic, fourbyte, Appearance, Reconciliation, Transaction, Receipt, Log, Trace } from "../types";
 
 export function getExport(
-  parameters: {
+  parameters?: {
+    fmt?: 'json' | 'csv' | 'txt' | 'api',
     addrs: address[],
     topics?: topic[],
     fourbytes?: fourbyte[],
@@ -17,12 +18,13 @@ export function getExport(
     cache?: boolean,
     cacheTraces?: boolean,
     count?: boolean,
-    firstRecord?: string,
+    firstRecord?: number,
     maxRecords?: string,
     relevant?: boolean,
     emitter?: address[],
     topic?: topic[],
     clean?: boolean,
+    ether?: boolean,
   },
   options?: RequestInit,
 ) {

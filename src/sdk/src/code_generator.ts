@@ -78,6 +78,7 @@ export function initTypescript() {
  */
 export async function generateCodebase() {
   const content = await parseOpenApi();
+  const refs = await SwaggerParser.resolve(content);
   const project = initTypescript();
 
   await makeLibraries(project);
@@ -97,7 +98,7 @@ export async function generateCodebase() {
   const paths = pathFile.makePathsFromOpenApi(content.paths);
   const pathsFilePaths = paths.map((model) => {
     // Group REST operations on the same resource in the same file
-    const { source: sourceFile } = pathFile.makePathsInSameFile(project, model);
+    const { source: sourceFile } = pathFile.makePathsInSameFile(project, refs, model);
     sourceFile.saveSync();
 
     return sourceFile.getFilePath();
@@ -109,6 +110,7 @@ export async function generateCodebase() {
   // Print any TS compiler errors
   project.resolveSourceFileDependencies();
   const diagnostics = project.getPreEmitDiagnostics();
+  // eslint-disable-next-line
   console.log(project.formatDiagnosticsWithColorAndContext(diagnostics));
 
   project.emitSync();

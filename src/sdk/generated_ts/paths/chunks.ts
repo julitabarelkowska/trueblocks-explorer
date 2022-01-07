@@ -2,10 +2,10 @@ import * as ApiCallers from "../lib/api_callers";
 import { blknum, PinnedChunk, Manifest } from "../types";
 
 export function getChunks(
-  parameters: {
+  parameters?: {
     blocks?: blknum[],
     check?: boolean,
-    extract?: string,
+    extract?: 'header' | 'addr_table' | 'app_table' | 'chunks' | 'blooms',
     stats?: boolean,
     save?: boolean,
   },

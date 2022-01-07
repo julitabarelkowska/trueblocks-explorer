@@ -12,7 +12,7 @@ import { useSearchParams } from '@hooks/useSearchParams';
 import {
   applyFilters,
 } from '@modules/filters/transaction';
-import { TransactionModel } from '@modules/type_fixes';
+import { TransactionModel } from '@modules/types/models/Transaction';
 
 import {
   DashboardAccountsHistoryCustomLocation,

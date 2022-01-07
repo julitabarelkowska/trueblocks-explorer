@@ -1,18 +1,17 @@
 import React from 'react';
 
+import { Reconciliation, Transaction } from '@sdk';
 import { Card } from 'antd';
 
-import { FixedTransaction } from '@modules/type_fixes';
-// FIXME: legacy type Reconciliation
 import {
-  double, priceReconciliation, Reconciliation,
+  double, priceReconciliation,
 } from '@modules/types';
 
 import { AccountViewParams } from '../../../Dashboard';
 import { useAcctStyles } from '..';
 
 //-----------------------------------------------------------------
-export const HistoryRecons = ({ record, params }: { record: FixedTransaction; params: AccountViewParams }) => {
+export const HistoryRecons = ({ record, params }: { record: Transaction; params: AccountViewParams }) => {
   const { prefs } = params;
   const { denom } = params.prefs;
   const styles = useAcctStyles();
@@ -99,22 +98,24 @@ const statementBody = (statement: Reconciliation, details: boolean, styles: any)
     </>
   );
 
+  const toNumberArguments = (...strings: string[]): number[] => strings.map((someString) => parseInt(someString, 10));
+
   return (
     <table>
       <tbody>
         <HeaderRow />
-        {BodyRow(rowStyle, 'begBal', 0, 0, statement.begBal, statement.begBalDiff)}
-        {BodyRow(rowStyle, 'amount', statement.amountIn, statement.amountOut)}
-        {BodyRow(rowStyle, 'internal', statement.internalIn, statement.internalOut)}
-        {BodyRow(rowStyle, 'selfDestruct', statement.selfDestructIn, statement.selfDestructOut)}
-        {BodyRow(rowStyle, 'baseReward', statement.minerBaseRewardIn, 0)}
-        {BodyRow(rowStyle, 'txFee', statement.minerTxFeeIn, 0)}
-        {BodyRow(rowStyle, 'nephewReward', statement.minerNephewRewardIn, 0)}
-        {BodyRow(rowStyle, 'uncleReward', statement.minerUncleRewardIn, 0)}
-        {BodyRow(rowStyle, 'prefund', statement.prefundIn, 0)}
-        {BodyRow(rowStyle, 'gasCost', 0, statement.gasCostOut)}
-        {BodyRow(rowStyle, 'amountNet', 0, 0, statement.amountNet)}
-        {BodyRow(rowStyle, 'endBal', 0, 0, statement.endBal, statement.endBalDiff)}
+        {BodyRow(rowStyle, 'begBal', 0, 0, ...toNumberArguments(statement.begBal, statement.begBalDiff))}
+        {BodyRow(rowStyle, 'amount', ...toNumberArguments(statement.amountIn, statement.amountOut))}
+        {BodyRow(rowStyle, 'internal', ...toNumberArguments(statement.internalIn, statement.internalOut))}
+        {BodyRow(rowStyle, 'selfDestruct', ...toNumberArguments(statement.selfDestructIn, statement.selfDestructOut))}
+        {BodyRow(rowStyle, 'baseReward', ...toNumberArguments(statement.minerBaseRewardIn), 0)}
+        {BodyRow(rowStyle, 'txFee', ...toNumberArguments(statement.minerTxFeeIn), 0)}
+        {BodyRow(rowStyle, 'nephewReward', ...toNumberArguments(statement.minerNephewRewardIn), 0)}
+        {BodyRow(rowStyle, 'uncleReward', ...toNumberArguments(statement.minerUncleRewardIn), 0)}
+        {BodyRow(rowStyle, 'prefund', ...toNumberArguments(statement.prefundIn), 0)}
+        {BodyRow(rowStyle, 'gasCost', 0, ...toNumberArguments(statement.gasCostOut))}
+        {BodyRow(rowStyle, 'amountNet', 0, 0, ...toNumberArguments(statement.amountNet))}
+        {BodyRow(rowStyle, 'endBal', 0, 0, ...toNumberArguments(statement.endBal, statement.endBalDiff))}
         {detailView}
       </tbody>
     </table>

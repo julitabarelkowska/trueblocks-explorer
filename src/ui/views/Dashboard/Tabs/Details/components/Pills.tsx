@@ -1,7 +1,7 @@
 import React from 'react';
 import { createUseStyles } from 'react-jss';
 
-import { TransactionModel } from '@modules/type_fixes';
+import { TransactionModel } from '@modules/types/models/Transaction';
 
 export const Pills = ({ record } : {record: TransactionModel}) => {
   const style = useStyles();

@@ -2,7 +2,8 @@ import * as ApiCallers from "../lib/api_callers";
 import { address, blknum, State, Result } from "../types";
 
 export function getState(
-  parameters: {
+  parameters?: {
+    fmt?: 'json' | 'csv' | 'txt' | 'api',
     addrs: address[],
     blocks?: blknum[],
     parts?: string[],

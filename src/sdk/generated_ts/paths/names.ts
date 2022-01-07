@@ -2,7 +2,8 @@ import * as ApiCallers from "../lib/api_callers";
 import { Name } from "../types";
 
 export function getNames(
-  parameters: {
+  parameters?: {
+    fmt?: 'json' | 'csv' | 'txt' | 'api',
     terms: string[],
     expand?: boolean,
     matchCase?: boolean,

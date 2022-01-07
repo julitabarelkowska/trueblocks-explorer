@@ -1,14 +1,12 @@
 import React from 'react';
 
-import { Log } from '@sdk';
+import { Log, Transaction } from '@sdk';
 import { Card } from 'antd';
-
-import { FixedTransaction } from '@modules/type_fixes';
 
 import { useAcctStyles } from '..';
 
 //-----------------------------------------------------------------
-export const AccountHistoryTraces = ({ record }: { record: FixedTransaction }) => {
+export const AccountHistoryTraces = ({ record }: { record: Transaction }) => {
   const styles = useAcctStyles();
   if (!record) return <></>;
   const key = `${record.blockNumber}.${record.transactionIndex}`;

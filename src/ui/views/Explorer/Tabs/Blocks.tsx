@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getBlocks } from '@sdk';
+import { Block, getBlocks } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
 
@@ -10,15 +10,14 @@ import {
 import { useSdk } from '@hooks/useSdk';
 import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
-import { FixedBlock, FixedGetBlocksParameters } from '@modules/type_fixes';
 
 export const Blocks = () => {
-  // FIXME: typecast
   const blocksCall = useSdk(() => getBlocks({
+    blocks: [],
     list: 0,
     listCount: 12,
     cache: true,
-  } as unknown as FixedGetBlocksParameters));
+  }));
 
   if (isFailedCall(blocksCall)) {
     createErrorNotification({
@@ -31,7 +30,7 @@ export const Blocks = () => {
   return <BaseTable dataSource={theData} columns={blockListSchema} loading={blocksCall.loading} />;
 };
 
-const blockListSchema: ColumnsType<FixedBlock> = [
+const blockListSchema: ColumnsType<Block> = [
   addColumn({
     title: 'Date',
     dataIndex: 'timestamp',

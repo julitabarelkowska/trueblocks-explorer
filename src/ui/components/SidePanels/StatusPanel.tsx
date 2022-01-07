@@ -4,12 +4,12 @@ import { createUseStyles } from 'react-jss';
 import {
   ApiFilled, ClockCircleFilled, ExperimentFilled, EyeFilled,
 } from '@ant-design/icons';
-import { SuccessResponse } from '@sdk';
+import { Status, SuccessResponse } from '@sdk';
 import { Badge } from 'antd';
 import filesize from 'filesize';
 
 import { Loading } from '@components/Loading';
-import { createEmptyMeta, FixedStatus } from '@modules/type_fixes';
+import { createEmptyMeta } from '@modules/types/Meta';
 
 const useStyles = createUseStyles({
   container: { paddingBottom: '16px' },
@@ -36,7 +36,7 @@ const useStyles = createUseStyles({
 
 interface StatusPanelProps {
   // status is always a { data: ..., meta: ... } because of the way we fetch it in App.ts
-  status: Pick<SuccessResponse<FixedStatus>, 'data' | 'meta'>;
+  status: Pick<SuccessResponse<Status>, 'data' | 'meta'>;
   error: boolean;
   loading: boolean;
 }

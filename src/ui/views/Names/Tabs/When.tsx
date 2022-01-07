@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getWhen } from '@sdk';
+import { Block, getWhen } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 
 import { ResourceTable } from '@components/ResourceTable';
@@ -8,10 +8,9 @@ import {
   addActionsColumn, addColumn, addNumColumn, TableActions,
 } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
-import { FixedBlock, FixedWhenParameters } from '@modules/type_fixes';
 
 export const When = () => {
-  const dataCall = useSdk(() => getWhen({ list: true } as FixedWhenParameters));
+  const dataCall = useSdk(() => getWhen({ list: true }));
 
   return (
     <ResourceTable
@@ -22,7 +21,7 @@ export const When = () => {
   );
 };
 
-const whenSchema: ColumnsType<FixedBlock> = [
+const whenSchema: ColumnsType<Block> = [
   addNumColumn({
     title: 'Block Number',
     dataIndex: 'blockNumber',
@@ -54,6 +53,6 @@ const whenSchema: ColumnsType<FixedBlock> = [
   ),
 ];
 
-function getTableActions(item: FixedBlock) {
+function getTableActions(item: Block) {
   return <TableActions item={item} onClick={(action, tableItem) => console.log('Clicked action', action, tableItem)} />;
 }

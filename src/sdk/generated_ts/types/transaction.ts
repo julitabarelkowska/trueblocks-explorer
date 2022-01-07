@@ -19,4 +19,7 @@ export type Transaction = {
   compressedTx: string
   hasToken: boolean
   finalized: boolean
+  extraData: string
+  isError: boolean
+  date: string
 }

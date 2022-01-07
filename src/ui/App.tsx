@@ -10,7 +10,7 @@ import {
   UnorderedListOutlined,
 } from '@ant-design/icons';
 import {
-  getNames, getStatus, Name, SuccessResponse,
+  getNames, getStatus, Name, Status, SuccessResponse,
 } from '@sdk';
 import { Layout, Typography } from 'antd';
 import dayjs from 'dayjs';
@@ -23,10 +23,10 @@ import { PanelDirection, SidePanel } from '@components/SidePanels/SidePanel';
 import { StatusPanel } from '@components/SidePanels/StatusPanel';
 import { useSdk } from '@hooks/useSdk';
 import {
-  CallError,
-  CallSuccess, isFailedCall, isSuccessfulCall, wrapResponse,
+  isFailedCall, isSuccessfulCall, wrapResponse,
 } from '@modules/api/call_status';
-import { createEmptyMeta, createEmptyStatus, FixedStatus } from '@modules/type_fixes';
+import { createEmptyMeta } from '@modules/types/Meta';
+import { createEmptyStatus } from '@modules/types/Status';
 
 import {
   ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation,
@@ -47,7 +47,7 @@ export const App = () => {
   dayjs.extend(relativeTime);
 
   const { setNamesMap, setNamesArray } = useGlobalNames();
-  const [status, setStatus] = useState<Pick<SuccessResponse<FixedStatus>, 'data' | 'meta'>>({
+  const [status, setStatus] = useState<Pick<SuccessResponse<Status>, 'data' | 'meta'>>({
     data: createEmptyStatus(),
     meta: createEmptyMeta(),
   });
@@ -57,11 +57,13 @@ export const App = () => {
 
   useEffect(() => {
     const fetchStatus = async () => {
-      // FIXME: typecast
-      const statusResponse = wrapResponse(await getStatus({})) as CallSuccess<FixedStatus> | CallError;
+      const statusResponse = wrapResponse(await getStatus({}));
 
       if (isSuccessfulCall(statusResponse)) {
-        setStatus(statusResponse);
+        setStatus({
+          data: statusResponse.data[0] as Status,
+          meta: statusResponse.meta,
+        });
       }
 
       if (isFailedCall(statusResponse)) {

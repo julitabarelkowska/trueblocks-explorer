@@ -8,7 +8,7 @@ import { addColumn, addNumColumn } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
 import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
-import { createEmptyStatus, FixedPinnedChunk } from '@modules/type_fixes';
+import { createEmptyStatus } from '@modules/types/Status';
 
 // import { Chunk } from '@modules/types';
 import {
@@ -70,7 +70,7 @@ function padLeft(num: number, size: number, char: string = '0') {
   return s;
 }
 
-const renderBlockRange = (record: FixedPinnedChunk) => (
+const renderBlockRange = (record: PinnedChunk) => (
   <div>
     <div>
       {padLeft(record.firstApp, 9)}
@@ -85,7 +85,7 @@ const renderBlockRange = (record: FixedPinnedChunk) => (
   </div>
 );
 
-export const indexSchema: ColumnsType<FixedPinnedChunk> = [
+export const indexSchema: ColumnsType<PinnedChunk> = [
   addColumn({
     title: 'Block Range',
     dataIndex: 'firstApp',
