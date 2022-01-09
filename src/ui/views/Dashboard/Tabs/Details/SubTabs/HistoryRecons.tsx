@@ -98,24 +98,25 @@ const statementBody = (statement: Reconciliation, details: boolean, styles: any)
     </>
   );
 
-  const toNumberArguments = (...strings: string[]): number[] => strings.map((someString) => parseInt(someString, 10));
+  const toNumberArguments = (...strings: string[]): number[] => strings.map((someString) => (
+    someString === '' ? 0.0 : parseFloat(someString)));
 
   return (
     <table>
       <tbody>
         <HeaderRow />
-        {BodyRow(rowStyle, 'begBal', 0, 0, ...toNumberArguments(statement.begBal, statement.begBalDiff))}
-        {BodyRow(rowStyle, 'amount', ...toNumberArguments(statement.amountIn, statement.amountOut))}
-        {BodyRow(rowStyle, 'internal', ...toNumberArguments(statement.internalIn, statement.internalOut))}
-        {BodyRow(rowStyle, 'selfDestruct', ...toNumberArguments(statement.selfDestructIn, statement.selfDestructOut))}
-        {BodyRow(rowStyle, 'baseReward', ...toNumberArguments(statement.minerBaseRewardIn), 0)}
-        {BodyRow(rowStyle, 'txFee', ...toNumberArguments(statement.minerTxFeeIn), 0)}
-        {BodyRow(rowStyle, 'nephewReward', ...toNumberArguments(statement.minerNephewRewardIn), 0)}
-        {BodyRow(rowStyle, 'uncleReward', ...toNumberArguments(statement.minerUncleRewardIn), 0)}
-        {BodyRow(rowStyle, 'prefund', ...toNumberArguments(statement.prefundIn), 0)}
-        {BodyRow(rowStyle, 'gasCost', 0, ...toNumberArguments(statement.gasCostOut))}
-        {BodyRow(rowStyle, 'amountNet', 0, 0, ...toNumberArguments(statement.amountNet))}
-        {BodyRow(rowStyle, 'endBal', 0, 0, ...toNumberArguments(statement.endBal, statement.endBalDiff))}
+        {BodyRow(rowStyle, 'begBal', details, 0, 0, ...toNumberArguments(statement.begBal, statement.begBalDiff))}
+        {BodyRow(rowStyle, 'amount', details, ...toNumberArguments(statement.amountIn, statement.amountOut))}
+        {BodyRow(rowStyle, 'internal', details, ...toNumberArguments(statement.internalIn, statement.internalOut))}
+        {BodyRow(rowStyle, 'selfDestruct', details, ...toNumberArguments(statement.selfDestructIn, statement.selfDestructOut))}
+        {BodyRow(rowStyle, 'baseReward', details, ...toNumberArguments(statement.minerBaseRewardIn), 0)}
+        {BodyRow(rowStyle, 'txFee', details, ...toNumberArguments(statement.minerTxFeeIn), 0)}
+        {BodyRow(rowStyle, 'nephewReward', details, ...toNumberArguments(statement.minerNephewRewardIn), 0)}
+        {BodyRow(rowStyle, 'uncleReward', details, ...toNumberArguments(statement.minerUncleRewardIn), 0)}
+        {BodyRow(rowStyle, 'prefund', details, ...toNumberArguments(statement.prefundIn), 0)}
+        {BodyRow(rowStyle, 'gasCost', details, 0, ...toNumberArguments(statement.gasCostOut))}
+        {BodyRow(rowStyle, 'totalNet', details, 0, 0, ...toNumberArguments(statement.amountNet))}
+        {BodyRow(rowStyle, 'endBal', details, 0, 0, ...toNumberArguments(statement.endBal, statement.endBalDiff))}
         {detailView}
       </tbody>
     </table>
@@ -129,37 +130,49 @@ const clip2 = (num: double) => {
 };
 
 //-----------------------------------------------------------------
+const clip3 = (num: double) => <div>{Number(num).toFixed(5)}</div>;
+
+//-----------------------------------------------------------------
 const BodyRow = (
   style: string,
   name: string,
+  details: boolean,
   valueIn: double = 0,
   valueOut: double = 0,
   balance: double = 0,
   diffIn: double = 0,
 ) => {
+  const isShowZero = name === 'begBal' || name === 'endBal' || name === 'totalNet';
+  const isBal = name === 'begBal' || name === 'endBal';
   // TODO: Comment by @dszlachta
   // TODO: If I remove Number here, the test fails and empty rows show up on Reconciliation component
   if (Number(valueIn) === 0
     && Number(valueOut) === 0
     && Number(balance) === 0
     && Number(diffIn) === 0
-    && (name !== 'begBal' && name !== 'endBal')) { return <></>; }
+    && !isShowZero && !details) { return <></>; }
+
+  const plain = { color: 'black', width: '100px' };
+  const green = { color: 'green', width: '100px' };
+  const red = { color: 'red', width: '100px' };
+  const balStyle = balance < 0 ? red : green;
+
   return (
     <tr>
-      <td className={style} style={{ width: '100px' }}>
+      <td className={style} style={plain}>
         {name}
       </td>
       <td className={style} style={{ width: '20px' }} />
-      <td className={style} style={{ width: '100px' }}>
+      <td className={style} style={green}>
         {clip2(valueIn)}
       </td>
-      <td className={style} style={{ width: '100px' }}>
+      <td className={style} style={red}>
         {clip2(valueOut)}
       </td>
-      <td className={style} style={{ width: '100px' }}>
-        {clip2(balance)}
+      <td className={style} style={isBal ? plain : balStyle}>
+        {isBal ? clip3(balance) : clip2(balance)}
       </td>
-      <td className={style} style={{ width: '100px', color: 'red' }}>
+      <td className={style} style={red}>
         {clip2(diffIn)}
       </td>
     </tr>
