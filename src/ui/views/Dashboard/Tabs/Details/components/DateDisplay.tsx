@@ -16,8 +16,8 @@ export const DateDisplay = ({ record }: { record: Transaction}) => {
     <pre>
       <div>{dayjs(isoDateString).format('YYYY-MM-DD HH:mm:ss')}</div>
       <div>{dayjs.unix(record.timestamp).fromNow()}</div>
-      <div style={{ fontSize: 'small', fontStyle: 'italic' }}>
-        {`${record.blockNumber?.toString()}.${record.transactionIndex?.toString()}`}
+      <div>
+        {`${record.blockNumber}.${record.transactionIndex}`}
       </div>
     </pre>
   );
