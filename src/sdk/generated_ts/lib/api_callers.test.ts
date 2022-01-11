@@ -1,6 +1,6 @@
 import * as Callers from './api_callers';
 
-const baseUrl = 'http://localhost:8080';
+const baseUrl = `${process.env.CORE_URL}`;
 beforeEach(() => {
   Callers.setBaseUrl(baseUrl);
   Callers.setFetch(global.fetch);
