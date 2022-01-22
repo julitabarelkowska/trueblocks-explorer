@@ -46,7 +46,7 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
             columns={columns}
             key={asset.assetAddr}
             index={asset.assetAddr}
-            title={<ChartTitle asset={asset} index={index} />}
+            title={<ChartTitle asset={asset} index={index} chain={params.theMeta.chain} />}
             table={false}
             color={color}
           />
@@ -56,7 +56,28 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
   );
 };
 
-const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
+export function getLink(chain: string, type: string, addr1: string, addr2?: string) {
+  if (chain === 'gnosis') {
+    if (type === 'uni') {
+      return `https://info.uniswap.org/#/tokens/${addr1}`;
+    } if (type === 'token') {
+      return `https://etherscan.io/address/${addr1}`;
+    } if (type === 'holding') {
+      return `https://etherscan.io/token/${addr1}?a=${addr2}`;
+    }
+  } else {
+    if (type === 'uni') {
+      return `https://info.uniswap.org/#/tokens/${addr1}`;
+    } if (type === 'token') {
+      return `https://etherscan.io/address/${addr1}`;
+    } if (type === 'holding') {
+      return `https://etherscan.io/token/${addr1}?a=${addr2}`;
+    }
+  }
+  return '';
+}
+
+const ChartTitle = ({ index, asset, chain }: { asset: AssetHistory; index: number, chain: string }) => {
   const { namesMap } = useGlobalNames();
   const { currentAddress } = useGlobalState();
 
@@ -78,18 +99,18 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
   }
   if (asset.assetSymbol !== 'ETH') {
     links.push(
-      <a target='_blank' href={`https://etherscan.io/token/${asset.assetAddr}?a=${currentAddress}`} rel='noreferrer'>
+      <a target='_blank' href={getLink(chain, 'holding', asset.assetAddr, currentAddress)} rel='noreferrer'>
         Holdings
       </a>,
     );
   }
   links.push(
-    <a target='_blank' href={`https://etherscan.io/address/${asset.assetAddr}`} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'token', asset.assetAddr, '')} rel='noreferrer'>
       Token
     </a>,
   );
   links.push(
-    <a target='_blank' href={`https://info.uniswap.org/#/tokens/${asset.assetAddr}`} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'uni', asset.assetAddr, '')} rel='noreferrer'>
       Uniswap
     </a>,
   );
