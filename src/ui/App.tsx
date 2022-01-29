@@ -57,7 +57,9 @@ export const App = () => {
 
   useEffect(() => {
     const fetchStatus = async () => {
-      const statusResponse = wrapResponse(await getStatus({}));
+      const statusResponse = wrapResponse(await getStatus({
+        chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+      }));
 
       if (isSuccessfulCall(statusResponse)) {
         setStatus({
@@ -78,7 +80,12 @@ export const App = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  const namesRequest = useSdk(() => getNames({ terms: [''], expand: true, all: true }));
+  const namesRequest = useSdk(() => getNames({
+    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    terms: [''],
+    expand: true,
+    all: true,
+  }));
 
   useEffect(() => {
     const resultMap = (() => {
@@ -123,11 +130,12 @@ export const App = () => {
     },
   ];
 
+ // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
   return (
     <Layout>
       <Header className='app-header'>
         <Title style={{ color: 'white' }} level={2}>
-          TrueBlocks Account Explorer
+          {'TrueBlocks Account Explorer - mainnet chain'}
         </Title>
       </Header>
       <Layout>
