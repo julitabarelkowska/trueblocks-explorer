@@ -12,7 +12,7 @@ export function getAbis(
     fmt?: string,
     verbose?: boolean,
     noHeader?: boolean,
-    chain?: string,
+    chain: string,
     wei?: boolean,
     ether?: boolean,
     dollars?: boolean,

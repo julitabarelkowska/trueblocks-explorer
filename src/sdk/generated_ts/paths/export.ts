@@ -28,7 +28,7 @@ export function getExport(
     verbose?: boolean,
     logLevel?: number,
     noHeader?: boolean,
-    chain?: string,
+    chain: string,
     wei?: boolean,
     dollars?: boolean,
     help?: boolean,
