@@ -25,7 +25,6 @@ export function getTokens(
     mocked?: boolean,
     noColor?: boolean,
     outputFn?: string,
-    format?: string,
     testMode?: boolean,
     apiMode?: boolean,
   },

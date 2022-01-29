@@ -25,7 +25,6 @@ export function getAbis(
     mocked?: boolean,
     noColor?: boolean,
     outputFn?: string,
-    format?: string,
     testMode?: boolean,
     apiMode?: boolean,
   },

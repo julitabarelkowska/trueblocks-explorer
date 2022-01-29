@@ -84,7 +84,6 @@ function getGlobals(): Map<string, { name: string }> {
     ['mocked', { name: 'boolean' }],
     ['noColor', { name: 'boolean' }],
     ['outputFn', { name: 'string' }],
-    ['format', { name: 'string' }],
     ['testMode', { name: 'boolean' }],
     ['apiMode', { name: 'boolean' }],
   ]);

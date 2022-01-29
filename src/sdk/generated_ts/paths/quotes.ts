@@ -23,7 +23,6 @@ export function getQuotes(
     mocked?: boolean,
     noColor?: boolean,
     outputFn?: string,
-    format?: string,
     testMode?: boolean,
     apiMode?: boolean,
   },

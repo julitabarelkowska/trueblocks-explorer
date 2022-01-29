@@ -27,7 +27,6 @@ export function getState(
     mocked?: boolean,
     noColor?: boolean,
     outputFn?: string,
-    format?: string,
     testMode?: boolean,
     apiMode?: boolean,
   },
