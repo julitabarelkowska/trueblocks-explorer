@@ -7,13 +7,14 @@ import {
   double, priceReconciliation,
 } from '@modules/types';
 
+import { useGlobalState } from '../../../../../State';
 import { AccountViewParams } from '../../../Dashboard';
 import { useAcctStyles } from '..';
 
 //-----------------------------------------------------------------
 export const HistoryRecons = ({ record, params }: { record: Transaction; params: AccountViewParams }) => {
-  const { prefs } = params;
-  const { denom } = params.prefs;
+  const { userPrefs } = params;
+  const { denom } = useGlobalState();
   const styles = useAcctStyles();
 
   if (!record) return <></>;
@@ -23,7 +24,7 @@ export const HistoryRecons = ({ record, params }: { record: Transaction; params:
       <div key={key} className={styles.cardHolder}>
         {(record?.statements as unknown as Reconciliation[])?.map((statement: Reconciliation, index: number) => {
           const statementIn = priceReconciliation(statement, denom);
-          return oneStatement(statementIn, index, prefs.showDetails, prefs.setShowDetails, styles, key);
+          return oneStatement(statementIn, index, userPrefs.showDetails, userPrefs.setShowDetails, styles, key);
         })}
       </div>
       <div />
@@ -31,11 +32,12 @@ export const HistoryRecons = ({ record, params }: { record: Transaction; params:
   );
 };
 
+declare type stateSetter<Type> = React.Dispatch<React.SetStateAction<Type>>;
 const oneStatement = (
   statement: Reconciliation,
   index: number,
   details: boolean,
-  setShowDetails: any,
+  setShowDetails: stateSetter<boolean>,
   styles: any,
   key: string,
 ) => (
@@ -110,7 +112,12 @@ const statementBody = (statement: Reconciliation, details: boolean, styles: any)
         {BodyRow(rowStyle, 'begBal', details, 0, 0, ...toNumberArguments(statement.begBal, statement.begBalDiff))}
         {BodyRow(rowStyle, 'amount', details, ...toNumberArguments(statement.amountIn, statement.amountOut))}
         {BodyRow(rowStyle, 'internal', details, ...toNumberArguments(statement.internalIn, statement.internalOut))}
-        {BodyRow(rowStyle, 'selfDestruct', details, ...toNumberArguments(statement.selfDestructIn, statement.selfDestructOut))}
+        {BodyRow(
+          rowStyle,
+          'selfDestruct',
+          details,
+          ...toNumberArguments(statement.selfDestructIn, statement.selfDestructOut),
+        )}
         {BodyRow(rowStyle, 'baseReward', details, ...toNumberArguments(statement.minerBaseRewardIn), 0)}
         {BodyRow(rowStyle, 'txFee', details, ...toNumberArguments(statement.minerTxFeeIn), 0)}
         {BodyRow(rowStyle, 'nephewReward', details, ...toNumberArguments(statement.minerNephewRewardIn), 0)}

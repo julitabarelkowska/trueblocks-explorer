@@ -47,7 +47,6 @@ export const DashboardView = () => {
   const {
     transactions,
     meta: transactionsMeta,
-    setTransactions,
     addTransactions,
   } = useGlobalState();
 
@@ -218,7 +217,7 @@ export const DashboardView = () => {
   const params: AccountViewParams = {
     loading,
     setLoading,
-    prefs: {
+    userPrefs: {
       staging,
       setStaging,
       hideZero,
@@ -231,11 +230,9 @@ export const DashboardView = () => {
       setShowDetails,
       period,
       setPeriod,
-      denom,
     },
     totalRecords,
     theData,
-    setTransactions,
     theMeta: transactionsMeta,
     uniqAssets,
   };
@@ -273,17 +270,14 @@ export type UserPrefs = {
   setShowDetails: stateSetter<boolean>;
   period: string;
   setPeriod: stateSetter<string>;
-  denom: string;
 };
 
 export type AccountViewParams = {
-  prefs: UserPrefs;
   loading: boolean;
   setLoading: stateSetter<boolean>;
+  userPrefs: UserPrefs;
   totalRecords: number | null;
   theData: any;
-  // This should not be passed down, as it is in GlobalState
-  setTransactions: any;
   theMeta: any;
   uniqAssets: AssetHistoryArray;
 };
