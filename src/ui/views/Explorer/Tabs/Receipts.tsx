@@ -8,6 +8,10 @@ import { RawDataTab } from '@components/RawDataTab';
 export const Receipts = () => (
   <RawDataTab
     name='logs'
-    makeRequest={() => getReceipts({ transactions: ['12001001.1'], articulate: true })}
+    makeRequest={() => getReceipts({
+      chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+      transactions: ['12001001.1'],
+      articulate: true,
+    })}
   />
 );

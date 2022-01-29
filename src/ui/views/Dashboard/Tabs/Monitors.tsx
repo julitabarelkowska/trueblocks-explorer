@@ -37,7 +37,11 @@ export const Monitors = () => {
   const [selectedNameTags] = useState('');
   const [loadingEdit, setLoadingEdit] = useState(false);
 
-  const monitorsCall = useSdk(() => getStatus({ modes: ['monitors'], details: true })) as CallStatus<Status[]>;
+  const monitorsCall = useSdk(() => getStatus({
+    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    modes: ['monitors'],
+    details: true,
+  })) as CallStatus<Status[]>;
   if (isFailedCall(monitorsCall)) {
     createErrorNotification({
       description: 'Could not fetch monitors',
@@ -289,6 +293,7 @@ const monitorSchema: ColumnsType<Monitor> = [
 ];
 
 function getTableActions(item: Monitor) {
+  // TODO: BOGUS - per chain data
   const onClick = (action: string, monitor: typeof item) => {
     switch (action) {
       case 'info':

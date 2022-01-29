@@ -71,6 +71,7 @@ export const DashboardView = () => {
   }, []);
 
   const listRequest = useSdk(() => getList({
+    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
     count: true,
     appearances: true,
     addrs: [currentAddress as string],
@@ -85,6 +86,7 @@ export const DashboardView = () => {
 
   // Run this effect until we fetch the last transaction
   const transactionsRequest = useSdk(() => getExport({
+    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
     addrs: [currentAddress as string],
     fmt: 'json',
     cache: true,

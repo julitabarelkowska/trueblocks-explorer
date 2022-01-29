@@ -13,6 +13,7 @@ import { createErrorNotification } from '@modules/error_notification';
 
 export const Blocks = () => {
   const blocksCall = useSdk(() => getBlocks({
+    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
     blocks: [],
     list: 0,
     listCount: 12,
