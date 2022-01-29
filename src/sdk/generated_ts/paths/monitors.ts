@@ -24,7 +24,6 @@ export function getMonitors(
     mocked?: boolean,
     noColor?: boolean,
     outputFn?: string,
-    format?: string,
     testMode?: boolean,
     apiMode?: boolean,
   },
