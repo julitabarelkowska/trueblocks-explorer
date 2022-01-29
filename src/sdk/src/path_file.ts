@@ -64,14 +64,14 @@ export function makeFunctionParameters(refs: SwaggerParser.$Refs, parameters: Op
   };
 }
 
-function getGlobals(): Map<string, { name: string }> {
+function getGlobals(): Map<string, { name: string, required?: boolean }> {
   return new Map([
     // parameter variable name to type name
     ['fmt', { name: 'string' }],
     ['verbose', { name: 'boolean' }],
     ['logLevel', { name: 'number' }],
     ['noHeader', { name: 'boolean' }],
-    ['chain', { name: 'string' }],
+    ['chain', { name: 'string', required: true }],
     ['wei', { name: 'boolean' }],
     ['ether', { name: 'boolean' }],
     ['dollars', { name: 'boolean' }],
@@ -111,14 +111,16 @@ export function makePathsInSameFile(project: Project, refs: SwaggerParser.$Refs,
         [...getGlobals().entries()]
           .filter(([name]) => !parameters.names.find((alreadyPresent) => alreadyPresent.replace('?', '') === name)),
       );
+
       parameters.names = parameters.names.concat(
         [...globals.keys()]
-          .map((name) => `${name}?`),
+          .map((name) => `${name}${globals.get(name)?.required ? '' : '?'}`),
       );
       parameters.types = parameters.types.concat(
         [...globals.values()]
-          .map((value) => ({ ...value, isRequired: false, isArray: false })),
+          .map((value) => ({ ...value, isRequired: !!value.required, isArray: false })),
       );
+
       // Get the type of the data we will get in the response
       const responseType = types.getResponseBodyType(path);
       // Save all types so we can import them (unless they are built in)

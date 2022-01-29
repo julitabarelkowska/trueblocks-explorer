@@ -8,7 +8,7 @@ export function getInit(
     verbose?: boolean,
     logLevel?: number,
     noHeader?: boolean,
-    chain?: string,
+    chain: string,
     wei?: boolean,
     ether?: boolean,
     dollars?: boolean,
