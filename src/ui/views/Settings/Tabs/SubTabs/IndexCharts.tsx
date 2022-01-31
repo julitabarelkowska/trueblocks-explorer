@@ -108,9 +108,6 @@ const Controls = ({
 
 // /*-------------------------------------------------------------------------
 //  * This source code is confidential proprietary information which is
-//  * copyright (c) 2018, 2019 TrueBlocks, LLC (http://trueblocks.io)
-//  * All Rights Reserved
-//  *------------------------------------------------------------------------*/
 // import React, { useState, useCallback } from 'react';
 // import { scaleLinear } from 'd3-scale';
 // import { extent } from 'd3-array';
@@ -413,9 +410,6 @@ const Controls = ({
 
 // /*-------------------------------------------------------------------------
 //  * This source code is confidential proprietary information which is
-//  * copyright (c) 2018, 2019 TrueBlocks, LLC (http://trueblocks.io)
-//  * All Rights Reserved
-//  *------------------------------------------------------------------------*/
 // import React, { useRef, useEffect } from 'react';
 
 // import {
@@ -481,20 +475,9 @@ const Controls = ({
 //         </ChartCanvas>
 //     );
 // };
-// /*-------------------------------------------------------------------------
-//  * This source code is confidential proprietary information which is
-//  * copyright (c) 2018, 2019 TrueBlocks, LLC (http://trueblocks.io)
-//  * All Rights Reserved
-//  *------------------------------------------------------------------------*/
-// import React, { forwardRef } from 'react';
 
 // /*-------------------------------------------------------------------------
 //  * This source code is confidential proprietary information which is
-//  * copyright (c) 2018, 2019 TrueBlocks, LLC (http://trueblocks.io)
-//  * All Rights Reserved
-//  *------------------------------------------------------------------------*/
-// import React, { useRef, useEffect } from 'react';
-
 // import {
 //     curveBasis,
 //     line,
@@ -538,9 +521,6 @@ const Controls = ({
 // };
 // /*-------------------------------------------------------------------------
 //  * This source code is confidential proprietary information which is
-//  * copyright (c) 2018, 2019 TrueBlocks, LLC (http://trueblocks.io)
-//  * All Rights Reserved
-//  *------------------------------------------------------------------------*/
 // import React, { useRef, useEffect } from 'react';
 
 // import {

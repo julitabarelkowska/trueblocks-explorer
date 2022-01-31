@@ -55,6 +55,7 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
   );
 };
 
+// TODO: BOGUS -- per chain data
 export function getLink(chain: string, type: string, addr1: string, addr2?: string) {
   if (type === 'uni') {
     return `https://info.uniswap.org/#/tokens/${addr1}`;
