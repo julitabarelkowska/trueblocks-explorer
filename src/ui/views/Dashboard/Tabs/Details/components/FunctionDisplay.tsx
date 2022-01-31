@@ -26,7 +26,7 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
             return (
               <>
                 {Object.entries(value).map(([key, val]) => (
-                  <tr key={`${key}2`}>
+                  <tr key={`${name}${key}2`}>
                     <td key={`${name}11`} style={{ width: '1%' }} />
                     <td key={`${name}12`} style={{ fontWeight: 'bold', width: '20%' }}>{`${key}:`}</td>
                     <td key={`${name}13`}>{`${val}`}</td>
