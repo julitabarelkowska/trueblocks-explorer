@@ -1,48 +1,62 @@
 import React from 'react';
+import { createUseStyles } from 'react-jss';
 
 import { Function } from '@sdk';
 
 //-----------------------------------------------------------------
-export const FunctionDisplay = ({ func, bytes }: { func: Function, bytes: string }) => {
-  if (!bytes) return <></>;
+export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: string }) => {
+  const styles = useStyles();
 
-  const head = bytes.slice(0, 10);
-  const input = bytes.replace(head, '');
+  if (!func) return <></>;
 
-  const json = <pre style={{ overflowX: 'hidden' }}>{JSON.stringify(func, null, 2)}</pre>;
-  const b = (
+  const thing = (
+    <table style={{ width: '100%' }}>
+      {Object.entries(func).map(
+        ([name, value]) => {
+          if (name === 'name') {
+            return (
+              <tr key={name}>
+                <td colSpan={3} className={styles.header} key={1}>{`Function: ${value}`}</td>
+              </tr>
+            );
+          }
+          return (
+            <>
+              {Object.entries(value).map(([key, val]) => (
+                <tr key={`${name}2`}>
+                  <td key={`${name}1`} style={{ width: '1%' }} />
+                  <td style={{ fontWeight: 'bold', width: '20%' }} key={`${name}2`}>{`${key}:`}</td>
+                  <td key={`${name}3`}>{`${val}`}</td>
+                </tr>
+              ))}
+            </>
+          );
+        },
+      )}
+    </table>
+  );
+  const articulated = (
+    <pre style={{ overflowX: 'hidden' }}>
+      {thing}
+      <br />
+    </pre>
+  );
+
+  const bytes = (
     <pre>
-      <div>{head}</div>
-      {input?.match(/.{1,64}/g)?.map((s, index) => (
+      <div>{rawBytes.slice(0, 10)}</div>
+      {rawBytes.replace(rawBytes.slice(0, 10), '')?.match(/.{1,64}/g)?.map((s, index) => (
         <div key={`${s + index}`}>
-          0x
-          {s}
+          {`0x${s}`}
         </div>
       ))}
     </pre>
   );
 
   return (
-    <ArticulatedBytes display={json} bytes={b} />
-  );
-};
-
-//-----------------------------------------------------------------
-const ArticulatedBytes = ({ display, bytes }: { display: any, bytes: any }) => {
-  const art = (
-    <>
-      <div style={{ fontWeight: 'bold', textDecoration: 'underline' }}>
-        Articulated:
-      </div>
-      {display}
-      <br />
-    </>
-  );
-
-  return (
     <div>
-      {art}
-      <div style={{ fontWeight: 'bold', textDecoration: 'underline' }}>
+      {articulated}
+      <div className={styles.header}>
         Bytes:
       </div>
       {bytes}
@@ -50,3 +64,11 @@ const ArticulatedBytes = ({ display, bytes }: { display: any, bytes: any }) => {
     </div>
   );
 };
+
+//-----------------------------------------------------------------
+const useStyles = createUseStyles({
+  header: {
+    fontWeight: 'bold',
+    textDecoration: 'underline',
+  },
+});

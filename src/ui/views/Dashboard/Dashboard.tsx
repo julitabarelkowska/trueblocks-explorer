@@ -25,14 +25,17 @@ import {
   DashboardCollectionsLocation,
   DashboardMonitorsLocation,
 } from '../../Routes';
-import { useGlobalNames, useGlobalState } from '../../State';
+import { useGlobalNames, useGlobalState, useGlobalState2 } from '../../State';
 import { Collections } from './Tabs/Collections';
 import { DetailsView } from './Tabs/Details';
 import { Monitors } from './Tabs/Monitors';
 
 export const DashboardView = () => {
+  const { chain } = useGlobalState2();
   const [loading, setLoading] = useState(false);
-  const [staging, setStaging] = useState(false);
+  const [showReversed, setShowReversed] = useState(false);
+  const [showStaging, setShowStaging] = useState(false);
+  const [showUnripe, setShowUnripe] = useState(false);
   const [hideZero, setHideZero] = useState('all');
   const [hideNamed, setHideNamed] = useState(false);
   const [hideReconciled, setHideReconciled] = useState(false);
@@ -70,7 +73,7 @@ export const DashboardView = () => {
   }, []);
 
   const listRequest = useSdk(() => getList({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     count: true,
     appearances: true,
     addrs: [currentAddress as string],
@@ -81,16 +84,16 @@ export const DashboardView = () => {
   useEffect(() => {
     if (!isSuccessfulCall(listRequest)) return;
     setTotalRecords(listRequest.data[0]?.nRecords);
-  }, [listRequest, listRequest.type, setTotalRecords]);
+  }, [listRequest, listRequest.type, setTotalRecords, showStaging, showUnripe]);
 
   // Run this effect until we fetch the last transaction
   const transactionsRequest = useSdk(() => getExport({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     addrs: [currentAddress as string],
     fmt: 'json',
     cache: true,
     cacheTraces: true,
-    // staging: false, // staging,
+    staging: showStaging,
     // unripe: false, // unripe: '',
     ether: true,
     // dollars: false,
@@ -101,17 +104,13 @@ export const DashboardView = () => {
     // summarize_by: 'monthly',
     firstRecord: transactions.length,
     maxRecords: String((() => {
-      if (transactions.length < 50) return 10;
-
-      if (transactions.length < 150) return 71;
-
-      if (transactions.length < 1500) return 239;
-
+      if (transactions.length < 20) return 10;
+      if (transactions.length < 800) return 239;
       return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
     })()),
   }),
   () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
-  [currentAddress, totalRecords, transactions.length]);
+  [currentAddress, totalRecords, transactions.length, showStaging]);
 
   useEffect(() => {
     if (isFailedCall(transactionsRequest)) {
@@ -138,28 +137,35 @@ export const DashboardView = () => {
   // Store raw data, because it can be huge and we don't want to have to reload it
   // every time a user toggles "hide reconciled".
   const transactionModels = useMemo(() => transactions
-  // TODO: remove this filter when we fix emptyData in useCommand (it should never
-  // return an array with an empty object)
+  // TODO: remove the next line (the filter) when we fix emptyData in useCommand (it should never
+  // TODO: return an array with an empty object)
+    // .sort((a: Transaction, b: Transaction) => {
+    //   // if (!reverse) return 0;
+    //   if (b.blockNumber === a.blockNumber) return b.transactionIndex - a.transactionIndex;
+    //   return b.blockNumber - a.blockNumber;
+    // })
     .filter(({ hash }) => Boolean(hash))
     .map((transaction, index) => {
       const newId = String(index + 1);
       const fromName = namesMap.get(transaction.from) || createEmptyAccountname();
       const toName = namesMap.get(transaction.to) || createEmptyAccountname();
+      const staging = showStaging;
 
       return {
         ...transaction,
         id: newId,
         fromName,
         toName,
+        staging,
       };
-    }), [namesMap, transactions]);
+    }), [namesMap, transactions, showStaging]);
 
   // TODO(data): fix this if you can
   const theData = useMemo(() => transactionModels.filter((transaction) => {
     if (!hideReconciled) return true;
 
     return transaction?.statements?.some?.(({ reconciled }) => !reconciled);
-  }), [hideReconciled, transactionModels]);
+  }), [hideReconciled, transactionModels, showReversed]);
 
   const uniqAssets = useMemo(() => {
     if (!theData.length) return [];
@@ -212,14 +218,18 @@ export const DashboardView = () => {
         || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
       return show && (!hideNamed || !namesMap.get(asset.assetAddr));
     });
-  }, [hideNamed, hideZero, namesMap, theData, denom]);
+  }, [hideNamed, hideZero, namesMap, theData, denom, showReversed]);
 
   const params: AccountViewParams = {
     loading,
     setLoading,
     userPrefs: {
-      staging,
-      setStaging,
+      showReversed,
+      setShowReversed,
+      showStaging,
+      setShowStaging,
+      showUnripe,
+      setShowUnripe,
       hideZero,
       setHideZero,
       hideNamed,
@@ -258,8 +268,12 @@ export const DashboardView = () => {
 
 declare type stateSetter<Type> = React.Dispatch<React.SetStateAction<Type>>;
 export type UserPrefs = {
-  staging: boolean;
-  setStaging: stateSetter<boolean>;
+  showReversed: boolean;
+  setShowReversed: stateSetter<boolean>;
+  showStaging: boolean;
+  setShowStaging: stateSetter<boolean>;
+  showUnripe: boolean;
+  setShowUnripe: stateSetter<boolean>;
   hideZero: string;
   setHideZero: stateSetter<string>;
   hideNamed: boolean;

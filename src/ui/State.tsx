@@ -211,6 +211,13 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
   }
 };
 
+export const useGlobalState2 = () => ({
+  chain: process.env.CHAIN || 'mainnet',
+  host: process.env.REACT_APP_API_URL || 'localhost',
+  port: (process.env.REACT_APP_API_PORT || '8080') as unknown as number,
+  coreUrl: process.env.CORE_URL || 'localhost:8080',
+});
+
 export const useGlobalState = () => {
   const [state, dispatch] = useContext(GlobalStateContext);
 

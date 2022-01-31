@@ -24,6 +24,7 @@ export const DashboardAccountsHistoryLocation = '/dashboard/accounts/history';
 export const DashboardAccountsHistoryReconsLocation = '/dashboard/accounts/history/recons';
 export const DashboardAccountsHistoryFunctionsLocation = '/dashboard/accounts/history/functions';
 export const DashboardAccountsHistoryEventsLocation = '/dashboard/accounts/history/events';
+// TODO: Can remove this
 export const DashboardAccountsHistoryTracesLocation = '/dashboard/accounts/history/traces';
 export const DashboardAccountsHistoryCustomLocation = '/dashboard/accounts/history/custom';
 export const DashboardAccountsNeighborsLocation = '/dashboard/accounts/neighbors';
@@ -138,6 +139,7 @@ export const routes = [
     helpText: 'View the events in transaction.',
   },
   {
+    // TODO: Can remove this
     path: DashboardAccountsHistoryTracesLocation,
     exact: true,
     component: DashboardView,

@@ -25,6 +25,7 @@ export const DetailsView = ({ params }: { params: AccountViewParams }) => {
     theData, uniqAssets, loading,
   } = params;
   if (!theData || !uniqAssets) return <></>;
+  const { showReversed } = params.userPrefs;
 
   let leftSideTabs: ViewTab[];
   if (theData.length) {
@@ -95,7 +96,7 @@ export const useAcctStyles = createUseStyles({
   },
   card: {
     border: '2px solid darkgrey',
-    width: '620px',
+    width: '820px',
     marginBottom: '4px',
   },
   tableHead: {

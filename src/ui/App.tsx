@@ -31,7 +31,7 @@ import { createEmptyStatus } from '@modules/types/Status';
 import {
   ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation,
 } from './Routes';
-import { useGlobalNames } from './State';
+import { useGlobalNames, useGlobalState2 } from './State';
 
 import 'antd/dist/antd.css';
 import './app.css';
@@ -44,6 +44,7 @@ const useStyles = createUseStyles({
 });
 
 export const App = () => {
+  const { chain } = useGlobalState2();
   dayjs.extend(relativeTime);
 
   const { setNamesMap, setNamesArray } = useGlobalNames();
@@ -58,7 +59,7 @@ export const App = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       const statusResponse = wrapResponse(await getStatus({
-        chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+        chain,
       }));
 
       if (isSuccessfulCall(statusResponse)) {
@@ -78,10 +79,10 @@ export const App = () => {
     const intervalId = setInterval(fetchStatus, 10 * 1000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [chain]);
 
   const namesRequest = useSdk(() => getNames({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     terms: [''],
     expand: true,
     all: true,
@@ -130,12 +131,12 @@ export const App = () => {
     },
   ];
 
- // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
+  // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
   return (
     <Layout>
       <Header className='app-header'>
         <Title style={{ color: 'white' }} level={2}>
-          {'TrueBlocks Account Explorer - mainnet chain'}
+          {`TrueBlocks Account Explorer - ${chain} chain`}
         </Title>
       </Header>
       <Layout>

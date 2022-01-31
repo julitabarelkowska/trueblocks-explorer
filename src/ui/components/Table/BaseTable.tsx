@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import React, { useEffect, useState } from 'react';
 
 import Table, { ColumnsType } from 'antd/lib/table';
@@ -15,6 +16,7 @@ export const BaseTable = ({
   expandRender = undefined,
   siderRender = undefined,
   defPageSize = 7,
+  name = '',
 }: {
   dataSource: JsonResponse;
   columns: ColumnsType<any>;
@@ -23,10 +25,11 @@ export const BaseTable = ({
   expandRender?: (row: any) => JSX.Element;
   siderRender?: (record: any) => JSX.Element;
   defPageSize?: number;
+  name?: string;
 }) => {
   const [displayedRow, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
-  const [curRow, setCurRow] = useState(Number(sessionStorage.getItem('curRow')) || 0);
-  const [curPage, setCurPage] = useState(Number(sessionStorage.getItem('curPage')) || 1);
+  const [curRow, setCurRow] = useState(Number(sessionStorage.getItem(`curRow${name}`)) || 0);
+  const [curPage, setCurPage] = useState(Number(sessionStorage.getItem(`curPage${name}`)) || 1);
   const [pageSize, setPageSize] = useState(defPageSize);
   const [isExpanded, setIsExpanded] = useState(false);
   const [keyedData, setKeyedData] = useState([{ key: 0 }]);
@@ -36,8 +39,10 @@ export const BaseTable = ({
     setCurRow(num);
     const page = Math.floor(num / pageSize) + 1;
     setCurPage(page);
-    // sessionStorage.setItem('curRow', num.toString());
-    // sessionStorage.setItem('curPage', page.toString());
+    if (name !== '') {
+      sessionStorage.setItem(`curRow${name}`, num.toString());
+      sessionStorage.setItem(`curPage${name}`, page.toString());
+    }
   };
 
   Mousetrap.bind('up', () => setRowNumber(curRow - 1));
@@ -76,8 +81,10 @@ export const BaseTable = ({
     Mousetrap.unbind(['up', 'down', 'pageup', 'pagedown', 'home', 'end', 'enter']);
   }, []);
 
-  const gridStyle = siderRender ? { display: 'grid', gridTemplateColumns: '30fr 1fr 12fr 1fr' } : {};
-  const expandedRowRender = expandRender !== undefined ? expandRender : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
+  const gridStyle = siderRender ? { display: 'grid', gridTemplateColumns: '225fr 1fr 120fr' } : {};
+  const expandedRowRender = expandRender !== undefined
+    ? expandRender
+    : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
 
   return (
     <div style={gridStyle}>
@@ -109,7 +116,6 @@ export const BaseTable = ({
       />
       <div />
       {siderRender ? siderRender(displayedRow) : <></>}
-      <div />
     </div>
   );
 };

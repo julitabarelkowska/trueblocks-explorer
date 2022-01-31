@@ -9,8 +9,9 @@ import { FunctionDisplay } from '../components/FunctionDisplay';
 
 //-----------------------------------------------------------------
 export const HistoryEvents = ({ record }: { record: Transaction }) => {
-  const key = `${record.blockNumber}.${record.transactionIndex}`;
   const styles = useAcctStyles();
+
+  const key = `${record.blockNumber}.${record.transactionIndex}`;
   const { namesMap } = useGlobalNames();
 
   let title = '[no logs]';

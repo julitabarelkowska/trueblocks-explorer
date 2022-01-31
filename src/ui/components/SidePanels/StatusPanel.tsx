@@ -11,6 +11,8 @@ import filesize from 'filesize';
 import { Loading } from '@components/Loading';
 import { createEmptyMeta } from '@modules/types/Meta';
 
+import { useGlobalState2 } from '../../State';
+
 const useStyles = createUseStyles({
   container: { paddingBottom: '16px' },
   header: {
@@ -42,6 +44,7 @@ interface StatusPanelProps {
 }
 
 export const StatusPanel = ({ status, loading, error }: StatusPanelProps) => {
+  const { coreUrl } = useGlobalState2();
   const styles = useStyles();
 
   const statusData = status.data;
@@ -137,7 +140,7 @@ export const StatusPanel = ({ status, loading, error }: StatusPanelProps) => {
 
         <div className={styles.itemContainer}>
           <div className={styles.itemHeader}>API</div>
-          <div>{process.env.CORE_URL}</div>
+          <div>{coreUrl}</div>
         </div>
 
         <div className={styles.itemContainer}>

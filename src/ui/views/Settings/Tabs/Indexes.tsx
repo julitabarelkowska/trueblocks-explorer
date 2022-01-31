@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { getStatus, PinnedChunk } from '@sdk';
+import { getStatus, IndexCacheItem, PinnedChunk } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 
 import { BaseView } from '@components/BaseView';
@@ -17,22 +17,29 @@ import {
   SettingsIndexesManifestLocation,
   SettingsIndexesTableLocation,
 } from '../../../Routes';
+import { useGlobalState2 } from '../../../State';
 import { IndexCharts } from './SubTabs/IndexCharts';
 import { IndexGrid } from './SubTabs/IndexGrid';
 import { IndexManifest } from './SubTabs/IndexManifest';
 import { IndexTable } from './SubTabs/IndexTable';
 
 export const IndexesView = () => {
+  const { chain } = useGlobalState2();
   const statusCall = useSdk(() => getStatus({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     modes: ['index'],
     details: true,
   }));
-  const theData = useMemo(() => {
-    if (isSuccessfulCall(statusCall)) return statusCall.data;
 
+  const theGridData = useMemo(() => {
+    if (isSuccessfulCall(statusCall)) {
+      if (statusCall.data && statusCall.data) {
+        return statusCall.data[0].caches[0].items;
+      }
+      return statusCall.data;
+    }
     return [createEmptyStatus()];
-  }, [statusCall]);
+  }, [statusCall]) as any as IndexCacheItem[];
 
   useEffect(() => {
     if (isFailedCall(statusCall)) {
@@ -42,21 +49,22 @@ export const IndexesView = () => {
     }
   }, [statusCall]);
 
+  const title = <h3>The Unchained Index</h3>;
   const tabs = [
     {
       name: 'Grid',
       location: SettingsIndexesGridLocation,
-      component: <IndexGrid key='grid' theData={theData} loading={statusCall.loading} />,
+      component: <IndexGrid key='grid' theData={theGridData} title={title} loading={statusCall.loading} />,
     },
     {
       name: 'Table',
       location: SettingsIndexesTableLocation,
-      component: <IndexTable key='table' theData={theData} loading={statusCall.loading} />,
+      component: <IndexTable key='table' theData={theGridData} title={title} loading={statusCall.loading} />,
     },
     {
       name: 'Charts',
       location: SettingsIndexesChartsLocation,
-      component: <IndexCharts key='chart' theData={theData} loading={statusCall.loading} />,
+      component: <IndexCharts key='chart' theData={theGridData} title={title} loading={statusCall.loading} />,
     },
     {
       name: 'Manifest',
@@ -65,7 +73,9 @@ export const IndexesView = () => {
     },
   ];
 
-  return <BaseView title='' cookieName='COOKIE_SETTINGS_INDEX' tabs={tabs} position='left' />;
+  return (
+    <BaseView title='' cookieName='COOKIE_SETTINGS_INDEX' tabs={tabs} position='left' />
+  );
 };
 
 function padLeft(num: number, size: number, char: string = '0') {
@@ -110,7 +120,7 @@ export const indexSchema: ColumnsType<PinnedChunk> = [
     title: 'nApps',
     dataIndex: 'nApps',
     configuration: {
-      render: (item: number) => <div style={{ color: 'red', fontWeight: 800 }}>{item}</div>,
+      render: (item: number) => <div style={{ color: 'blue', fontWeight: 600 }}>{item}</div>,
     },
   }),
   addNumColumn({

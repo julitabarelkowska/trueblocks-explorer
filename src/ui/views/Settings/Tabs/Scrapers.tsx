@@ -5,8 +5,6 @@ import {
   Card, Col, Row, Switch,
 } from 'antd';
 
-import { JsonResponse } from '@modules/core';
-
 const useStyles = createUseStyles({
   card: {
     margin: '2px',
@@ -15,6 +13,8 @@ const useStyles = createUseStyles({
     height: 400,
   },
 });
+
+type JsonResponse = Record<string, any>;
 
 export const Scrapers = () => {
   const [indexer] = useState({} as JsonResponse);

@@ -19,7 +19,6 @@ import {
   DashboardAccountsHistoryEventsLocation,
   DashboardAccountsHistoryFunctionsLocation,
   DashboardAccountsHistoryReconsLocation,
-  DashboardAccountsHistoryTracesLocation,
 } from '../../../../../Routes';
 import { useGlobalState } from '../../../../../State';
 import { AccountViewParams } from '../../../Dashboard';
@@ -37,6 +36,7 @@ const searchParamFunction = 'function';
 
 export const History = ({ params }: { params: AccountViewParams }) => {
   const { theData, loading } = params;
+  const { showReversed } = params.userPrefs;
   const { currentAddress, namesMap } = useGlobalState();
   const history = useHistory();
   const { pathname } = useLocation();
@@ -73,14 +73,22 @@ export const History = ({ params }: { params: AccountViewParams }) => {
   );
 
   const filteredData = useMemo(() => {
-    if (!assetToFilterBy && !eventToFilterBy && !functionToFilterBy) return theData;
-
-    return applyFilters(theData, {
-      assetAddress: assetToFilterBy,
-      eventName: eventToFilterBy,
-      functionName: functionToFilterBy,
+    let ret;
+    if (!assetToFilterBy && !eventToFilterBy && !functionToFilterBy) {
+      ret = theData;
+    } else {
+      ret = applyFilters(theData, {
+        assetAddress: assetToFilterBy,
+        eventName: eventToFilterBy,
+        functionName: functionToFilterBy,
+      });
+    }
+    return ret.sort((a: any, b: any) => {
+      if (!showReversed) return 0;
+      if (b.blockNumber === a.blockNumber) return b.transactionIndex - a.transactionIndex;
+      return b.blockNumber - a.blockNumber;
     });
-  }, [assetToFilterBy, eventToFilterBy, functionToFilterBy, theData]);
+  }, [assetToFilterBy, eventToFilterBy, functionToFilterBy, theData, showReversed]);
 
   const makeClearFilter = (searchParamKey: string) => () => {
     const searchString = searchParams.delete(searchParamKey).toString();
@@ -92,9 +100,7 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       visible={Boolean(assetToFilterBy)}
       onClick={makeClearFilter(searchParamAsset)}
     >
-      Asset:
-      {' '}
-      {assetNameToDisplay || assetToFilterBy}
+      {`Asset: ${assetNameToDisplay || assetToFilterBy}`}
     </FilterButton>
   );
 
@@ -103,9 +109,7 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       visible={Boolean(eventToFilterBy)}
       onClick={makeClearFilter(searchParamEvent)}
     >
-      Event:
-      {' '}
-      {eventToFilterBy}
+      {`Event: ${eventToFilterBy}`}
     </FilterButton>
   );
 
@@ -114,38 +118,32 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       visible={Boolean(functionToFilterBy)}
       onClick={makeClearFilter(searchParamFunction)}
     >
-      Function:
-      {' '}
-      {functionToFilterBy}
+      {`Function: ${functionToFilterBy}`}
     </FilterButton>
   );
 
-  const siderRender = (record: any) => {
-    // TODO: Do we need this test? Why?
-    if (!record) return <></>;
-    return (
-      <AccountHistorySider key='account-transactions' record={record} params={params} />
-    );
-  };
+  const siderRender = (record: TransactionModel) => (
+    <AccountHistorySider record={record} params={params} />
+  );
 
   return (
     <div>
       {activeAssetFilter}
       {activeEventFilter}
       {activeFunctionFilter}
-
       <BaseTable
         dataSource={filteredData}
         columns={transactionSchema}
         loading={loading}
         extraData={currentAddress}
         siderRender={siderRender}
+        name='history'
       />
     </div>
   );
 };
 
-export const AccountHistorySider = ({ record, params }: { record: any; params: AccountViewParams }) => {
+export const AccountHistorySider = ({ record, params }: { record: TransactionModel; params: AccountViewParams }) => {
   const tabs = [
     {
       name: 'Events',
@@ -169,6 +167,7 @@ export const AccountHistorySider = ({ record, params }: { record: any; params: A
     },
   ];
 
+  if (!record) return <></>;
   return <BaseView title='' cookieName='COOKIE_DASHBOARD_DETAILS' tabs={tabs} />;
 };
 
@@ -201,7 +200,7 @@ export const transactionSchema: ColumnsType<TransactionModel> = [
     title: '',
     dataIndex: 'statements',
     configuration: {
-      width: '5%',
+      width: '3%',
       render: (unused, record) => <ExtraDisplay record={record} />,
     },
   }),

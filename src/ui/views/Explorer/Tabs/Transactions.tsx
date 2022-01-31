@@ -4,15 +4,20 @@ import { getTransactions } from '@sdk';
 
 import { RawDataTab } from '@components/RawDataTab';
 
+import { useGlobalState2 } from '../../../State';
+
 // TODO(tjayrush): hard coded data
-export const Transactions = () => (
-  <RawDataTab
-    name='logs'
-    makeRequest={() => getTransactions({
-      chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
-      transactions: ['12001001.0'],
-      cache: true,
-      articulate: true,
-    })}
-  />
-);
+export const Transactions = () => {
+  const { chain } = useGlobalState2();
+  return (
+    <RawDataTab
+      name='logs'
+      makeRequest={() => getTransactions({
+        chain,
+        transactions: ['12001001.0'],
+        cache: true,
+        articulate: true,
+      })}
+    />
+  );
+};

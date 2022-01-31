@@ -11,9 +11,13 @@ import { useSdk } from '@hooks/useSdk';
 import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 
+import { useGlobalState2 } from '../../../State';
+
 export const Blocks = () => {
+  const { chain } = useGlobalState2();
+
   const blocksCall = useSdk(() => getBlocks({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     blocks: [],
     list: 0,
     listCount: 12,

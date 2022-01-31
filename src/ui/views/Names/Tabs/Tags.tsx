@@ -10,9 +10,12 @@ import {
 import { useSdk } from '@hooks/useSdk';
 import { Tag } from '@modules/types/Tag';
 
+import { useGlobalState2 } from '../../../State';
+
 export const Tags = () => {
+  const { chain } = useGlobalState2();
   const dataCall = useSdk(() => getNames({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     terms: [],
     tags: true,
   }));

@@ -23,6 +23,8 @@ export function getExport(
     emitter?: address[],
     topic?: topic[],
     clean?: boolean,
+    staging?: boolean,
+    unripe?: boolean,
     ether?: boolean,
     fmt?: string,
     verbose?: boolean,

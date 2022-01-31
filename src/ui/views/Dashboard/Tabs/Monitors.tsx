@@ -20,10 +20,11 @@ import {
 import { createErrorNotification } from '@modules/error_notification';
 import { renderClickableAddress } from '@modules/renderers';
 
-import { useGlobalState } from '../../../State';
+import { useGlobalState, useGlobalState2 } from '../../../State';
 import { goToUrl } from '../../../Utilities';
 
 export const Monitors = () => {
+  const { chain, coreUrl } = useGlobalState2();
   const [, setSearchText] = useState('');
   const [, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -38,7 +39,7 @@ export const Monitors = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
 
   const monitorsCall = useSdk(() => getStatus({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     modes: ['monitors'],
     details: true,
   })) as CallStatus<Status[]>;
@@ -99,7 +100,7 @@ export const Monitors = () => {
 
   const onEditItem = () => {
     setLoadingEdit(true);
-    fetch(`${process.env.CORE_URL}/names`, {
+    fetch(`${coreUrl}/names`, {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',

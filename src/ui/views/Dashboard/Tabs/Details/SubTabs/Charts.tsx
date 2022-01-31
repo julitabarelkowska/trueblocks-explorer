@@ -10,7 +10,7 @@ import { createWrapper } from '@hooks/useSearchParams';
 import { AssetHistory, Balance } from '@modules/types';
 
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
-import { useGlobalNames, useGlobalState } from '../../../../../State';
+import { useGlobalNames, useGlobalState, useGlobalState2 } from '../../../../../State';
 import { chartColors } from '../../../../../Utilities';
 import { AccountViewParams } from '../../../Dashboard';
 
@@ -22,8 +22,7 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
       {uniqAssets.map((asset: AssetHistory, index: number) => {
         const color = asset.assetSymbol === 'ETH'
           ? '#63b598'
-          : chartColors[Number(`0x${asset.assetAddr.substr(2, 6)}`) % chartColors.length];
-
+          : chartColors[Number(`0x${asset.assetAddr.substr(4, 3)}`) % chartColors.length];
         const columns: any[] = [
           addColumn({
             title: 'Date',
@@ -56,13 +55,12 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
   );
 };
 
-export function getLink(type: string, addr1: string, addr2?: string) {
+export function getLink(chain: string, type: string, addr1: string, addr2?: string) {
   if (type === 'uni') {
     return `https://info.uniswap.org/#/tokens/${addr1}`;
   }
 
-  // TODO: BOGUS - per chain data
-  if (process.env.CHAIN === 'gnosis') {
+  if (chain === 'gnosis') {
     if (type === 'token') {
       return `https://blockscout.com/xdai/mainnet/address/${addr1}`;
     } if (type === 'holding') {
@@ -81,6 +79,7 @@ export function getLink(type: string, addr1: string, addr2?: string) {
 const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
   const { namesMap } = useGlobalNames();
   const { currentAddress } = useGlobalState();
+  const { chain, coreUrl } = useGlobalState2();
 
   const links = [];
   links.push(
@@ -93,25 +92,25 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
   );
   if (!namesMap.get(asset.assetAddr)) {
     links.push(
-      <a target='_blank' href={`${process.env.CORE_URL}/names?autoname=${asset.assetAddr}`} rel='noreferrer'>
+      <a target='_blank' href={`${coreUrl}/names?autoname=${asset.assetAddr}`} rel='noreferrer'>
         Name
       </a>,
     );
   }
   if (asset.assetSymbol !== 'ETH') {
     links.push(
-      <a target='_blank' href={getLink('holding', asset.assetAddr, currentAddress)} rel='noreferrer'>
+      <a target='_blank' href={getLink(chain, 'holding', asset.assetAddr, currentAddress)} rel='noreferrer'>
         Holdings
       </a>,
     );
   }
   links.push(
-    <a target='_blank' href={getLink('token', asset.assetAddr, '')} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'token', asset.assetAddr, '')} rel='noreferrer'>
       Token
     </a>,
   );
   links.push(
-    <a target='_blank' href={getLink('uni', asset.assetAddr, '')} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'uni', asset.assetAddr, '')} rel='noreferrer'>
       Uniswap
     </a>,
   );

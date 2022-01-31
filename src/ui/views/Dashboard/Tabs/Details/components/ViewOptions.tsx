@@ -52,13 +52,18 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   return (
     <div style={{ marginLeft: '2px' }}>
       <h3 className={styles.smallHeader}>options: </h3>
+      <div className={styles.smallHeader}>order: </div>
+      <Checkbox checked={userPrefs.showReversed} onChange={() => userPrefs.setShowReversed(!userPrefs.showReversed)}>
+        reversed
+      </Checkbox>
+      <p />
       <div className={styles.smallHeader}>head: </div>
-      <Checkbox checked={userPrefs.staging} onChange={() => userPrefs.setStaging(!userPrefs.staging)}>
+      <Checkbox checked={userPrefs.showStaging} onChange={() => userPrefs.setShowStaging(!userPrefs.showStaging)}>
         staging
       </Checkbox>
       <br />
       {/* TODO(tjayrush): should be unripe... */}
-      <Checkbox checked={userPrefs.staging} onChange={() => userPrefs.setStaging(!userPrefs.staging)}>
+      <Checkbox checked={userPrefs.showUnripe} onChange={() => userPrefs.setShowUnripe(!userPrefs.showUnripe)}>
         unripe
       </Checkbox>
       <p />

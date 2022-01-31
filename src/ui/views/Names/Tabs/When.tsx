@@ -9,9 +9,12 @@ import {
 } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
 
+import { useGlobalState2 } from '../../../State';
+
 export const When = () => {
+  const { chain } = useGlobalState2();
   const dataCall = useSdk(() => getWhen({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     list: true,
   }));
 

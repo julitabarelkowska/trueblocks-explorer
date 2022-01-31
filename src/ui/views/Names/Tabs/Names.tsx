@@ -18,7 +18,7 @@ import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 import { renderClickableAddress } from '@modules/renderers';
 
-import { useGlobalState } from '../../../State';
+import { useGlobalState, useGlobalState2 } from '../../../State';
 
 type NameModel =
   & Name
@@ -28,6 +28,7 @@ type NameModel =
   };
 
 export const Names = () => {
+  const { chain, coreUrl } = useGlobalState2();
   const [, setSearchText] = useState('');
   const [, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -42,7 +43,7 @@ export const Names = () => {
 
   // App also makes this request, maybe we can use global state?
   const namesCall = useSdk(() => getNames({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     terms: [],
     expand: true,
     all: true,
@@ -144,7 +145,7 @@ export const Names = () => {
 
   const onEditItem = () => {
     setLoadingEdit(true);
-    fetch(`${process.env.CORE_URL}/names`, {
+    fetch(`${coreUrl}/names`, {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
