@@ -33,7 +33,7 @@ export const IndexesView = () => {
 
   const theGridData = useMemo(() => {
     if (isSuccessfulCall(statusCall)) {
-      if (statusCall.data && statusCall.data) {
+      if (statusCall.data) {
         return statusCall.data[0].caches[0].items;
       }
       return statusCall.data;
