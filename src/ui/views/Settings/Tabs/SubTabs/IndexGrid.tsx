@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 
-import { IndexCacheItem } from '@sdk';
 import cx from 'classnames';
+
+import { IndexCacheItem } from '../../../../../sdk/generated_ts/types/indexCacheItem';
 
 export const IndexGrid = ({
   theData,

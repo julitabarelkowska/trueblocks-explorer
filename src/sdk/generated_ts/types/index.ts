@@ -24,4 +24,3 @@ export * from './function'
 export * from './parameter'
 export * from './quote'
 export * from './listStats'
-export * from './indexCacheItem';

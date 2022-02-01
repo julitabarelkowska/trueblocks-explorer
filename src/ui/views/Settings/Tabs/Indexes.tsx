@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { getStatus, IndexCacheItem, PinnedChunk } from '@sdk';
+import { getStatus, PinnedChunk } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 
 import { BaseView } from '@components/BaseView';
@@ -10,7 +10,7 @@ import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 import { createEmptyStatus } from '@modules/types/Status';
 
-// import { Chunk } from '@modules/types';
+import { IndexCacheItem } from '../../../../sdk/generated_ts/types/indexCacheItem';
 import {
   SettingsIndexesChartsLocation,
   SettingsIndexesGridLocation,
