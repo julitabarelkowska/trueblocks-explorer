@@ -67,25 +67,16 @@ export function makeFunctionParameters(refs: SwaggerParser.$Refs, parameters: Op
 function getGlobals(): Map<string, { name: string, required?: boolean }> {
   return new Map([
     // parameter variable name to type name
+    ['chain', { name: 'string', required: true }],
+    ['noHeader', { name: 'boolean' }],
     ['fmt', { name: 'string' }],
     ['verbose', { name: 'boolean' }],
     ['logLevel', { name: 'number' }],
-    ['noHeader', { name: 'boolean' }],
-    ['chain', { name: 'string', required: true }],
     ['wei', { name: 'boolean' }],
     ['ether', { name: 'boolean' }],
     ['dollars', { name: 'boolean' }],
-    ['help', { name: 'boolean' }],
     ['raw', { name: 'boolean' }],
     ['toFile', { name: 'boolean' }],
-    ['file', { name: 'string' }],
-    ['version', { name: 'boolean' }],
-    ['noop', { name: 'boolean' }],
-    ['mocked', { name: 'boolean' }],
-    ['noColor', { name: 'boolean' }],
-    ['outputFn', { name: 'string' }],
-    ['testMode', { name: 'boolean' }],
-    ['apiMode', { name: 'boolean' }],
   ]);
 }
 
