@@ -7,10 +7,10 @@ import { ResourceTable } from '@components/ResourceTable';
 import { addColumn } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
 
-import { useGlobalState2 } from '../../../../State';
+import { useGlobalState } from '../../../../State';
 
 export const IndexManifest = () => {
-  const { chain } = useGlobalState2();
+  const { chain } = useGlobalState();
 
   const pinsCall = useSdk(() => getPins({
     chain,

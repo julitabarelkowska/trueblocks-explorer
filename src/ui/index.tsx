@@ -4,10 +4,10 @@ import { BrowserRouter as Router } from 'react-router-dom';
 
 import { App } from './App';
 import { GlobalStateProvider, useGlobalState2 } from './State';
-import { setup as setupWebsocket } from './websockets';
+import { setupWebsocket } from './websockets';
 
 const { host, port } = useGlobalState2();
-setupWebsocket({ host, port, path: 'websocket' });
+setupWebsocket(host, port, 'websocket');
 
 render(
   <GlobalStateProvider>

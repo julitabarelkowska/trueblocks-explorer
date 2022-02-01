@@ -5,7 +5,7 @@ import { Function, getAbis } from '@sdk';
 import { ResourceTable } from '@components/ResourceTable';
 import { useSdk } from '@hooks/useSdk';
 
-import { useGlobalState2 } from '../../../../State';
+import { useGlobalState } from '../../../../State';
 import { abiSignature } from '../Signatures';
 
 type GenericSubTabProps = {
@@ -15,7 +15,7 @@ type GenericSubTabProps = {
 
 // This component encapsulates all the similarities that Event and Function signatures tabs share
 export function GenericSubTab({ filterFunc, resourceName }: GenericSubTabProps) {
-  const { chain } = useGlobalState2();
+  const { chain } = useGlobalState();
   const dataCall = useSdk(() => getAbis({
     chain,
     addrs: [],

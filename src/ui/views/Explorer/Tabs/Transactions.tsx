@@ -4,11 +4,11 @@ import { getTransactions } from '@sdk';
 
 import { RawDataTab } from '@components/RawDataTab';
 
-import { useGlobalState2 } from '../../../State';
+import { useGlobalState } from '../../../State';
 
 // TODO(tjayrush): hard coded data
 export const Transactions = () => {
-  const { chain } = useGlobalState2();
+  const { chain } = useGlobalState();
   return (
     <RawDataTab
       name='logs'

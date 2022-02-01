@@ -13,6 +13,7 @@ import {
 
 export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   const { denom, setDenom } = useGlobalState();
+  const { chain, setChain } = useGlobalState();
 
   const styles = useStyles();
   const { userPrefs } = params;
@@ -48,9 +49,24 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
     exportToJson(params.theData);
   };
 
+  // TODO: BOGUS - list of configured chains
   const repOptions = ['by tx', 'by hour', 'by day', 'by week', 'by month', 'by quarter', 'by year'];
   return (
     <div style={{ marginLeft: '2px' }}>
+      <h3 className={styles.smallHeader}>chain: </h3>
+      <Select
+        placeholder='chain'
+        value={chain}
+        onChange={(newValue) => setChain(newValue)}
+        style={{ width: '100%' }}
+      >
+        {['mainnet', 'gnosis', 'rinkeby'].map((item) => (
+          <Select.Option key={item} value={item}>
+            {item}
+          </Select.Option>
+        ))}
+      </Select>
+      <p />
       <h3 className={styles.smallHeader}>options: </h3>
       <div className={styles.smallHeader}>order: </div>
       <Checkbox checked={userPrefs.showReversed} onChange={() => userPrefs.setShowReversed(!userPrefs.showReversed)}>
@@ -69,7 +85,7 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
       <p />
       <div className={styles.smallHeader}>display: </div>
       <Select
-        placeholder='Inserted are removed'
+        placeholder='display by'
         value={userPrefs.period}
         onChange={(newValue) => userPrefs.setPeriod(newValue)}
         style={{ width: '100%' }}

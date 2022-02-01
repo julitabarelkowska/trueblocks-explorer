@@ -9,10 +9,10 @@ import {
 } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
 
-import { useGlobalState2 } from '../../../State';
+import { useGlobalState } from '../../../State';
 
 export const When = () => {
-  const { chain } = useGlobalState2();
+  const { chain } = useGlobalState();
   const dataCall = useSdk(() => getWhen({
     chain,
     list: true,

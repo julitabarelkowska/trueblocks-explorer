@@ -17,14 +17,14 @@ import {
   SettingsIndexesManifestLocation,
   SettingsIndexesTableLocation,
 } from '../../../Routes';
-import { useGlobalState2 } from '../../../State';
+import { useGlobalState } from '../../../State';
 import { IndexCharts } from './SubTabs/IndexCharts';
 import { IndexGrid } from './SubTabs/IndexGrid';
 import { IndexManifest } from './SubTabs/IndexManifest';
 import { IndexTable } from './SubTabs/IndexTable';
 
 export const IndexesView = () => {
-  const { chain } = useGlobalState2();
+  const { chain } = useGlobalState();
   const statusCall = useSdk(() => getStatus({
     chain,
     modes: ['index'],

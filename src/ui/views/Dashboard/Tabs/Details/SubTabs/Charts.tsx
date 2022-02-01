@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import dayjs from 'dayjs';
@@ -79,8 +79,10 @@ export function getLink(chain: string, type: string, addr1: string, addr2?: stri
 
 const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
   const { namesMap } = useGlobalNames();
-  const { currentAddress } = useGlobalState();
-  const { chain, coreUrl } = useGlobalState2();
+  const { currentAddress, chain } = useGlobalState();
+  const { host, port } = useGlobalState2();
+
+  const coreUrl = useMemo(() => "http://" + host + ":" + port, [host, port]);
 
   const links = [];
   links.push(

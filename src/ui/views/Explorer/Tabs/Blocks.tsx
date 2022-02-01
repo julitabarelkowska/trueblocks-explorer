@@ -11,10 +11,10 @@ import { useSdk } from '@hooks/useSdk';
 import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 
-import { useGlobalState2 } from '../../../State';
+import { useGlobalState } from '../../../State';
 
 export const Blocks = () => {
-  const { chain } = useGlobalState2();
+  const { chain } = useGlobalState();
 
   const blocksCall = useSdk(() => getBlocks({
     chain,

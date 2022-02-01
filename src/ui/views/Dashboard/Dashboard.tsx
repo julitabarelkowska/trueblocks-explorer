@@ -25,13 +25,13 @@ import {
   DashboardCollectionsLocation,
   DashboardMonitorsLocation,
 } from '../../Routes';
-import { useGlobalNames, useGlobalState, useGlobalState2 } from '../../State';
+import { useGlobalNames, useGlobalState } from '../../State';
 import { Collections } from './Tabs/Collections';
 import { DetailsView } from './Tabs/Details';
 import { Monitors } from './Tabs/Monitors';
 
 export const DashboardView = () => {
-  const { chain } = useGlobalState2();
+  const { chain } = useGlobalState();
   const [loading, setLoading] = useState(false);
   const [showReversed, setShowReversed] = useState(false);
   const [showStaging, setShowStaging] = useState(false);
@@ -79,7 +79,7 @@ export const DashboardView = () => {
     addrs: [currentAddress as string],
   }),
   () => currentAddress?.slice(0, 2) === '0x',
-  [currentAddress]) as CallStatus<ListStats[]>;
+  [currentAddress, chain]) as CallStatus<ListStats[]>;
 
   useEffect(() => {
     if (!isSuccessfulCall(listRequest)) return;
@@ -165,7 +165,7 @@ export const DashboardView = () => {
     if (!hideReconciled) return true;
 
     return transaction?.statements?.some?.(({ reconciled }) => !reconciled);
-  }), [hideReconciled, transactionModels, showReversed]);
+  }), [hideReconciled, transactionModels]);
 
   const uniqAssets = useMemo(() => {
     if (!theData.length) return [];
@@ -218,7 +218,7 @@ export const DashboardView = () => {
         || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
       return show && (!hideNamed || !namesMap.get(asset.assetAddr));
     });
-  }, [hideNamed, hideZero, namesMap, theData, denom, showReversed]);
+  }, [hideNamed, hideZero, namesMap, theData, denom]);
 
   const params: AccountViewParams = {
     loading,

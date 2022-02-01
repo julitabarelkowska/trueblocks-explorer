@@ -4,10 +4,10 @@ import {
   Transaction,
 } from '@sdk';
 
-import { useGlobalState2 } from '../../../../../State';
+import { useGlobalState } from '../../../../../State';
 
 export const ExtraDisplay = ({ record }: { record: Transaction}) => {
-  const { chain } = useGlobalState2();
+  const { chain } = useGlobalState();
   // TODO: BOGUS - per chain data
   if (chain === 'gnosis') {
     return (

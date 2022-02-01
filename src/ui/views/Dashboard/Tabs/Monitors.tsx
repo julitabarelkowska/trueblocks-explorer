@@ -24,7 +24,8 @@ import { useGlobalState, useGlobalState2 } from '../../../State';
 import { goToUrl } from '../../../Utilities';
 
 export const Monitors = () => {
-  const { chain, coreUrl } = useGlobalState2();
+  const { chain } = useGlobalState();
+  const { host, port } = useGlobalState2();
   const [, setSearchText] = useState('');
   const [, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -37,6 +38,8 @@ export const Monitors = () => {
   const [selectedNameSource] = useState('');
   const [selectedNameTags] = useState('');
   const [loadingEdit, setLoadingEdit] = useState(false);
+
+  const coreUrl = useMemo(() => "http://" + host + ":" + port, [host, port]);
 
   const monitorsCall = useSdk(() => getStatus({
     chain,

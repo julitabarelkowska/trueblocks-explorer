@@ -17,6 +17,7 @@ import { createEmptyMeta, Meta } from '@modules/types/Meta';
 
 const THEME: ThemeName = Cookies.get('theme') as ThemeName || 'default';
 const ADDRESS = Cookies.get('address');
+const CHAIN = Cookies.get('chain') || process.env.CHAIN || 'mainnet';
 const DENOM = Cookies.get('denom') || 'ether';
 
 type NamesEditModalState = {
@@ -29,6 +30,7 @@ type NamesEditModalState = {
 
 type State = {
   theme: Theme,
+  chain: string,
   denom: string,
   currentAddress?: string,
   namesMap: Map<Address, Name>
@@ -50,6 +52,7 @@ const getDefaultNamesEditModalValue = () => ({
 
 const initialState: State = {
   theme: getThemeByName(THEME),
+  chain: CHAIN,
   denom: DENOM,
   currentAddress: ADDRESS,
   namesMap: new Map(),
@@ -64,6 +67,11 @@ const initialState: State = {
 type SetTheme = {
   type: 'SET_THEME',
   theme: State['theme'],
+};
+
+type SetChain = {
+  type: 'SET_CHAIN',
+  chain: State['chain'],
 };
 
 type SetDenom = {
@@ -118,6 +126,7 @@ type SetTotalRecords = {
 
 type GlobalAction =
   | SetTheme
+  | SetChain
   | SetDenom
   | SetCurrentAddress
   | SetNamesMap
@@ -141,6 +150,12 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
       return {
         ...state,
         theme: action.theme,
+      };
+    case 'SET_CHAIN':
+      Cookies.set('chain', action.chain);
+      return {
+        ...state,
+        chain: action.chain,
       };
     case 'SET_DENOM':
       // TODO(tjayrush): not sure why this doesn't work
@@ -211,18 +226,24 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
   }
 };
 
-export const useGlobalState2 = () => ({
-  chain: process.env.CHAIN || 'mainnet',
-  host: process.env.REACT_APP_API_URL || 'localhost',
-  port: (process.env.REACT_APP_API_PORT || '8080') as unknown as number,
-  coreUrl: process.env.CORE_URL || 'localhost:8080',
-});
+export const useGlobalState2 = () => {
+  const host = process.env.REACT_APP_API_URL || 'localhost';
+  const port = (process.env.REACT_APP_API_PORT || '8080') as unknown as number;
+  return ({
+    host,
+    port,
+  });
+}
 
 export const useGlobalState = () => {
   const [state, dispatch] = useContext(GlobalStateContext);
 
   const setTheme = (theme: SetTheme['theme']) => {
     dispatch({ type: 'SET_THEME', theme });
+  };
+
+  const setChain = (chain: SetChain['chain']) => {
+    dispatch({ type: 'SET_CHAIN', chain });
   };
 
   const setDenom = (denom: SetDenom['denom']) => {
@@ -268,6 +289,8 @@ export const useGlobalState = () => {
   return {
     theme: state.theme,
     setTheme,
+    chain: state.chain,
+    setChain,
     denom: state.denom,
     setDenom,
     currentAddress: state.currentAddress,

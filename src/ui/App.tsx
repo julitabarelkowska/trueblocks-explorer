@@ -31,7 +31,7 @@ import { createEmptyStatus } from '@modules/types/Status';
 import {
   ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation,
 } from './Routes';
-import { useGlobalNames, useGlobalState2 } from './State';
+import { useGlobalNames, useGlobalState } from './State';
 
 import 'antd/dist/antd.css';
 import './app.css';
@@ -44,7 +44,7 @@ const useStyles = createUseStyles({
 });
 
 export const App = () => {
-  const { chain } = useGlobalState2();
+  const { chain } = useGlobalState();
   dayjs.extend(relativeTime);
 
   const { setNamesMap, setNamesArray } = useGlobalNames();
