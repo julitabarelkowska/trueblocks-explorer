@@ -1,5 +1,5 @@
-import * as ApiCallers from '../lib/api_callers';
-import { address, Appearance, ListStats } from '../types';
+import * as ApiCallers from "../lib/api_callers";
+import { address, Appearance, ListStats } from "../types";
 
 export function getList(
   parameters?: {
@@ -28,7 +28,5 @@ export function getList(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Appearance[] | ListStats[]>({
-    endpoint: '/list', method: 'get', parameters, options,
-  });
+  return ApiCallers.fetch<Appearance[] | ListStats[]>({ endpoint: '/list', method: 'get', parameters, options });
 }

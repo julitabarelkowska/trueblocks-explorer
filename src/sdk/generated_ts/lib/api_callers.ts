@@ -15,8 +15,8 @@ export type SuccessResponse<DataType> = {
 };
 
 export type AnyResponse<DataType> =
-  | ErrorResponse
-  | SuccessResponse<DataType>
+    | ErrorResponse
+    | SuccessResponse<DataType>
 
 let baseUrl = `${process.env.CORE_URL}`;
 let fetchToUse = global.fetch;
