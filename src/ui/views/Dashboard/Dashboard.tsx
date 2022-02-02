@@ -13,7 +13,6 @@ import { useSdk } from '@hooks/useSdk';
 import { CallStatus, isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 import {
-  // This type seems like a part of UI (presentation layer)
   createEmptyAccountname,
   // Reconciliation,
 } from '@modules/types';
