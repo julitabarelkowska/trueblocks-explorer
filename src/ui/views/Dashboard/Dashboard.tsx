@@ -51,6 +51,7 @@ export const DashboardView = () => {
     transactions,
     meta: transactionsMeta,
     addTransactions,
+    setTransactions,
   } = useGlobalState();
 
   const { search: searchParams } = useLocation();
@@ -110,7 +111,7 @@ export const DashboardView = () => {
     })()),
   }),
   () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
-  [currentAddress, totalRecords, transactions.length, showStaging]);
+  [currentAddress, totalRecords, transactions.length, showStaging, chain]);
 
   useEffect(() => {
     if (isFailedCall(transactionsRequest)) {
@@ -127,8 +128,11 @@ export const DashboardView = () => {
   }, [transactions.length, transactionsRequest.loading]);
 
   useEffect(() => {
-    if (!isSuccessfulCall(transactionsRequest)) return;
+    setTransactions([]);
+  }, [chain]);
 
+  useEffect(() => {
+    if (!isSuccessfulCall(transactionsRequest)) return;
     addTransactions(
       transactionsRequest.data as Transaction[],
     );

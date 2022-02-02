@@ -12,7 +12,10 @@ import {
 import {
   getNames, getStatus, Name, Status, SuccessResponse,
 } from '@sdk';
-import { Layout, Typography } from 'antd';
+import {
+  Layout, Select,
+  Typography,
+} from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -44,7 +47,7 @@ const useStyles = createUseStyles({
 });
 
 export const App = () => {
-  const { chain } = useGlobalState();
+  const { chain, setChain } = useGlobalState();
   dayjs.extend(relativeTime);
 
   const { setNamesMap, setNamesArray } = useGlobalNames();
@@ -131,11 +134,29 @@ export const App = () => {
     },
   ];
 
+  // TODO: BOGUS - list of configured chains
+  const chainList = ['mainnet', 'gnosis', 'rinkeby'];
+  const chainDropdown = (
+    <Select
+      placeholder='chain'
+      value={chain}
+      onChange={(newValue) => setChain(newValue)}
+      style={{ width: '100%' }}
+    >
+      {chainList.map((item) => (
+        <Select.Option key={item} value={item}>
+          {item}
+        </Select.Option>
+      ))}
+    </Select>
+  );
+
   // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
   return (
     <Layout>
+      <>{chainDropdown}</>
       <Header className='app-header'>
-        <Title style={{ color: 'white' }} level={2}>
+        <Title style={{ display: 'inline', color: 'white' }} level={2}>
           {`TrueBlocks Account Explorer - ${chain} chain`}
         </Title>
       </Header>

@@ -225,13 +225,14 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
 };
 
 export const useGlobalState2 = () => {
-  const chain = Cookies.get('chain');
-  let coreUrl = new URL('http://localhost:8080');
-  if (chain === 'rinkeby') {
-    coreUrl = new URL('http://web3:8080');
-  } else if (chain === 'gnosis') {
-    coreUrl = new URL('http://wildmolasses:8080');
-  }
+  // TODO: Bogus
+  // const chain = Cookies.get('chain');
+  const coreUrl = new URL('http://localhost:8080');
+  // if (chain === 'rinkeby') {
+  //   coreUrl = new URL('http://web3:8080');
+  // } else if (chain === 'gnosis') {
+  //   coreUrl = new URL('http://wildmolasses:8080');
+  // }
   const host = coreUrl.hostname;
   const port = coreUrl.port as unknown as number;
   return ({
