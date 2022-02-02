@@ -44,12 +44,11 @@ interface StatusPanelProps {
 }
 
 export const StatusPanel = ({ status, loading, error }: StatusPanelProps) => {
-  const { host, port } = useGlobalState2();
+  const { coreUrl } = useGlobalState2();
   const styles = useStyles();
 
   const statusData = status.data;
   const statusMeta = useMemo(() => (error ? createEmptyMeta() : status.meta), [error, status.meta]);
-  const coreUrl = useMemo(() => `http://${host}:${port}`, [host, port]);
 
   const ripe = statusMeta.ripe !== statusMeta.staging ? (
     <ScraperProgress value={statusMeta.ripe} client={statusMeta.client} word='RIPE' color='#fadb14' />

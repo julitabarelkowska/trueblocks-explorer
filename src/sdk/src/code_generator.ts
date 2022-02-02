@@ -7,8 +7,7 @@ import * as helpers from './helpers';
 import * as pathFile from './path_file';
 import * as typeFile from './type_file';
 
-// const openApiUrl = 'http://trueblocks.io/api/openapi.yaml';
-// const openApiUrl = 'https://raw.githubusercontent.com/TrueBlocks/trueblocks-core/develop/docs/content/api/openapi.yaml';
+// const openApiUrl = 'https://trueblocks.io/api/openapi.yaml';
 const openApiUrl = '../trueblocks-core/docs/content/api/openapi.yaml';
 
 /**

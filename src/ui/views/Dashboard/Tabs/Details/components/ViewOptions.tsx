@@ -50,6 +50,7 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   };
 
   // TODO: BOGUS - list of configured chains
+  const chainList = ['mainnet', 'gnosis', 'rinkeby'];
   const repOptions = ['by tx', 'by hour', 'by day', 'by week', 'by month', 'by quarter', 'by year'];
   return (
     <div style={{ marginLeft: '2px' }}>
@@ -60,7 +61,7 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
         onChange={(newValue) => setChain(newValue)}
         style={{ width: '100%' }}
       >
-        {['mainnet', 'gnosis', 'rinkeby'].map((item) => (
+        {chainList.map((item) => (
           <Select.Option key={item} value={item}>
             {item}
           </Select.Option>

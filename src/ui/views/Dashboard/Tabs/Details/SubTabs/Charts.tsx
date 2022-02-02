@@ -80,9 +80,7 @@ export function getLink(chain: string, type: string, addr1: string, addr2?: stri
 const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
   const { namesMap } = useGlobalNames();
   const { currentAddress, chain } = useGlobalState();
-  const { host, port } = useGlobalState2();
-
-  const coreUrl = useMemo(() => "http://" + host + ":" + port, [host, port]);
+  const { coreUrl } = useGlobalState2();
 
   const links = [];
   links.push(

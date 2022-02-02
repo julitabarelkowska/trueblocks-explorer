@@ -29,7 +29,7 @@ type NameModel =
 
 export const Names = () => {
   const { chain } = useGlobalState();
-  const { host, port } = useGlobalState2();
+  const { coreUrl } = useGlobalState2();
   const [, setSearchText] = useState('');
   const [, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -41,8 +41,6 @@ export const Names = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
 
   const [addresses, setAddresses] = useState<NameModel[]>([]);
-
-  const coreUrl = useMemo(() => "http://" + host + ":" + port, [host, port]);
 
   // App also makes this request, maybe we can use global state?
   const namesCall = useSdk(() => getNames({

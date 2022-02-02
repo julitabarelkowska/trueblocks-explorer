@@ -21,11 +21,10 @@ import { createErrorNotification } from '@modules/error_notification';
 import { renderClickableAddress } from '@modules/renderers';
 
 import { useGlobalState, useGlobalState2 } from '../../../State';
-import { goToUrl } from '../../../Utilities';
 
 export const Monitors = () => {
   const { chain } = useGlobalState();
-  const { host, port } = useGlobalState2();
+  const { coreUrl } = useGlobalState2();
   const [, setSearchText] = useState('');
   const [, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -38,8 +37,6 @@ export const Monitors = () => {
   const [selectedNameSource] = useState('');
   const [selectedNameTags] = useState('');
   const [loadingEdit, setLoadingEdit] = useState(false);
-
-  const coreUrl = useMemo(() => "http://" + host + ":" + port, [host, port]);
 
   const monitorsCall = useSdk(() => getStatus({
     chain,
@@ -296,12 +293,12 @@ const monitorSchema: ColumnsType<Monitor> = [
   ),
 ];
 
+// TODO: BOGUS - per chain data
 function getTableActions(item: Monitor) {
-  // TODO: BOGUS - per chain data
   const onClick = (action: string, monitor: typeof item) => {
     switch (action) {
       case 'info':
-        goToUrl(`https://etherscan.io/address/${monitor.address}`);
+        openInExplorer(`https://etherscan.io/address/${monitor.address}`);
         break;
       case 'delete':
         console.log('DELETE');
@@ -319,4 +316,12 @@ function getTableActions(item: Monitor) {
   };
 
   return <TableActions item={item} onClick={onClick} />;
+}
+
+//-------------------------------------------------------------------------
+export function openInExplorer(href: string) {
+  const a = document.createElement('a');
+  a.href = href;
+  a.setAttribute('target', '_blank');
+  a.click();
 }

@@ -6,9 +6,9 @@ import {
 
 import { useGlobalState } from '../../../../../State';
 
+// TODO: BOGUS - per chain data
 export const ExtraDisplay = ({ record }: { record: Transaction}) => {
   const { chain } = useGlobalState();
-  // TODO: BOGUS - per chain data
   if (chain === 'gnosis') {
     return (
       <a target='_blank' href={`https://blockscout.com/xdai/mainnet/tx/${record.hash}`} rel='noreferrer'>
@@ -17,7 +17,7 @@ export const ExtraDisplay = ({ record }: { record: Transaction}) => {
     );
   }
   return (
-    <a target='_blank' href={`http://etherscan.io/tx/${record.hash}`} rel='noreferrer'>
+    <a target='_blank' href={`https://etherscan.io/tx/${record.hash}`} rel='noreferrer'>
       ES
     </a>
   );
