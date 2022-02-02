@@ -156,7 +156,7 @@ export const App = () => {
     <Layout>
       <>{chainDropdown}</>
       <Header className='app-header'>
-        <Title style={{ display: 'inline', color: 'white' }} level={2}>
+        <Title style={{ color: 'white' }} level={2}>
           {`TrueBlocks Account Explorer - ${chain} chain`}
         </Title>
       </Header>
