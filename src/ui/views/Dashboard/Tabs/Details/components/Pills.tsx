@@ -28,6 +28,9 @@ export const Pills = ({ record } : {record: TransactionModel}) => {
       {Pill('con', style.conTag, isCon)}
       {Pill('erc20', style.tok20Tag, is20 && !is721)}
       {Pill('erc721', style.tok721Tag, Boolean(is721))}
+      {Pill('mainnet', style.mainnet, Boolean(record.chain === 'mainnet'))}
+      {Pill('gnosis', style.gnosis, Boolean(record.chain === 'gnosis'))}
+      {Pill('rinkeby', style.rinkeby, Boolean(record.chain === 'rinkeby'))}
     </div>
   );
 };
@@ -75,5 +78,21 @@ const useStyles = createUseStyles({
     backgroundColor: 'lightgrey',
     borderColor: 'grey',
     color: 'grey',
+  },
+  // TODO: BOGUS - per chain
+  mainnet: {
+    backgroundColor: 'red',
+    borderColor: 'grey',
+    color: 'white',
+  },
+  gnosis: {
+    backgroundColor: 'blue',
+    borderColor: 'grey',
+    color: 'white',
+  },
+  rinkeby: {
+    backgroundColor: 'purple',
+    borderColor: 'grey',
+    color: 'white',
   },
 });
