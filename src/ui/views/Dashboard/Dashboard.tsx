@@ -4,7 +4,7 @@ import React, {
 import { useLocation } from 'react-router-dom';
 
 import {
-  getExport, getList, ListStats, Reconciliation, Transaction,
+  getExport, getList, ListStats, Transaction,
 } from '@sdk';
 import Mousetrap from 'mousetrap';
 
@@ -14,8 +14,6 @@ import { CallStatus, isFailedCall, isSuccessfulCall } from '@modules/api/call_st
 import { createErrorNotification } from '@modules/error_notification';
 import {
   // This type seems like a part of UI (presentation layer)
-  AssetHistory,
-  AssetHistoryArray,
   createEmptyAccountname,
   // Reconciliation,
 } from '@modules/types';
@@ -42,7 +40,6 @@ export const DashboardView = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [period, setPeriod] = useState('by tx');
   const [cancel, setCancel] = useState(false);
-  const { denom } = useGlobalState();
 
   const { currentAddress, setCurrentAddress } = useGlobalState();
   const { namesMap } = useGlobalNames();
@@ -158,7 +155,7 @@ export const DashboardView = () => {
         staging,
         chain,
       };
-    }), [namesMap, transactions, showStaging]);
+    }), [namesMap, transactions, showStaging, chain]);
 
   // TODO(data): fix this if you can
   const theData = useMemo(() => transactionModels.filter((transaction) => {
@@ -166,59 +163,6 @@ export const DashboardView = () => {
 
     return transaction?.statements?.some?.(({ reconciled }) => !reconciled);
   }), [hideReconciled, transactionModels]);
-
-  const uniqAssets = useMemo(() => {
-    if (!theData.length) return [];
-
-    const unique: Array<AssetHistory> = [];
-
-    theData.forEach((tx: Transaction) => {
-      tx.statements?.forEach((statement: Reconciliation) => {
-        if (unique.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
-          unique.push({
-            assetAddr: statement.assetAddr,
-            assetSymbol: statement.assetSymbol,
-            balHistory: [],
-          });
-        }
-      });
-
-      unique.forEach((asset: AssetHistory, index: number) => {
-        const found = tx.statements?.find((statement: Reconciliation) => asset.assetAddr === statement.assetAddr);
-        // TODO: do not convert the below to strings
-        if (found) {
-          unique[index].balHistory = [
-            ...unique[index].balHistory,
-            {
-              balance: (denom === 'dollars'
-                ? parseInt(found.endBal.toString() || '0', 10) * Number(found.spotPrice)
-                : parseInt(found.endBal.toString() || '0', 10)),
-              date: new Date(found.timestamp * 1000),
-              reconciled: found.reconciled,
-            },
-          ];
-        }
-      });
-    });
-
-    unique.sort((a: any, b: any) => {
-      if (b.balHistory.length === a.balHistory.length) {
-        if (b.balHistory.length === 0) {
-          return b.assetAddr - a.assetAddr;
-        }
-        return b.balHistory[b.balHistory.length - 1].balance - a.balHistory[a.balHistory.length - 1].balance;
-      }
-      return b.balHistory.length - a.balHistory.length;
-    });
-
-    return unique.filter((asset: AssetHistory) => {
-      if (asset.balHistory.length === 0) return false;
-      const show = hideZero === 'all'
-        || (hideZero === 'show' && asset.balHistory[asset.balHistory.length - 1].balance === 0)
-        || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
-      return show && (!hideNamed || !namesMap.get(asset.assetAddr));
-    });
-  }, [hideNamed, hideZero, namesMap, theData, denom]);
 
   const params: AccountViewParams = {
     loading,
@@ -244,7 +188,6 @@ export const DashboardView = () => {
     totalRecords,
     theData,
     theMeta: transactionsMeta,
-    uniqAssets,
   };
 
   const tabs = [
@@ -293,5 +236,4 @@ export type AccountViewParams = {
   totalRecords: number | null;
   theData: any;
   theMeta: any;
-  uniqAssets: AssetHistoryArray;
 };

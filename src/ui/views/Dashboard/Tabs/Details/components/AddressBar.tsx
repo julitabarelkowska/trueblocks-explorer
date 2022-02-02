@@ -34,7 +34,6 @@ export const AddressBar = ({ params }: { params: AccountViewParams }) => {
       <div />
       <div>
         <ProgressBar params={params} />
-        <AssetSelector params={params} />
       </div>
       <div />
     </div>
@@ -56,41 +55,3 @@ const ProgressBar = ({ params }: { params: AccountViewParams }): JSX.Element => 
     </div>
   );
 };
-
-const AssetSelector = ({ params }: { params: AccountViewParams }) => {
-  const styles = useStyles();
-  const { uniqAssets } = params;
-
-  const onClick = ({ key }: { key: any }) => {
-    message.info(`Click on item ${uniqAssets[key].assetAddr}`);
-  };
-
-  const menu = (
-    <Menu onClick={onClick}>
-      {uniqAssets.map((item, index) => <Menu.Item key={index}>{item.assetSymbol}</Menu.Item>)}
-    </Menu>
-  );
-
-  return (
-    <>
-      <div className={styles.smallHeader} style={{ display: 'inline' }}>
-        asset:
-        {' '}
-        <Dropdown className='' overlay={menu} trigger={['click']}>
-          <a className='ant-dropdown-link' onClick={(e) => e.preventDefault()}>
-            Filter
-            {' '}
-            <DownOutlined />
-          </a>
-        </Dropdown>
-      </div>
-    </>
-  );
-};
-
-const useStyles = createUseStyles({
-  smallHeader: {
-    fontWeight: 800,
-    textDecoration: 'underline',
-  },
-});

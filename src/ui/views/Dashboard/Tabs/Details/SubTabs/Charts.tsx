@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
+import { Reconciliation, Transaction } from '@sdk';
 import dayjs from 'dayjs';
 
 import { MyAreaChart } from '@components/MyAreaChart';
@@ -15,7 +16,69 @@ import { chartColors } from '../../../../../Utilities';
 import { AccountViewParams } from '../../../Dashboard';
 
 export const Charts = ({ params }: { params: AccountViewParams }) => {
-  const { uniqAssets } = params;
+  const {
+    theData,
+    userPrefs,
+  } = params;
+  const {
+    hideNamed,
+    hideZero,
+  } = userPrefs;
+  const { denom } = useGlobalState();
+  const { namesMap } = useGlobalNames();
+
+  const uniqAssets = useMemo(() => {
+    if (!theData.length) return [];
+
+    const unique: Array<AssetHistory> = [];
+
+    theData.forEach((tx: Transaction) => {
+      tx.statements?.forEach((statement: Reconciliation) => {
+        if (unique.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
+          unique.push({
+            assetAddr: statement.assetAddr,
+            assetSymbol: statement.assetSymbol,
+            balHistory: [],
+          });
+        }
+      });
+
+      unique.forEach((asset: AssetHistory, index: number) => {
+        const found = tx.statements?.find((statement: Reconciliation) => asset.assetAddr === statement.assetAddr);
+        // TODO: do not convert the below to strings
+        if (found) {
+          unique[index].balHistory = [
+            ...unique[index].balHistory,
+            {
+              balance: (denom === 'dollars'
+                ? parseInt(found.endBal.toString() || '0', 10) * Number(found.spotPrice)
+                : parseInt(found.endBal.toString() || '0', 10)),
+              date: new Date(found.timestamp * 1000),
+              reconciled: found.reconciled,
+            },
+          ];
+        }
+      });
+    });
+
+    unique.sort((a: any, b: any) => {
+      if (b.balHistory.length === a.balHistory.length) {
+        if (b.balHistory.length === 0) {
+          return b.assetAddr - a.assetAddr;
+        }
+        return b.balHistory[b.balHistory.length - 1].balance - a.balHistory[a.balHistory.length - 1].balance;
+      }
+      return b.balHistory.length - a.balHistory.length;
+    });
+
+    return unique.filter((asset: AssetHistory) => {
+      if (asset.balHistory.length === 0) return false;
+      const show = hideZero === 'all'
+        || (hideZero === 'show' && asset.balHistory[asset.balHistory.length - 1].balance === 0)
+        || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
+      return show && (!hideNamed || !namesMap.get(asset.assetAddr));
+    });
+  }, [hideNamed, hideZero, namesMap, theData, denom]);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>

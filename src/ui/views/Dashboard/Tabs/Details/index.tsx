@@ -22,10 +22,10 @@ import {
 
 export const DetailsView = ({ params }: { params: AccountViewParams }) => {
   const {
-    theData, uniqAssets, loading,
+    theData, loading,
   } = params;
-  if (!theData || !uniqAssets) return <></>;
-  const { showReversed } = params.userPrefs;
+  if (!theData) return <></>;
+  // const { showReversed } = params.userPrefs;
 
   let leftSideTabs: ViewTab[];
   if (theData.length) {
