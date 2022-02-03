@@ -18,5 +18,9 @@ export function getWhen(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<DatedBlock[]>({ endpoint: '/when', method: 'get', parameters, options });
+  return ApiCallers.fetch<DatedBlock[]>(
+    {
+      endpoint: '/when', method: 'get', parameters, options,
+    },
+  );
 }

@@ -20,5 +20,9 @@ export function getSlurp(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Transaction[]>({ endpoint: '/slurp', method: 'get', parameters, options });
+  return ApiCallers.fetch<Transaction[]>(
+    {
+      endpoint: '/slurp', method: 'get', parameters, options,
+    },
+  );
 }

@@ -20,5 +20,9 @@ export function getMonitors(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Monitor[]>({ endpoint: '/monitors', method: 'get', parameters, options });
+  return ApiCallers.fetch<Monitor[]>(
+    {
+      endpoint: '/monitors', method: 'get', parameters, options,
+    },
+  );
 }

@@ -22,5 +22,9 @@ export function getTransactions(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Transaction[]>({ endpoint: '/transactions', method: 'get', parameters, options });
+  return ApiCallers.fetch<Transaction[]>(
+    {
+      endpoint: '/transactions', method: 'get', parameters, options,
+    },
+  );
 }

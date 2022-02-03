@@ -37,7 +37,7 @@ const searchParamFunction = 'function';
 export const History = ({ params }: { params: AccountViewParams }) => {
   const { theData, loading } = params;
   const { showReversed } = params.userPrefs;
-  const { currentAddress, namesMap } = useGlobalState();
+  const { currentAddress, namesMap, chain } = useGlobalState();
   const history = useHistory();
   const { pathname } = useLocation();
   const [assetToFilterBy, setAssetToFilterBy] = useState('');
@@ -136,7 +136,7 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       {activeAssetFilter}
       {activeEventFilter}
       {activeFunctionFilter}
-      {`showReversed: ${showReversed}`}
+      {`chain: ${chain} showReversed: ${showReversed}`}
       <BaseTable
         dataSource={filteredData}
         columns={transactionSchema}

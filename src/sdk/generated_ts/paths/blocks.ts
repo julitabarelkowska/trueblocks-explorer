@@ -29,5 +29,9 @@ export function getBlocks(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Block[]>({ endpoint: '/blocks', method: 'get', parameters, options });
+  return ApiCallers.fetch<Block[]>(
+    {
+      endpoint: '/blocks', method: 'get', parameters, options,
+    },
+  );
 }

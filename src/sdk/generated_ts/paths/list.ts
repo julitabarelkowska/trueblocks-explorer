@@ -19,5 +19,9 @@ export function getList(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Appearance[] | ListStats[]>({ endpoint: '/list', method: 'get', parameters, options });
+  return ApiCallers.fetch<Appearance[] | ListStats[]>(
+    {
+      endpoint: '/list', method: 'get', parameters, options,
+    },
+  );
 }

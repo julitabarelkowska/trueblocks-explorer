@@ -19,5 +19,9 @@ export function getQuotes(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Quote[]>({ endpoint: '/quotes', method: 'get', parameters, options });
+  return ApiCallers.fetch<Quote[]>(
+    {
+      endpoint: '/quotes', method: 'get', parameters, options,
+    },
+  );
 }

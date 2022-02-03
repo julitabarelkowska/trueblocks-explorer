@@ -22,5 +22,9 @@ export function getScrape(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<PinnedChunk[] | Manifest[]>({ endpoint: '/scrape', method: 'get', parameters, options });
+  return ApiCallers.fetch<PinnedChunk[] | Manifest[]>(
+    {
+      endpoint: '/scrape', method: 'get', parameters, options,
+    },
+  );
 }

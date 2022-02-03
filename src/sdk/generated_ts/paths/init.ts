@@ -17,5 +17,9 @@ export function getInit(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<PinnedChunk[] | Manifest[]>({ endpoint: '/init', method: 'get', parameters, options });
+  return ApiCallers.fetch<PinnedChunk[] | Manifest[]>(
+    {
+      endpoint: '/init', method: 'get', parameters, options,
+    },
+  );
 }

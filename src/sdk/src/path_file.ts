@@ -140,8 +140,9 @@ export function makePathsInSameFile(project: Project, refs: SwaggerParser.$Refs,
         .setIndentationLevel(0)
         .write(')')
         .block(() => {
-          writer
-            .write(`return ApiCallers.fetch<${types.makeUnionType(responseType)}>({ endpoint: '${route}', method: '${method}', parameters, options });`);
+          // eslint-disable-next-line max-len
+          const line = `return ApiCallers.fetch<${types.makeUnionType(responseType)}>(\n\t{\n  endpoint: '${route}', method: '${method}', parameters, options,\n\t},\n);`;
+          writer.write(line);
         });
     });
   }, { overwrite: true });

@@ -39,5 +39,9 @@ export function getExport(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Appearance[] | Reconciliation[] | Transaction[] | Receipt[] | Log[] | Trace[]>({ endpoint: '/export', method: 'get', parameters, options });
+  return ApiCallers.fetch<Appearance[] | Reconciliation[] | Transaction[] | Receipt[] | Log[] | Trace[]>(
+    {
+      endpoint: '/export', method: 'get', parameters, options,
+    },
+  );
 }

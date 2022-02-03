@@ -51,6 +51,7 @@ export const DashboardView = () => {
 
   const { search: searchParams } = useLocation();
 
+  //----------------------
   // This allows for switching addresses
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
@@ -60,6 +61,7 @@ export const DashboardView = () => {
     }
   }, [searchParams, setCurrentAddress]);
 
+  //----------------------
   // This adds (and cleans up) the escape key to allow quiting the transfer mid-way
   useEffect(() => {
     Mousetrap.bind('esc', () => setCancel(true));
@@ -68,22 +70,25 @@ export const DashboardView = () => {
     };
   }, []);
 
+  //----------------------
   // This builds the request for the number of transactions on a given address
-  const listRequest = useSdk(() => getList({
+  const listRequest = useSdk(() => (getList({
     chain,
     count: true,
     appearances: true,
     addrs: [currentAddress as string],
-  }),
+  })),
   () => currentAddress?.slice(0, 2) === '0x', // predicate
   [currentAddress, chain]) as CallStatus<ListStats[]>;
 
+  //----------------------
   // This fetches the number of transactions for the given address
   useEffect(() => {
     if (!isSuccessfulCall(listRequest)) return;
     setTotalRecords(listRequest.data[0]?.nRecords);
   }, [listRequest, listRequest.type, setTotalRecords]);
 
+  //----------------------
   // This builds the request to get the actual transactions until we've gotten them all
   const transactionsRequest = useSdk(() => getExport({
     chain,
@@ -92,7 +97,7 @@ export const DashboardView = () => {
     cache: true,
     cacheTraces: true,
     staging: showStaging,
-    // unripe: false, // unripe: '',
+    // unripe: showUnripe,
     ether: true,
     // dollars: false,
     articulate: true,
@@ -110,12 +115,14 @@ export const DashboardView = () => {
   () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords), // predicate
   [currentAddress, totalRecords, transactions.length, showStaging, chain]);
 
+  //----------------------
   // This makes appends the new transactional data to the growing array (or fails silently)
   useEffect(() => {
     if (!isSuccessfulCall(transactionsRequest)) return;
     addTransactions(transactionsRequest.data as Transaction[]);
   }, [addTransactions, transactionsRequest]);
 
+  //----------------------
   // This does the actual fetch of the transactional data
   useEffect(() => {
     if (isFailedCall(transactionsRequest)) {
@@ -125,29 +132,25 @@ export const DashboardView = () => {
     }
   }, [transactionsRequest]);
 
+  //----------------------
   // This sets and unsets the loading flag
   useEffect(() => {
     const stateToSet = !transactionsRequest.loading ? false : transactions.length < 10;
     setLoading(stateToSet);
   }, [transactions.length, transactionsRequest.loading]);
 
+  //----------------------
   // Store raw data, because it can be huge and we don't want to have to reload it
   // every time a user toggles something.
   const theData = useMemo(() => transactions
-    // TODO: sort reverse if the user tells us to
-    // .sort((a: Transaction, b: Transaction) => {
-    // if (!reverse) return 0;
-    // if (b.blockNumber === a.blockNumber) return b.transactionIndex - a.transactionIndex;
-    //   return b.blockNumber - a.blockNumber;
-    // })
     .map((transaction, index) => {
-      const newId = String(index + 1);
+      const id = String(index + 1);
       const fromName = namesMap.get(transaction.from) || createEmptyAccountname();
       const toName = namesMap.get(transaction.to) || createEmptyAccountname();
       const staging = showStaging;
       return {
         ...transaction,
-        id: newId,
+        id,
         fromName,
         toName,
         staging,
@@ -158,6 +161,9 @@ export const DashboardView = () => {
   const params: AccountViewParams = {
     loading,
     setLoading,
+    totalRecords,
+    theData,
+    theMeta: transactionsMeta,
     userPrefs: {
       showReversed,
       setShowReversed,
@@ -176,9 +182,6 @@ export const DashboardView = () => {
       period,
       setPeriod,
     },
-    totalRecords,
-    theData,
-    theMeta: transactionsMeta,
   };
 
   const tabs = [
@@ -201,6 +204,7 @@ export const DashboardView = () => {
 };
 
 declare type stateSetter<Type> = React.Dispatch<React.SetStateAction<Type>>;
+
 export type UserPrefs = {
   showReversed: boolean;
   setShowReversed: stateSetter<boolean>;
@@ -223,8 +227,8 @@ export type UserPrefs = {
 export type AccountViewParams = {
   loading: boolean;
   setLoading: stateSetter<boolean>;
-  userPrefs: UserPrefs;
   totalRecords: number | null;
   theData: any;
   theMeta: any;
+  userPrefs: UserPrefs;
 };

@@ -26,5 +26,9 @@ export function getNames(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Name[]>({ endpoint: '/names', method: 'get', parameters, options });
+  return ApiCallers.fetch<Name[]>(
+    {
+      endpoint: '/names', method: 'get', parameters, options,
+    },
+  );
 }

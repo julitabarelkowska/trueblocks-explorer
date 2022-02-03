@@ -21,5 +21,9 @@ export function getAbis(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Function[]>({ endpoint: '/abis', method: 'get', parameters, options });
+  return ApiCallers.fetch<Function[]>(
+    {
+      endpoint: '/abis', method: 'get', parameters, options,
+    },
+  );
 }

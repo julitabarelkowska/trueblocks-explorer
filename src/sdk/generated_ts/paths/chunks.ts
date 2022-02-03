@@ -21,5 +21,9 @@ export function getChunks(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<PinnedChunk[] | Manifest[]>({ endpoint: '/chunks', method: 'get', parameters, options });
+  return ApiCallers.fetch<PinnedChunk[] | Manifest[]>(
+    {
+      endpoint: '/chunks', method: 'get', parameters, options,
+    },
+  );
 }

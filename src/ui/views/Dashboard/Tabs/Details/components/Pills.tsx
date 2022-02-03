@@ -81,9 +81,9 @@ const useStyles = createUseStyles({
   },
   // TODO: BOGUS - per chain
   mainnet: {
-    backgroundColor: 'red',
+    backgroundColor: 'pink',
     borderColor: 'grey',
-    color: 'white',
+    color: 'purple',
   },
   gnosis: {
     backgroundColor: 'blue',
