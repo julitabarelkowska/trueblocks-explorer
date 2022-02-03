@@ -50,39 +50,41 @@ export const DashboardView = () => {
   } = useGlobalState();
 
   const { search: searchParams } = useLocation();
+
+  // This allows for switching addresses
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     const addressParam = params.get('address');
-
     if (addressParam) {
       setCurrentAddress(addressParam);
     }
   }, [searchParams, setCurrentAddress]);
 
-  // clean up mouse control when we unmount
+  // This adds (and cleans up) the escape key to allow quiting the transfer mid-way
   useEffect(() => {
     Mousetrap.bind('esc', () => setCancel(true));
-
     return () => {
       Mousetrap.unbind(['esc']);
     };
   }, []);
 
+  // This builds the request for the number of transactions on a given address
   const listRequest = useSdk(() => getList({
     chain,
     count: true,
     appearances: true,
     addrs: [currentAddress as string],
   }),
-  () => currentAddress?.slice(0, 2) === '0x',
+  () => currentAddress?.slice(0, 2) === '0x', // predicate
   [currentAddress, chain]) as CallStatus<ListStats[]>;
 
+  // This fetches the number of transactions for the given address
   useEffect(() => {
     if (!isSuccessfulCall(listRequest)) return;
     setTotalRecords(listRequest.data[0]?.nRecords);
-  }, [listRequest, listRequest.type, setTotalRecords, showStaging, showUnripe]);
+  }, [listRequest, listRequest.type, setTotalRecords]);
 
-  // Run this effect until we fetch the last transaction
+  // This builds the request to get the actual transactions until we've gotten them all
   const transactionsRequest = useSdk(() => getExport({
     chain,
     addrs: [currentAddress as string],
@@ -105,9 +107,16 @@ export const DashboardView = () => {
       return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
     })()),
   }),
-  () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
+  () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords), // predicate
   [currentAddress, totalRecords, transactions.length, showStaging, chain]);
 
+  // This makes appends the new transactional data to the growing array (or fails silently)
+  useEffect(() => {
+    if (!isSuccessfulCall(transactionsRequest)) return;
+    addTransactions(transactionsRequest.data as Transaction[]);
+  }, [addTransactions, transactionsRequest]);
+
+  // This does the actual fetch of the transactional data
   useEffect(() => {
     if (isFailedCall(transactionsRequest)) {
       createErrorNotification({
@@ -116,36 +125,26 @@ export const DashboardView = () => {
     }
   }, [transactionsRequest]);
 
+  // This sets and unsets the loading flag
   useEffect(() => {
     const stateToSet = !transactionsRequest.loading ? false : transactions.length < 10;
-
     setLoading(stateToSet);
   }, [transactions.length, transactionsRequest.loading]);
 
-  useEffect(() => {
-    if (!isSuccessfulCall(transactionsRequest)) return;
-    addTransactions(
-      transactionsRequest.data as Transaction[],
-    );
-  }, [addTransactions, transactionsRequest]);
-
   // Store raw data, because it can be huge and we don't want to have to reload it
-  // every time a user toggles "hide reconciled".
-  const transactionModels = useMemo(() => transactions
-  // TODO: remove the next line (the filter) when we fix emptyData in useCommand (it should never
-  // TODO: return an array with an empty object)
+  // every time a user toggles something.
+  const theData = useMemo(() => transactions
+    // TODO: sort reverse if the user tells us to
     // .sort((a: Transaction, b: Transaction) => {
-    //   // if (!reverse) return 0;
-    //   if (b.blockNumber === a.blockNumber) return b.transactionIndex - a.transactionIndex;
+    // if (!reverse) return 0;
+    // if (b.blockNumber === a.blockNumber) return b.transactionIndex - a.transactionIndex;
     //   return b.blockNumber - a.blockNumber;
     // })
-    .filter(({ hash }) => Boolean(hash))
     .map((transaction, index) => {
       const newId = String(index + 1);
       const fromName = namesMap.get(transaction.from) || createEmptyAccountname();
       const toName = namesMap.get(transaction.to) || createEmptyAccountname();
       const staging = showStaging;
-
       return {
         ...transaction,
         id: newId,
@@ -155,13 +154,6 @@ export const DashboardView = () => {
         chain,
       };
     }), [namesMap, transactions, showStaging, chain]);
-
-  // TODO(data): fix this if you can
-  const theData = useMemo(() => transactionModels.filter((transaction) => {
-    if (!hideReconciled) return true;
-
-    return transaction?.statements?.some?.(({ reconciled }) => !reconciled);
-  }), [hideReconciled, transactionModels]);
 
   const params: AccountViewParams = {
     loading,

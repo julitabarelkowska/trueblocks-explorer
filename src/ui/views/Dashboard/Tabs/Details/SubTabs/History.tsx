@@ -83,10 +83,15 @@ export const History = ({ params }: { params: AccountViewParams }) => {
         functionName: functionToFilterBy,
       });
     }
-    return ret.sort((a: any, b: any) => {
-      if (!showReversed) return 0;
-      if (b.blockNumber === a.blockNumber) return b.transactionIndex - a.transactionIndex;
-      return b.blockNumber - a.blockNumber;
+    if (showReversed) {
+      return ret.sort((b: TransactionModel, a: TransactionModel) => {
+        if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
+        return a.blockNumber - b.blockNumber;
+      });
+    }
+    return ret.sort((a: TransactionModel, b: TransactionModel) => {
+      if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
+      return a.blockNumber - b.blockNumber;
     });
   }, [assetToFilterBy, eventToFilterBy, functionToFilterBy, theData, showReversed]);
 
@@ -131,6 +136,7 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       {activeAssetFilter}
       {activeEventFilter}
       {activeFunctionFilter}
+      {`showReversed: ${showReversed}`}
       <BaseTable
         dataSource={filteredData}
         columns={transactionSchema}
