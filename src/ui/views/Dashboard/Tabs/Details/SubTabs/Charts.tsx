@@ -156,7 +156,7 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
   );
   if (!namesMap.get(asset.assetAddr)) {
     links.push(
-      <a target='_blank' href={`${coreUrl}/names?autoname=${asset.assetAddr}`} rel='noreferrer'>
+      <a target='_blank' href={`${coreUrl}/names?chain=${chain}&autoname=${asset.assetAddr}`} rel='noreferrer'>
         Name
       </a>,
     );

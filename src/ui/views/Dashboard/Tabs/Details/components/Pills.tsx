@@ -31,6 +31,8 @@ export const Pills = ({ record } : {record: TransactionModel}) => {
       {Pill('mainnet', style.mainnet, Boolean(record.chain === 'mainnet'))}
       {Pill('gnosis', style.gnosis, Boolean(record.chain === 'gnosis'))}
       {Pill('rinkeby', style.rinkeby, Boolean(record.chain === 'rinkeby'))}
+      {Pill('blkreward', style.blkreward, record.transactionIndex > 99995 && record.transactionIndex !== 99998)}
+      {Pill('uncreward', style.uncreward, record.transactionIndex === 99998)}
     </div>
   );
 };
@@ -94,5 +96,15 @@ const useStyles = createUseStyles({
     backgroundColor: 'purple',
     borderColor: 'grey',
     color: 'white',
+  },
+  blkreward: {
+    backgroundColor: 'green',
+    borderColor: 'darkgreen',
+    color: 'black',
+  },
+  uncreward: {
+    backgroundColor: 'green',
+    borderColor: 'darkgreen',
+    color: 'black',
   },
 });
