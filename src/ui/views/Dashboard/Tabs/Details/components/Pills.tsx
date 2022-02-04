@@ -23,16 +23,16 @@ export const Pills = ({ record } : {record: TransactionModel}) => {
     <div style={{ display: 'flex' }}>
       {Pill('stage', style.staging, Boolean(staging))}
       {Pill('fin', style.final, Boolean(!staging))}
-      {Pill('int', style.intTag, isInt)}
-      {Pill('err', style.errTag, Boolean(isErr))}
-      {Pill('con', style.conTag, isCon)}
-      {Pill('erc20', style.tok20Tag, is20 && !is721)}
-      {Pill('erc721', style.tok721Tag, Boolean(is721))}
       {Pill('mainnet', style.mainnet, Boolean(record.chain === 'mainnet'))}
       {Pill('gnosis', style.gnosis, Boolean(record.chain === 'gnosis'))}
       {Pill('rinkeby', style.rinkeby, Boolean(record.chain === 'rinkeby'))}
       {Pill('blkreward', style.blkreward, record.transactionIndex > 99995 && record.transactionIndex !== 99998)}
       {Pill('uncreward', style.uncreward, record.transactionIndex === 99998)}
+      {Pill('int', style.intTag, isInt)}
+      {Pill('err', style.errTag, Boolean(isErr))}
+      {Pill('con', style.conTag, isCon)}
+      {Pill('erc20', style.tok20Tag, is20 && !is721)}
+      {Pill('erc721', style.tok721Tag, Boolean(is721))}
     </div>
   );
 };
@@ -100,11 +100,11 @@ const useStyles = createUseStyles({
   blkreward: {
     backgroundColor: 'green',
     borderColor: 'darkgreen',
-    color: 'black',
+    color: 'white',
   },
   uncreward: {
-    backgroundColor: 'green',
-    borderColor: 'darkgreen',
-    color: 'black',
+    backgroundColor: 'dodgerblue',
+    borderColor: 'darkblue',
+    color: 'white',
   },
 });
