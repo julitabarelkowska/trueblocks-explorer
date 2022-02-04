@@ -28,7 +28,6 @@ import { DetailsView } from './Tabs/Details';
 import { Monitors } from './Tabs/Monitors';
 
 export const DashboardView = () => {
-  const { chain } = useGlobalState();
   const [loading, setLoading] = useState(false);
   const [showReversed, setShowReversed] = useState(false);
   const [showStaging, setShowStaging] = useState(false);
@@ -40,26 +39,13 @@ export const DashboardView = () => {
   const [period, setPeriod] = useState('by tx');
   const [cancel, setCancel] = useState(false);
 
+  const { chain } = useGlobalState();
   const { currentAddress, setCurrentAddress } = useGlobalState();
   const { namesMap } = useGlobalNames();
   const { totalRecords, setTotalRecords } = useGlobalState();
   const {
-    transactions,
-    meta: transactionsMeta,
-    addTransactions,
+    transactions, meta: transactionsMeta, setTransactions, addTransactions,
   } = useGlobalState();
-
-  const { search: searchParams } = useLocation();
-
-  //----------------------
-  // This allows for switching addresses
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    const addressParam = params.get('address');
-    if (addressParam) {
-      setCurrentAddress(addressParam);
-    }
-  }, [searchParams, setCurrentAddress]);
 
   //----------------------
   // This adds (and cleans up) the escape key to allow quiting the transfer mid-way
@@ -71,25 +57,36 @@ export const DashboardView = () => {
   }, []);
 
   //----------------------
-  // This builds the request for the number of transactions on a given address
+  // Fires when the address switches and kicks off the whole process of re-building the data
+  const { search: searchParams } = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    const addressParam = params.get('address');
+    if (addressParam) {
+      setCurrentAddress(addressParam);
+    }
+  }, [searchParams, setCurrentAddress]);
+
+  //----------------------
+  // Fires when the address changes and builds the request transaction count
   const listRequest = useSdk(() => getList({
     chain,
     count: true,
     appearances: true,
     addrs: [currentAddress as string],
   }),
-  () => currentAddress?.slice(0, 2) === '0x', // predicate
-  [currentAddress]) as CallStatus<ListStats[]>;
+  () => (currentAddress?.slice(0, 2) === '0x' && !!chain),
+  [currentAddress, chain]) as CallStatus<ListStats[]>;
 
   //----------------------
-  // This fetches the number of transactions for the given address
+  // Fires when listRequest changes and sets the transaction count
   useEffect(() => {
     if (!isSuccessfulCall(listRequest)) return;
     setTotalRecords(listRequest.data[0]?.nRecords);
   }, [listRequest, listRequest.type, setTotalRecords]);
 
   //----------------------
-  // This builds the request to get the actual transactions until we've gotten them all
+  // Fires when the number of records or the address changes, repeats until all transactions are fetched
   const transactionsRequest = useSdk(() => getExport({
     chain,
     addrs: [currentAddress as string],
@@ -112,18 +109,18 @@ export const DashboardView = () => {
       return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
     })()),
   }),
-  () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords), // predicate
-  [currentAddress, totalRecords, transactions.length, showStaging]);
+  () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
+  [totalRecords, transactions.length, currentAddress, showStaging]);
 
   //----------------------
-  // This appends the new transactional data to the growing array (or fails silently)
+  // Fires when there are new transactions, appends them to the growing array
   useEffect(() => {
     if (!isSuccessfulCall(transactionsRequest)) return;
     addTransactions(transactionsRequest.data as Transaction[]);
   }, [addTransactions, transactionsRequest]);
 
   //----------------------
-  // This does the actual fetch of the transactional data
+  // First when new transactions are present, reports an error if any
   useEffect(() => {
     if (isFailedCall(transactionsRequest)) {
       createErrorNotification({
@@ -133,15 +130,7 @@ export const DashboardView = () => {
   }, [transactionsRequest]);
 
   //----------------------
-  // This sets and unsets the loading flag
-  useEffect(() => {
-    const stateToSet = !transactionsRequest.loading ? false : transactions.length < 10;
-    setLoading(stateToSet);
-  }, [transactions.length, transactionsRequest.loading]);
-
-  //----------------------
-  // Store raw data, because it can be huge and we don't want to have to reload it
-  // every time a user toggles something.
+  // Enhance the data with some names and other data we need
   const theData = useMemo(() => transactions
     .map((transaction, index) => {
       const id = String(index + 1);
@@ -156,7 +145,14 @@ export const DashboardView = () => {
         staging,
         chain,
       };
-    }), [namesMap, transactions, showStaging, chain]);
+    }), [namesMap, transactions, chain, showStaging]); // TODO: the staging data should come from the backend
+
+  //----------------------
+  // Sets and unsets the loading flag
+  useEffect(() => {
+    const stateToSet = !transactionsRequest.loading ? false : transactions.length < 10;
+    setLoading(stateToSet);
+  }, [transactions.length, transactionsRequest.loading]);
 
   const params: AccountViewParams = {
     loading,

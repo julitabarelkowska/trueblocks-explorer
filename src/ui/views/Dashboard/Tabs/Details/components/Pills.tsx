@@ -81,22 +81,6 @@ const useStyles = createUseStyles({
     borderColor: 'grey',
     color: 'grey',
   },
-  // TODO: BOGUS - per chain
-  mainnet: {
-    backgroundColor: 'pink',
-    borderColor: 'grey',
-    color: 'purple',
-  },
-  gnosis: {
-    backgroundColor: 'blue',
-    borderColor: 'grey',
-    color: 'white',
-  },
-  rinkeby: {
-    backgroundColor: 'purple',
-    borderColor: 'grey',
-    color: 'white',
-  },
   blkreward: {
     backgroundColor: 'green',
     borderColor: 'darkgreen',
@@ -106,5 +90,21 @@ const useStyles = createUseStyles({
     backgroundColor: 'dodgerblue',
     borderColor: 'darkblue',
     color: 'white',
+  },
+  // TODO: BOGUS - per chain
+  mainnet: {
+    backgroundColor: '#eceeee',
+    borderColor: 'darkblue',
+    color: 'darkblue',
+  },
+  gnosis: {
+    backgroundColor: '#eceeee',
+    borderColor: 'darkblue',
+    color: 'darkblue',
+  },
+  rinkeby: {
+    backgroundColor: '#eceeee',
+    borderColor: 'darkblue',
+    color: 'darkblue',
   },
 });
