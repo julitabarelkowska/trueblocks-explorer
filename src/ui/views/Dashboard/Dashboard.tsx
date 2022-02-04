@@ -72,14 +72,14 @@ export const DashboardView = () => {
 
   //----------------------
   // This builds the request for the number of transactions on a given address
-  const listRequest = useSdk(() => (getList({
+  const listRequest = useSdk(() => getList({
     chain,
     count: true,
     appearances: true,
     addrs: [currentAddress as string],
-  })),
+  }),
   () => currentAddress?.slice(0, 2) === '0x', // predicate
-  [currentAddress, chain]) as CallStatus<ListStats[]>;
+  [currentAddress]) as CallStatus<ListStats[]>;
 
   //----------------------
   // This fetches the number of transactions for the given address
@@ -113,10 +113,10 @@ export const DashboardView = () => {
     })()),
   }),
   () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords), // predicate
-  [currentAddress, totalRecords, transactions.length, showStaging, chain]);
+  [currentAddress, totalRecords, transactions.length, showStaging]);
 
   //----------------------
-  // This makes appends the new transactional data to the growing array (or fails silently)
+  // This appends the new transactional data to the growing array (or fails silently)
   useEffect(() => {
     if (!isSuccessfulCall(transactionsRequest)) return;
     addTransactions(transactionsRequest.data as Transaction[]);
