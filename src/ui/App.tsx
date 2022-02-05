@@ -176,7 +176,7 @@ export const App = () => {
               <Routes />
             </Content>
             <SidePanel header='Status' cookieName='STATUS_EXPANDED' dir={PanelDirection.Right}>
-              <StatusPanel status={status} loading={loadingStatus} error={statusError} />
+              <StatusPanel chain={chain} status={status} loading={loadingStatus} error={statusError} />
             </SidePanel>
             <SidePanel
               header='Help'

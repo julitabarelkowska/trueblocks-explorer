@@ -4,7 +4,7 @@ import { createUseStyles } from 'react-jss';
 import {
   ApiFilled, ClockCircleFilled, ExperimentFilled, EyeFilled,
 } from '@ant-design/icons';
-import { Status, SuccessResponse } from '@sdk';
+import { Chain, Status, SuccessResponse } from '@sdk';
 import { Badge } from 'antd';
 import filesize from 'filesize';
 
@@ -38,12 +38,15 @@ const useStyles = createUseStyles({
 
 interface StatusPanelProps {
   // status is always a { data: ..., meta: ... } because of the way we fetch it in App.ts
+  chain: string;
   status: Pick<SuccessResponse<Status>, 'data' | 'meta'>;
   error: boolean;
   loading: boolean;
 }
 
-export const StatusPanel = ({ status, loading, error }: StatusPanelProps) => {
+export const StatusPanel = ({
+  chain, status, loading, error,
+}: StatusPanelProps) => {
   const { coreUrl } = useGlobalState2();
   const styles = useStyles();
 
@@ -164,6 +167,22 @@ export const StatusPanel = ({ status, loading, error }: StatusPanelProps) => {
         <div className={styles.itemContainer}>
           <div className={styles.itemHeader}>TRUEBLOCKS</div>
           <div>{statusData.trueblocksVersion}</div>
+        </div>
+
+        <div className={styles.header} style={{ marginTop: '24px' }}>
+          CHAINS
+        </div>
+
+        <div className={styles.itemContainer}>
+          <div>{`count: ${statusData.chains.length}`}</div>
+          <div>
+            {statusData.chains.map((ch: Chain) => {
+              const style = chain === ch.chain ? { backgroundColor: 'red', display: 'inline' } : { display: 'inline' };
+              return (
+                <div style={style}>{` ${ch.chain}`}</div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </Loading>
