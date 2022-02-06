@@ -29,7 +29,7 @@ type NameModel =
 
 export const Names = () => {
   const { chain } = useGlobalState();
-  const { coreUrl } = useGlobalState2();
+  const { apiProvider } = useGlobalState2();
   const [, setSearchText] = useState('');
   const [, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -146,7 +146,7 @@ export const Names = () => {
 
   const onEditItem = () => {
     setLoadingEdit(true);
-    fetch(`${coreUrl}/names`, {
+    fetch(`${apiProvider}/names`, {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',

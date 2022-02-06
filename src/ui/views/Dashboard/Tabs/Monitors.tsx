@@ -24,7 +24,7 @@ import { useGlobalState, useGlobalState2 } from '../../../State';
 
 export const Monitors = () => {
   const { chain } = useGlobalState();
-  const { coreUrl } = useGlobalState2();
+  const { apiProvider } = useGlobalState2();
   const [, setSearchText] = useState('');
   const [, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -100,7 +100,7 @@ export const Monitors = () => {
 
   const onEditItem = () => {
     setLoadingEdit(true);
-    fetch(`${coreUrl}/names`, {
+    fetch(`${apiProvider}/names`, {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',

@@ -143,7 +143,7 @@ export function getLink(chain: string, type: string, addr1: string, addr2?: stri
 const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
   const { namesMap } = useGlobalNames();
   const { currentAddress, chain } = useGlobalState();
-  const { coreUrl } = useGlobalState2();
+  const { apiProvider } = useGlobalState2();
 
   const links = [];
   links.push(
@@ -156,7 +156,7 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
   );
   if (!namesMap.get(asset.assetAddr)) {
     links.push(
-      <a target='_blank' href={`${coreUrl}/names?chain=${chain}&autoname=${asset.assetAddr}`} rel='noreferrer'>
+      <a target='_blank' href={`${apiProvider}/names?chain=${chain}&autoname=${asset.assetAddr}`} rel='noreferrer'>
         Name
       </a>,
     );

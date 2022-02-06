@@ -47,7 +47,7 @@ interface StatusPanelProps {
 export const StatusPanel = ({
   chain, status, loading, error,
 }: StatusPanelProps) => {
-  const { coreUrl } = useGlobalState2();
+  const { apiProvider } = useGlobalState2();
   const styles = useStyles();
 
   const statusData = status.data;
@@ -143,7 +143,7 @@ export const StatusPanel = ({
 
         <div className={styles.itemContainer}>
           <div className={styles.itemHeader}>API</div>
-          <div>{coreUrl}</div>
+          <div>{apiProvider}</div>
         </div>
 
         <div className={styles.itemContainer}>
