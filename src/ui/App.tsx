@@ -50,7 +50,7 @@ export const App = () => {
   const { chain, setChain } = useGlobalState();
   dayjs.extend(relativeTime);
 
-  const { setNamesMap, setNamesArray } = useGlobalNames();
+  const { setNamesMap } = useGlobalNames();
   const [status, setStatus] = useState<Pick<SuccessResponse<Status>, 'data' | 'meta'>>({
     data: createEmptyStatus(),
     meta: createEmptyMeta(),
@@ -103,8 +103,7 @@ export const App = () => {
     })();
 
     setNamesMap(resultMap);
-    setNamesArray([...resultMap.values()]);
-  }, [namesRequest, setNamesMap, setNamesArray]);
+  }, [namesRequest, setNamesMap]);
 
   const menuItems: MenuItems = [
     {

@@ -34,7 +34,6 @@ type State = {
   denom: string,
   currentAddress?: string,
   namesMap: Map<Address, Name>
-  namesArray?: Name[],
   namesEditModalVisible: boolean,
   namesEditModal: NamesEditModalState,
   transactions: Transaction[],
@@ -56,7 +55,6 @@ const initialState: State = {
   denom: DENOM,
   currentAddress: ADDRESS,
   namesMap: new Map(),
-  namesArray: [],
   namesEditModalVisible: false,
   namesEditModal: getDefaultNamesEditModalValue(),
   transactions: [],
@@ -87,11 +85,6 @@ type SetCurrentAddress = {
 type SetNamesMap = {
   type: 'SET_NAMES_MAP',
   namesMap: State['namesMap'],
-};
-
-type SetNamesArray = {
-  type: 'SET_NAMES_ARRAY',
-  namesArray: State['namesArray'],
 };
 
 type SetNamesEditModal = {
@@ -130,7 +123,6 @@ type GlobalAction =
   | SetDenom
   | SetCurrentAddress
   | SetNamesMap
-  | SetNamesArray
   | SetNamesEditModal
   | SetNamesEditModalVisible
   | SetTransactions
@@ -179,11 +171,6 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
       return {
         ...state,
         namesMap: action.namesMap,
-      };
-    case 'SET_NAMES_ARRAY':
-      return {
-        ...state,
-        namesArray: action.namesArray,
       };
     case 'SET_NAMES_EDIT_MODAL':
       return {
@@ -265,10 +252,6 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_NAMES_MAP', namesMap });
   }, [dispatch]);
 
-  const setNamesArray = useCallback((namesArray: SetNamesArray['namesArray']) => {
-    dispatch({ type: 'SET_NAMES_ARRAY', namesArray });
-  }, [dispatch]);
-
   const setNamesEditModal = (val: SetNamesEditModal['val']) => {
     dispatch({ type: 'SET_NAMES_EDIT_MODAL', val });
   };
@@ -304,8 +287,6 @@ export const useGlobalState = () => {
     setCurrentAddress,
     namesMap: state.namesMap,
     setNamesMap,
-    namesArray: state.namesArray,
-    setNamesArray,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
     namesEditModalVisible: state.namesEditModalVisible,
@@ -329,9 +310,9 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 
 export const useGlobalNames = () => {
   const {
-    namesMap, setNamesMap, namesArray, setNamesArray,
+    namesMap, setNamesMap,
   } = useGlobalState();
   return {
-    namesMap, setNamesMap, namesArray, setNamesArray,
+    namesMap, setNamesMap,
   };
 };
