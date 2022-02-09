@@ -6,14 +6,12 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
 import { address } from '@sdk';
+import Mousetrap from 'mousetrap';
 
 import {
   DashboardView, ExplorerView, NamesView, SettingsView, SupportView,
 } from './views';
 
-const Mousetrap = require('mousetrap');
-
-// BEG_CODE_LOCATIONS
 export const RootLocation = '/';
 
 export const DashboardLocation = '/dashboard';
@@ -27,8 +25,6 @@ export const DashboardAccountsHistoryEventsLocation = '/dashboard/accounts/histo
 
 export const DashboardAccountsAddressLocation = (addr: address) => `/dashboard/accounts?address=${addr}`;
 
-// TODO: Can remove this
-export const DashboardAccountsHistoryTracesLocation = '/dashboard/accounts/history/traces';
 export const DashboardAccountsHistoryCustomLocation = '/dashboard/accounts/history/custom';
 export const DashboardAccountsNeighborsLocation = '/dashboard/accounts/neighbors';
 export const DashboardAccountsGasLocation = '/dashboard/accounts/gas';
@@ -69,13 +65,7 @@ export const SupportDocumentationLocation = '/support/documentation';
 export const SupportHotKeysLocation = '/support/hot-keys';
 export const SupportLicensingLocation = '/support/licensing';
 export const SupportAboutUsLocation = '/support/about-us';
-// END_CODE_LOCATIONS
 
-// BEG_CODE_TEMPLATES
-
-// END_CODE_TEMPLATES
-
-// BEG_CODE_ROUTES
 export const rootLocations = [
   RootLocation,
 ];
@@ -89,9 +79,6 @@ export const dashboardLocations = [
   DashboardAccountsHistoryReconsLocation,
   DashboardAccountsHistoryFunctionsLocation,
   DashboardAccountsHistoryEventsLocation,
-  // DashboardAccountsAddressLocation,
-  // TODO: Can remove this
-  DashboardAccountsHistoryTracesLocation,
   DashboardAccountsHistoryCustomLocation,
   DashboardAccountsNeighborsLocation,
   DashboardAccountsGasLocation,
@@ -171,9 +158,6 @@ const routes = [
   },
 ];
 
-// END_CODE_ROUTES
-
-// BEG_CODE_KEYS
 Mousetrap.bind('s m', () => {
   window.location.href = DashboardMonitorsLocation;
 });
@@ -210,16 +194,8 @@ Mousetrap.bind('s u', () => {
 Mousetrap.bind('s k', () => {
   window.location.href = SupportHotKeysLocation;
 });
-// END_CODE_KEYS
 
 export const Routes = () => (
-  // {
-  //   path: DashboardAccountsLocation,
-  //   exact: true,
-  //   component: DashboardView,
-  //   helpText: 'View the transactional history of an account.',
-  // },
-
   <Switch>
     {routes.map((props) => (
       // eslint-disable-next-line

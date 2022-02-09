@@ -9,7 +9,6 @@ import {
   DashboardAccountsHistoryFunctionsLocation,
   DashboardAccountsHistoryLocation,
   DashboardAccountsHistoryReconsLocation,
-  DashboardAccountsHistoryTracesLocation,
   DashboardAccountsLocation,
   DashboardAccountsNeighborsLocation,
   DashboardCollectionsLocation,
@@ -94,12 +93,6 @@ export const helpRoutes = [
     render: () => 'View the events in transaction.',
   },
   {
-    // TODO: Can remove this
-    path: DashboardAccountsHistoryTracesLocation,
-    exact: true,
-    render: () => 'View the history of traces for the transaction.',
-  },
-  {
     path: DashboardAccountsHistoryCustomLocation,
     exact: true,
     render: () => 'View the logo of the to address for the transaction.',
@@ -134,32 +127,6 @@ export const helpRoutes = [
     exact: true,
     render: () => 'Collections allow you to group together multiple monitored addresses.',
   },
-  //   {
-  //     path: DashboardAccountsAddressTemplate,
-  //     exact: false,
-  //     render: () => '',
-  //   },
-  //   {
-  //     path: DashboardAccountsReconsAddressTemplate,
-  //     exact: false,
-  //     render: () => '',
-  //   },
-  //   {
-  //     path: DashboardAccountsFunctionsAddressTemplate,
-  //     exact: false,
-  //     render: () => '',
-  //   },
-  //   {
-  //     path: DashboardAccountsGasAddressTemplate,
-  //     exact: false,
-  //     render: () => '',
-  //   },
-  //   {
-  //     path: DashboardAccountsTracesAddressTemplate,
-  //     exact: false,
-  //     render: () => '',
-  //   },
-
   {
     path: NamesLocation,
     exact: true,
