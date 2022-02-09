@@ -86,6 +86,11 @@ export const DashboardView = () => {
   }, [listRequest, listRequest.type, setTotalRecords]);
 
   //----------------------
+  useEffect(() => {
+    setTransactions([]);
+  }, [setTransactions, chain]);
+
+  //----------------------
   // Fires when the number of records or the address changes, repeats until all transactions are fetched
   const transactionsRequest = useSdk(() => getExport({
     chain,

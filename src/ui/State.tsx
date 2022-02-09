@@ -216,9 +216,9 @@ export const useGlobalState2 = () => {
   const chain = Cookies.get('chain');
   let apiProvider = new URL('http://localhost:8080');
   if (chain === 'rinkeby') {
-    apiProvider = new URL('http://192.168.0.154:8080');
+    apiProvider = new URL('http://localhost:8080');
   } else if (chain === 'gnosis') {
-    apiProvider = new URL('http://wildmolasses:8080');
+    apiProvider = new URL('http://localhost:8080');
   }
   const host = apiProvider.hostname;
   const port = apiProvider.port as unknown as number;

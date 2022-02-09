@@ -32,11 +32,7 @@ export const GridTable = ({
   data: IndexCacheItem[];
 }) => {
   const [selected, setSelected] = useState(localStorage.getItem('grid-select') || '');
-
   const meta = { max: 15000000, completed: 14100000 };
-  // if (data && data?.length > 0) {
-  //   meta = { max: data[data.length - 1]?.latestApp, completed: data[data.length - 1]?.latestApp };
-  // }
   const largest = meta.max;
 
   const rows = Array(Math.ceil(largest / 1e6))
@@ -50,9 +46,6 @@ export const GridTable = ({
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '4fr 7fr' }}>
-      {/* <div>
-        {`XX ${JSON.stringify(data[data.length - 1], null, 2)} XX`}
-      </div> */}
       <div>
         <GridHeader />
         <div>
