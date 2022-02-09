@@ -32,7 +32,11 @@ export const GridTable = ({
   data: IndexCacheItem[];
 }) => {
   const [selected, setSelected] = useState(localStorage.getItem('grid-select') || '');
+
   const meta = { max: 15000000, completed: 14100000 };
+  // if (data && data?.length > 0) {
+  //   meta = { max: data[data.length - 1]?.latestApp, completed: data[data.length - 1]?.latestApp };
+  // }
   const largest = meta.max;
 
   const rows = Array(Math.ceil(largest / 1e6))
@@ -46,6 +50,9 @@ export const GridTable = ({
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '4fr 7fr' }}>
+      {/* <div>
+        {`XX ${JSON.stringify(data[data.length - 1], null, 2)} XX`}
+      </div> */}
       <div>
         <GridHeader />
         <div>
@@ -120,7 +127,14 @@ const GridRow = ({
         let handler = () => setSelected(row * 1e6 + x * 1e5);
         if (char === '') handler = () => {};
         return (
-          <div key={x} className={cx(styles.cell, cn)} onClick={handler}>
+          <div
+            key={x}
+            className={cx(styles.cell, cn)}
+            onClick={handler}
+            tabIndex={0}
+            role='button'
+            onKeyPress={undefined}
+          >
             {char}
           </div>
         );
@@ -226,7 +240,7 @@ export const DetailTable = ({
             }}
           >
             {filteredData.map((record: IndexCacheItem) => (
-              <div key={record.firstApp} style={{ padding: '2px', border: '1px solid black' }}>
+              <div key={record.firstApp} style={{ padding: '2px', border: '1px solid grey' }}>
                 <div style={{ fontWeight: 600, backgroundColor: 'lightgrey' }}>
                   {record.filename.replace(/.bin/, '')}
                 </div>
