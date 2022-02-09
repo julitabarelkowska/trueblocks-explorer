@@ -1,0 +1,12 @@
+.address_bar {
+  margin-left: 300px;
+  margin-top: -50px;
+  padding-left: 10px;
+  font-size: 16pt;
+  background-color: #fafafa;
+  width: 80%;
+  border: groove 2px #f0f0f0;
+  display: grid;
+  grid-template-columns: 20fr 4fr 1fr;
+  align-items: center;
+}
