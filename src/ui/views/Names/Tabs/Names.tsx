@@ -10,13 +10,13 @@ import {
 import Modal from 'antd/lib/modal/Modal';
 import { ColumnsType } from 'antd/lib/table';
 
+import { ClickableAddress } from '@components/ClickableAddress';
 import {
   addActionsColumn, addColumn, addFlagColumn, addTagsColumn, BaseTable, TableActions,
 } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
 import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
-import { renderClickableAddress } from '@modules/renderers';
 
 import { useGlobalState, useGlobalState2 } from '../../../State';
 
@@ -307,7 +307,7 @@ const addressSchema: ColumnsType<Name> = [
     title: 'Name / Address',
     dataIndex: 'searchStr',
     configuration: {
-      render: (unused, record) => renderClickableAddress(record.name, record.address),
+      render: (unused, record) => <ClickableAddress name={record.name} address={record.address} />,
       width: 500,
     },
   }),

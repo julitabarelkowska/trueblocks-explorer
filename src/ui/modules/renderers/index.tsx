@@ -1,1 +1,0 @@
-export { renderClickableAddress } from './renderClickableAddress';
