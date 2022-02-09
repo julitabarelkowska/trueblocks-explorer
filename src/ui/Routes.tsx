@@ -5,7 +5,7 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import { address as Address } from '@sdk';
+import { address } from '@sdk';
 
 import {
   DashboardView, ExplorerView, NamesView, SettingsView, SupportView,
@@ -24,6 +24,9 @@ export const DashboardAccountsHistoryLocation = '/dashboard/accounts/history';
 export const DashboardAccountsHistoryReconsLocation = '/dashboard/accounts/history/recons';
 export const DashboardAccountsHistoryFunctionsLocation = '/dashboard/accounts/history/functions';
 export const DashboardAccountsHistoryEventsLocation = '/dashboard/accounts/history/events';
+
+export const DashboardAccountsAddressLocation = (addr: address) => `/dashboard/accounts?address=${addr}`;
+
 // TODO: Can remove this
 export const DashboardAccountsHistoryTracesLocation = '/dashboard/accounts/history/traces';
 export const DashboardAccountsHistoryCustomLocation = '/dashboard/accounts/history/custom';
@@ -69,329 +72,105 @@ export const SupportAboutUsLocation = '/support/about-us';
 // END_CODE_LOCATIONS
 
 // BEG_CODE_TEMPLATES
-export const DashboardAccountsAddressTemplate = '/dashboard/accounts/:address';
-export const DashboardAccountsReconsAddressTemplate = '/dashboard/accounts/recons/:address';
-export const DashboardAccountsFunctionsAddressTemplate = '/dashboard/accounts/functions/:address';
-export const DashboardAccountsGasAddressTemplate = '/dashboard/accounts/gas/:address';
-export const DashboardAccountsTracesAddressTemplate = '/dashboard/accounts/traces/:address';
 
-export const DashboardAccountsAddressLocation = (address: Address) => `/dashboard/accounts?address=${address}`;
-// export const DashboardAccountsReconsLocationAddress = (address: string) => `/dashboard/accounts/recons/${address}`;
-// export const DashboardAccountsFunctionsLocationAddress = (address: string) => `/dashboard/accounts/functions/${address}`;
-// export const DashboardAccountsGasLocationAddress = (address: string) => `/dashboard/accounts/gas/${address}`;
-// export const DashboardAccountsTracesLocationAddress = (address: string) => `/dashboard/accounts/traces/${address}`;
 // END_CODE_TEMPLATES
 
 // BEG_CODE_ROUTES
-export const routes = [
+export const rootLocations = [
+  RootLocation,
+];
+
+export const dashboardLocations = [
+  DashboardLocation,
+  DashboardMonitorsLocation,
+  DashboardAccountsLocation,
+  DashboardAccountsAssetsLocation,
+  DashboardAccountsHistoryLocation,
+  DashboardAccountsHistoryReconsLocation,
+  DashboardAccountsHistoryFunctionsLocation,
+  DashboardAccountsHistoryEventsLocation,
+  // DashboardAccountsAddressLocation,
+  // TODO: Can remove this
+  DashboardAccountsHistoryTracesLocation,
+  DashboardAccountsHistoryCustomLocation,
+  DashboardAccountsNeighborsLocation,
+  DashboardAccountsGasLocation,
+  DashboardAccountsChartsLocation,
+  DashboardAccountsFunctionsLocation,
+  DashboardAccountsEventsLocation,
+  DashboardCollectionsLocation,
+];
+
+const namesLocations = [
+  NamesLocation,
+  NamesAddressesLocation,
+  NamesTagsLocation,
+  NamesSignaturesLocation,
+  NamesSignaturesFunctionsLocation,
+  NamesSignaturesEventsLocation,
+  NamesBlocksLocation,
+];
+
+const explorerLocations = [
+  ExplorerLocation,
+  ExplorerBlocksLocation,
+  ExplorerTransactionsLocation,
+  ExplorerReceiptsLocation,
+  ExplorerLogsLocation,
+  ExplorerTracesLocation,
+];
+
+const settingsLocations = [
+  SettingsLocation,
+  SettingsScrapersLocation,
+  SettingsIndexesLocation,
+  SettingsIndexesGridLocation,
+  SettingsIndexesTableLocation,
+  SettingsIndexesChartsLocation,
+  SettingsIndexesManifestLocation,
+  SettingsCachesLocation,
+  SettingsSkinsLocation,
+  SettingsDataModelLocation,
+];
+
+const supportLocations = [
+  SupportLocation,
+  SupportContactUsLocation,
+  SupportDocumentationLocation,
+  SupportHotKeysLocation,
+  SupportLicensingLocation,
+  SupportAboutUsLocation,
+];
+
+// Config objects
+const routes = [
   {
-    path: RootLocation,
+    path: rootLocations.concat(dashboardLocations),
     exact: true,
     component: DashboardView,
-    helpText: 'The dashboard overview page gives you an overview of your holdings among other things.',
   },
   {
-    path: DashboardLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'The dashboard overview page gives you an overview of your holdings among other things.',
-  },
-  {
-    path: DashboardMonitorsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'Monitors are named addresses that you have indicated are of interest and should be monitored by the scrapers.',
-  },
-  {
-    path: DashboardAccountsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'View the transactional history of an account.',
-  },
-  {
-    path: DashboardAccountsAssetsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'See all assets for a given address.',
-  },
-  {
-    path: DashboardAccountsHistoryLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'View the transactional history of an account.',
-  },
-  {
-    path: DashboardAccountsHistoryReconsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'View the reconciliation history of an account.',
-  },
-  {
-    path: DashboardAccountsHistoryFunctionsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'View the functions for a transaction.',
-  },
-  {
-    path: DashboardAccountsHistoryEventsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'View the events in transaction.',
-  },
-  {
-    // TODO: Can remove this
-    path: DashboardAccountsHistoryTracesLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'View the history of traces for the transaction.',
-  },
-  {
-    path: DashboardAccountsHistoryCustomLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'View the logo of the to address for the transaction.',
-  },
-  {
-    path: DashboardAccountsNeighborsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'See all assets for a given address.',
-  },
-  {
-    path: DashboardAccountsGasLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'Analyze gas usage.',
-  },
-  {
-    path: DashboardAccountsChartsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'See all assets for a given address.',
-  },
-  {
-    path: DashboardAccountsFunctionsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'See all assets for a given address.',
-  },
-  {
-    path: DashboardAccountsEventsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'See all assets for a given address.',
-  },
-  {
-    path: DashboardCollectionsLocation,
-    exact: true,
-    component: DashboardView,
-    helpText: 'Collections allow you to group together multiple monitored addresses.',
-  },
-  {
-    path: DashboardAccountsAddressTemplate,
-    exact: false,
-    component: DashboardView,
-    helpText: '',
-  },
-  {
-    path: DashboardAccountsReconsAddressTemplate,
-    exact: false,
-    component: DashboardView,
-    helpText: '',
-  },
-  {
-    path: DashboardAccountsFunctionsAddressTemplate,
-    exact: false,
-    component: DashboardView,
-    helpText: '',
-  },
-  {
-    path: DashboardAccountsGasAddressTemplate,
-    exact: false,
-    component: DashboardView,
-    helpText: '',
-  },
-  {
-    path: DashboardAccountsTracesAddressTemplate,
-    exact: false,
-    component: DashboardView,
-    helpText: '',
-  },
-  {
-    path: NamesLocation,
+    path: namesLocations,
     exact: true,
     component: NamesView,
-    helpText: 'Names are common or known addresses that have been given a name.',
   },
   {
-    path: NamesAddressesLocation,
-    exact: true,
-    component: NamesView,
-    helpText: 'Named addresses are a convenient way to keep track of human-readable names for addresses.',
-  },
-  {
-    path: NamesTagsLocation,
-    exact: true,
-    component: NamesView,
-    helpText: 'Tags are groupings used to collect together named addresses.',
-  },
-  {
-    path: NamesSignaturesFunctionsLocation,
-    exact: true,
-    component: NamesView,
-    helpText: 'The function and event signatures tab allows you to add/edit/delete four byte signatures.',
-  },
-  {
-    path: NamesSignaturesEventsLocation,
-    exact: true,
-    component: NamesView,
-    helpText: 'The function and event signatures tab allows you to add/edit/delete four byte signatures.',
-  },
-  {
-    path: NamesSignaturesLocation,
-    exact: true,
-    component: NamesView,
-    helpText: 'The function and event signatures tab allows you to add/edit/delete four byte signatures.',
-  },
-  {
-    path: NamesBlocksLocation,
-    exact: true,
-    component: NamesView,
-    helpText: 'The blocks tab allows you to name particular blocks such as smart contract deployments or hard forks.',
-  },
-  {
-    path: ExplorerLocation,
+    path: explorerLocations,
     exact: true,
     component: ExplorerView,
-    helpText: 'View the contents of the TrueBlocks index cache.',
   },
   {
-    path: ExplorerBlocksLocation,
-    exact: true,
-    component: ExplorerView,
-    helpText: 'View blockchain block details.',
-  },
-  {
-    path: ExplorerTransactionsLocation,
-    exact: true,
-    component: ExplorerView,
-    helpText: 'View blockchain transaction details.',
-  },
-  {
-    path: ExplorerReceiptsLocation,
-    exact: true,
-    component: ExplorerView,
-    helpText: 'View blockchain receipt details.',
-  },
-  {
-    path: ExplorerLogsLocation,
-    exact: true,
-    component: ExplorerView,
-    helpText: 'View blockchain log details.',
-  },
-  {
-    path: ExplorerTracesLocation,
-    exact: true,
-    component: ExplorerView,
-    helpText: 'View blockchain trace details.',
-  },
-  {
-    path: SettingsLocation,
+    path: settingsLocations,
     exact: true,
     component: SettingsView,
-    helpText: 'This screen allows you to adjust the way TrueBlocks two scrapers work.',
   },
   {
-    path: SettingsScrapersLocation,
-    exact: true,
-    component: SettingsView,
-    helpText: 'This screen allows you to adjust the way TrueBlocks two scrapers work.',
-  },
-  {
-    path: SettingsIndexesLocation,
-    exact: true,
-    component: SettingsView,
-    helpText: 'View the contents of the TrueBlocks index cache.',
-  },
-  {
-    path: SettingsIndexesGridLocation,
-    exact: true,
-    component: SettingsView,
-    helpText: 'Grid view of the index cache.',
-  },
-  {
-    path: SettingsIndexesTableLocation,
-    exact: true,
-    component: SettingsView,
-    helpText: 'Table view of the index cache.',
-  },
-  {
-    path: SettingsIndexesChartsLocation,
-    exact: true,
-    component: SettingsView,
-    helpText: 'Visual display of the index cache.',
-  },
-  {
-    path: SettingsIndexesManifestLocation,
-    exact: true,
-    component: SettingsView,
-    helpText: 'The index manifestation.',
-  },
-  {
-    path: SettingsCachesLocation,
-    exact: true,
-    component: SettingsView,
-    helpText: 'View, edit, clean, recover space from the TrueBlocks caches.',
-  },
-  {
-    path: SettingsSkinsLocation,
-    exact: true,
-    component: SettingsView,
-    helpText: 'Change the skin or them of the application.',
-  },
-  {
-    path: SettingsDataModelLocation,
-    exact: true,
-    component: SettingsView,
-    helpText: 'View and edit the data types for the various screens and tables.',
-  },
-  {
-    path: SupportLocation,
+    path: supportLocations,
     exact: true,
     component: SupportView,
-    helpText: 'Information on contacting TrueBlocks, LLC.',
-  },
-  {
-    path: SupportContactUsLocation,
-    exact: true,
-    component: SupportView,
-    helpText: 'Information on contacting TrueBlocks, LLC.',
-  },
-  {
-    path: SupportDocumentationLocation,
-    exact: true,
-    component: SupportView,
-    helpText: 'Links to various documentation sites.',
-  },
-  {
-    path: SupportHotKeysLocation,
-    exact: true,
-    component: SupportView,
-    helpText: 'A view of all the hot-keys for the program.',
-  },
-  {
-    path: SupportLicensingLocation,
-    exact: true,
-    component: SupportView,
-    helpText: 'Licensing information about the software.',
-  },
-  {
-    path: SupportAboutUsLocation,
-    exact: true,
-    component: SupportView,
-    helpText: 'A short history of TrueBlocks, LLC.',
   },
 ];
+
 // END_CODE_ROUTES
 
 // BEG_CODE_KEYS
@@ -433,15 +212,18 @@ Mousetrap.bind('s k', () => {
 });
 // END_CODE_KEYS
 
-const CustomRoute = (props: any) => {
-  const { path, component, exact } = props;
-  return <Route path={path} component={component} exact={exact} />;
-};
-
 export const Routes = () => (
+  // {
+  //   path: DashboardAccountsLocation,
+  //   exact: true,
+  //   component: DashboardView,
+  //   helpText: 'View the transactional history of an account.',
+  // },
+
   <Switch>
     {routes.map((props) => (
-      <CustomRoute key={props.path} {...props} />
+      // eslint-disable-next-line
+      <Route path={props.path} component={props.component} exact={props.exact} />
     ))}
     <DashboardView />
   </Switch>

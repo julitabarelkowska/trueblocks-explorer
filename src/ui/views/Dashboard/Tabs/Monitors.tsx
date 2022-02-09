@@ -9,6 +9,7 @@ import {
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
+import { ClickableAddress } from '@components/ClickableAddress';
 import { NamesEditModal } from '@components/NameEditModal';
 import {
   addActionsColumn, addColumn, addNumColumn, addTagsColumn, BaseTable, TableActions,
@@ -18,7 +19,6 @@ import {
   CallStatus, isFailedCall, isPendingCall, isSuccessfulCall,
 } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
-import { renderClickableAddress } from '@modules/renderers';
 
 import { useGlobalState, useGlobalState2 } from '../../../State';
 
@@ -177,7 +177,9 @@ export const Monitors = () => {
         <div style={{ borderRight: '1px solid lightgrey', marginLeft: '5' }}>
           <h2>Recents</h2>
           {recents.map((item) => (
-            <div key={item.address}>{renderClickableAddress(item.name, item.address)}</div>
+            <div key={item.address}>
+              <ClickableAddress name={item.name} address={item.address} />
+            </div>
           ))}
         </div>
         <BaseTable
@@ -242,7 +244,7 @@ const monitorSchema: ColumnsType<Monitor> = [
     title: 'Name / Address',
     dataIndex: 'searchStr',
     configuration: {
-      render: (unused, record) => renderClickableAddress(record.name, record.address),
+      render: (unused, record) => <ClickableAddress name={record.name} address={record.address} />,
       width: 500,
     },
   }),

@@ -1,14 +1,22 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import {
+  Route, Switch, useLocation,
+} from 'react-router-dom';
 
 import { Loading } from '@components/Loading';
 
-import { routes } from '../../Routes';
+import { helpRoutes } from '../../HelpRoutes';
 
 export const HelpPanel = () => {
   const location = useLocation();
-  const matchedRoute = routes.find((item: any) => location.pathname.endsWith(item.path));
-  const url = matchedRoute && new URL(`docs/explorer${matchedRoute.path}`, 'https://docs.trueblocks.io/');
+  const matchedRoute = useMemo(
+    () => helpRoutes.find((item: any) => location.pathname.endsWith(item.path)),
+    [location.pathname],
+  );
+  const url = useMemo(
+    () => String(matchedRoute && new URL(`docs/explorer${matchedRoute.path}`, 'https://docs.trueblocks.io/')),
+    [matchedRoute],
+  );
 
   return (
     <Loading loading={false}>
@@ -21,14 +29,19 @@ export const HelpPanel = () => {
           letterSpacing: '0.1em',
         }}
       >
-        {matchedRoute && (
+        <div>
+          <Switch>
+            {helpRoutes.map((route) => (
+            // eslint-disable-next-line
+                <Route {...route} key={route.path} />
+            ))}
+          </Switch>
           <div>
-            <div>{matchedRoute.helpText}</div>
-            <a href={url?.toString()} target='_blank' rel='noreferrer'>
+            <a href={url} target='_blank' rel='noreferrer'>
               Learn more...
             </a>
           </div>
-        )}
+        </div>
       </div>
     </Loading>
   );
