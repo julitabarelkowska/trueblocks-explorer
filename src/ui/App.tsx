@@ -140,7 +140,7 @@ export const App = () => {
       placeholder='chain'
       value={chain}
       onChange={(newValue) => setChain(newValue)}
-      style={{ width: '100%' }}
+      style={{ width: '10vw' }}
     >
       {chainList.map((item) => (
         <Select.Option key={item} value={item}>
@@ -153,11 +153,11 @@ export const App = () => {
   // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
   return (
     <Layout>
-      <>{chainDropdown}</>
       <Header className='app-header'>
         <Title style={{ color: 'white' }} level={2}>
           {`TrueBlocks Account Explorer - ${chain} chain`}
         </Title>
+        {chainDropdown}
       </Header>
       <Layout>
         <SidePanel header='Menu' dir={PanelDirection.Left} cookieName='MENU_EXPANDED' collapsibleContent={false}>
