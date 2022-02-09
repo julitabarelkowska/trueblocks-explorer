@@ -15,6 +15,10 @@ body,
   align-items: center;
 }
 
+.app-header h2 {
+  margin-bottom: 0;
+}
+
 .ant-table-tbody > tr:focus {
   background-color: rgb(238, 235, 235) !important;
   border: none;
