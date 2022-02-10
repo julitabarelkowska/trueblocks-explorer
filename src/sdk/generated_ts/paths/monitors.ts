@@ -26,3 +26,16 @@ export function getMonitors(
     },
   );
 }
+export function deleteMonitors(
+  parameters?: {
+    addrs: address[],
+    chain: string,
+  },
+  options?: RequestInit,
+) {
+  return ApiCallers.fetch<Monitor[]>(
+    {
+      endpoint: '/monitors', method: 'delete', parameters, options,
+    },
+  );
+}

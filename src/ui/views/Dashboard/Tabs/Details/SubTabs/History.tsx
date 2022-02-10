@@ -142,7 +142,6 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       {activeAssetFilter}
       {activeEventFilter}
       {activeFunctionFilter}
-      {`chain: ${chain} showReversed: ${showReversed}`}
       <BaseTable
         dataSource={filteredData}
         columns={transactionSchema}
