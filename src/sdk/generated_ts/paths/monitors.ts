@@ -29,6 +29,9 @@ export function getMonitors(
 export function deleteMonitors(
   parameters?: {
     addrs: address[],
+    delete?: boolean,
+    undelete?: boolean,
+    remove?: boolean,
     chain: string,
   },
   options?: RequestInit,
