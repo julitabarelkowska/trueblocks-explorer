@@ -98,19 +98,25 @@ export function makePathsInSameFile(project: Project, refs: SwaggerParser.$Refs,
       // Get function parameters (the options that we want to send with the request)
       const parameters = makeFunctionParameters(refs, path.parameters as OpenAPIV3.ParameterObject[]);
       // inject global parameters
-      const globals = new Map(
-        [...getGlobals().entries()]
-          .filter(([name]) => !parameters.names.find((alreadyPresent) => alreadyPresent.replace('?', '') === name)),
-      );
+      if (method !== 'delete') {
+        const globals = new Map(
+          [...getGlobals().entries()]
+            .filter(([name]) => !parameters.names.find((alreadyPresent) => alreadyPresent.replace('?', '') === name)),
+        );
 
-      parameters.names = parameters.names.concat(
-        [...globals.keys()]
-          .map((name) => `${name}${globals.get(name)?.required ? '' : '?'}`),
-      );
-      parameters.types = parameters.types.concat(
-        [...globals.values()]
-          .map((value) => ({ ...value, isRequired: !!value.required, isArray: false })),
-      );
+        parameters.names = parameters.names.concat(
+          [...globals.keys()]
+            .map((name) => `${name}${globals.get(name)?.required ? '' : '?'}`),
+        );
+        parameters.types = parameters.types.concat(
+          [...globals.values()]
+            .map((value) => ({ ...value, isRequired: !!value.required, isArray: false })),
+        );
+      } else {
+        const chainRequired = getGlobals().get('chain')?.required;
+        parameters.names.push(`chain${chainRequired ? '' : '?'}`);
+        parameters.types.push({ name: 'string', isRequired: Boolean(chainRequired), isArray: false });
+      }
 
       // Get the type of the data we will get in the response
       const responseType = types.getResponseBodyType(path);

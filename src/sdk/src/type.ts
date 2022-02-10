@@ -29,6 +29,7 @@ export function isNotBuiltinType(model: TypeModel): boolean {
   const { name } = model;
 
   return ![
+    'never',
     'string',
     'number',
     'boolean',
@@ -194,7 +195,7 @@ export function getResponseBodyType(path: OpenAPIV3.OperationObject) {
 
   if (!content) {
     // Some responses don't have Body (e.g. DELETE, but this can change)
-    return [{ name: 'undefined', isRequired: true, isArray: false }];
+    return [{ name: 'never', isRequired: true, isArray: false }];
   }
 
   // Right now we only support JSON responses

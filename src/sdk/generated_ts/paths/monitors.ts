@@ -36,7 +36,7 @@ export function deleteMonitors(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Monitor[]>(
+  return ApiCallers.fetch<never>(
     {
       endpoint: '/monitors', method: 'delete', parameters, options,
     },
