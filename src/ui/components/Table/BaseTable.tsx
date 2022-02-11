@@ -1,8 +1,12 @@
 /* eslint-disable react/require-default-props */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 
 import Table, { ColumnsType } from 'antd/lib/table';
 import Mousetrap from 'mousetrap';
+
+import { handleSelectionScroll } from '@modules/scroll';
 
 import 'antd/dist/antd.css';
 
@@ -33,8 +37,9 @@ export const BaseTable = ({
   const [pageSize, setPageSize] = useState(defPageSize);
   const [isExpanded, setIsExpanded] = useState(false);
   const [keyedData, setKeyedData] = useState([{ key: 0 }]);
+  const tableRef = useRef<HTMLTableElement>(document.createElement('table'));
 
-  const setRowNumber = (n: number) => {
+  const setRowNumber = useCallback((n: number) => {
     const num = Math.max(0, Math.min(dataSource.length - 1, n));
     setCurRow(num);
     const page = Math.floor(num / pageSize) + 1;
@@ -43,14 +48,15 @@ export const BaseTable = ({
       sessionStorage.setItem(`curRow${name}`, num.toString());
       sessionStorage.setItem(`curPage${name}`, page.toString());
     }
-  };
+    return { row: num, page };
+  }, [dataSource.length, name, pageSize]);
 
-  Mousetrap.bind('up', () => setRowNumber(curRow - 1));
-  Mousetrap.bind('down', () => setRowNumber(curRow + 1));
-  Mousetrap.bind(['left', 'pageup'], () => setRowNumber(curRow - pageSize));
-  Mousetrap.bind(['right', 'pagedown'], () => setRowNumber(curRow + pageSize));
-  Mousetrap.bind('home', () => setRowNumber(0));
-  Mousetrap.bind('end', () => setRowNumber(dataSource.length - 1));
+  Mousetrap.bind('up', (event) => setRowAndHandleScroll(event, curRow - 1));
+  Mousetrap.bind('down', (event) => setRowAndHandleScroll(event, curRow + 1));
+  Mousetrap.bind(['left', 'pageup'], (event) => setRowAndHandleScroll(event, curRow - pageSize));
+  Mousetrap.bind(['right', 'pagedown'], (event) => setRowAndHandleScroll(event, curRow + pageSize));
+  Mousetrap.bind('home', (event) => setRowAndHandleScroll(event, 0));
+  Mousetrap.bind('end', (event) => setRowAndHandleScroll(event, dataSource.length - 1));
   Mousetrap.bind('enter', () => {
     setIsExpanded(!isExpanded);
   });
@@ -74,6 +80,16 @@ export const BaseTable = ({
     setDisplayedRow(keyedData[curRow]);
   }, [curRow, keyedData]);
 
+  const setRowAndHandleScroll = useCallback((event: KeyboardEvent, rowNumber: number) => {
+    const { row } = setRowNumber(rowNumber);
+    handleSelectionScroll({
+      event,
+      tableRef,
+      rowNumber: row,
+      pageSize,
+    });
+  }, [pageSize, setRowNumber]);
+
   // clean up mouse control when we unmount
   useEffect(() => () => {
     // setCurRow(0);
@@ -87,10 +103,10 @@ export const BaseTable = ({
     : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
 
   return (
-    <div style={gridStyle}>
+    <div ref={tableRef} style={gridStyle}>
       <Table
-        onRow={(record, rowIndex) => ({
-          onClick: (event) => {
+        onRow={(record) => ({
+          onClick: () => {
             setRowNumber(record.key);
           },
           style: record.key === curRow ? { color: 'darkblue', backgroundColor: 'rgb(236, 235, 235)' } : {},
