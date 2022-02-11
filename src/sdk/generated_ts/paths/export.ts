@@ -18,7 +18,7 @@ export function getExport(
     cacheTraces?: boolean,
     count?: boolean,
     firstRecord?: number,
-    maxRecords?: string,
+    maxRecords?: number,
     relevant?: boolean,
     emitter?: address[],
     topic?: topic[],
