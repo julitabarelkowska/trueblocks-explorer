@@ -4,10 +4,9 @@ import { address, Function } from "../types";
 export function getAbis(
   parameters?: {
     addrs: address[],
+    known?: boolean,
     sol?: boolean,
     find?: string[],
-    known?: boolean,
-    source?: boolean,
     chain: string,
     noHeader?: boolean,
     fmt?: string,
