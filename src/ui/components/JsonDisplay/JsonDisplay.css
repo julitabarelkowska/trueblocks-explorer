@@ -1,0 +1,23 @@
+.json-display dl {
+    margin: 0;
+    border: 1px solid #f0f0f0;
+}
+
+.json-display dl:not(:last-child) {
+    margin-bottom: 16px;
+}
+
+.json-display dl dt {
+    background-color: #fafafa;
+}
+
+.json-display dl dt,
+.json-display dl dd {
+    margin: 0;
+    padding: 8px 16px;
+}
+
+.json-display dl dt,
+.json-display dl dd:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}

@@ -3,6 +3,8 @@ import React from 'react';
 import { Log, Transaction } from '@sdk';
 import { Card } from 'antd';
 
+import { JsonDisplay } from '@components/JsonDisplay';
+
 import { useGlobalNames } from '../../../../../State';
 import { headerStyle, useAcctStyles } from '..';
 // import { FunctionDisplay } from '../components/FunctionDisplay';
@@ -36,16 +38,16 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
     }
   }
 
-  const relevants = record.receipt?.logs?.map((log, index) => {
+  const relevants = record.receipt?.logs?.map((log) => {
     const hasAddress = Boolean(log.address);
     if (!hasAddress) return <></>;
-    return <RelevantLog log={log} index={log.logIndex} />;
+    return <RelevantLog key={log.logIndex} log={log} />;
   });
 
   const irrelevants = record.receipt?.logs?.map((log, index) => {
     const hasAddress = Boolean(log.address);
-    if (hasAddress) return <></>;
-    return <IrrelevantLog index={index} />;
+    if (hasAddress) return null;
+    return <IrrelevantLog key={log.logIndex} index={index} />;
   });
 
   return (
@@ -66,19 +68,8 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 };
 
 //-----------------------------------------------------------------
-const RelevantLog = ({ log, index } : {log: Log, index: number}) => ((
-  <pre key={log.logIndex}>
-    <b>
-      <u>
-        log
-        {' '}
-        {index}
-        :
-      </u>
-    </b>
-    <br />
-    {JSON.stringify(log, null, 2)}
-  </pre>
+const RelevantLog = ({ log }: { log: Log }) => ((
+  <JsonDisplay data={log} />
 ));
 
 //-----------------------------------------------------------------
