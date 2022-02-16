@@ -108,11 +108,11 @@ export const DashboardView = () => {
     relevant: true,
     // summarize_by: 'monthly',
     firstRecord: transactions.length,
-    maxRecords: String((() => {
+    maxRecords: (() => {
       if (transactions.length < 20) return 10;
       if (transactions.length < 800) return 239;
       return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
-    })()),
+    })(),
   }),
   () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
   [totalRecords, transactions.length, currentAddress, showStaging]);

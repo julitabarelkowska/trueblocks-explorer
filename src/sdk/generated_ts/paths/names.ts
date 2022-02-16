@@ -32,3 +32,18 @@ export function getNames(
     },
   );
 }
+export function deleteNames(
+  parameters?: {
+    delete?: boolean,
+    undelete?: boolean,
+    remove?: boolean,
+    chain: string,
+  },
+  options?: RequestInit,
+) {
+  return ApiCallers.fetch<never>(
+    {
+      endpoint: '/names', method: 'delete', parameters, options,
+    },
+  );
+}

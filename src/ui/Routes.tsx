@@ -199,7 +199,7 @@ export const Routes = () => (
   <Switch>
     {routes.map((props) => (
       // eslint-disable-next-line
-      <Route path={props.path} component={props.component} exact={props.exact} />
+      <Route key={props.path[0]} path={props.path} component={props.component} exact={props.exact} />
     ))}
     <DashboardView />
   </Switch>

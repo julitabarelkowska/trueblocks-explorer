@@ -7,11 +7,12 @@ export type Monitor = {
   sizeInBytes: uint64
   tags: string
   address: address
-  isCustom: boolean
   name: string
+  isCustom: boolean
   symbol: string
   source: string
   decimals: number
   isContract: boolean
   isValid: boolean
+  deleted: boolean
 }
