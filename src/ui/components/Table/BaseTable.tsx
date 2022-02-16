@@ -18,20 +18,20 @@ export const BaseTable = ({
   loading,
   extraData,
   expandRender = undefined,
-  siderRender = undefined,
   defPageSize = 7,
   name = '',
+  onSelectionChange = () => { },
 }: {
   dataSource: JsonResponse;
   columns: ColumnsType<any>;
   loading: boolean;
   extraData?: string;
   expandRender?: (row: any) => JSX.Element;
-  siderRender?: (record: any) => JSX.Element;
   defPageSize?: number;
   name?: string;
+  onSelectionChange?: (row: unknown) => void,
 }) => {
-  const [displayedRow, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
+  const [, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
   const [curRow, setCurRow] = useState(Number(sessionStorage.getItem(`curRow${name}`)) || 0);
   const [curPage, setCurPage] = useState(Number(sessionStorage.getItem(`curPage${name}`)) || 1);
   const [pageSize, setPageSize] = useState(defPageSize);
@@ -78,7 +78,8 @@ export const BaseTable = ({
 
   useEffect(() => {
     setDisplayedRow(keyedData[curRow]);
-  }, [curRow, keyedData]);
+    onSelectionChange(keyedData[curRow]);
+  }, [curRow, keyedData, onSelectionChange]);
 
   const setRowAndHandleScroll = useCallback((event: KeyboardEvent, rowNumber: number) => {
     const { row } = setRowNumber(rowNumber);
@@ -97,13 +98,12 @@ export const BaseTable = ({
     Mousetrap.unbind(['up', 'down', 'pageup', 'pagedown', 'home', 'end', 'enter']);
   }, []);
 
-  const gridStyle = siderRender ? { display: 'grid', gridTemplateColumns: '225fr 1fr 120fr' } : {};
   const expandedRowRender = expandRender !== undefined
     ? expandRender
     : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
 
   return (
-    <div ref={tableRef} style={gridStyle}>
+    <div ref={tableRef}>
       <Table
         onRow={(record) => ({
           onClick: () => {
@@ -130,8 +130,6 @@ export const BaseTable = ({
           pageSizeOptions: ['5', '10', '20', '50', '100'],
         }}
       />
-      <div />
-      {siderRender ? siderRender(displayedRow) : <></>}
     </div>
   );
 };

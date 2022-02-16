@@ -197,10 +197,15 @@ Mousetrap.bind('s k', () => {
 
 export const Routes = () => (
   <Switch>
-    {routes.map((props) => (
-      // eslint-disable-next-line
-      <Route key={props.path[0]} path={props.path} component={props.component} exact={props.exact} />
-    ))}
+    {routes.map((props, index) => {
+      // eslint-disable-next-line react/prop-types
+      const key = props.path[0] + index;
+
+      return (
+        // eslint-disable-next-line react/prop-types
+        <Route key={key} path={props.path} component={props.component} exact={props.exact} />
+      );
+    })}
     <DashboardView />
   </Switch>
 );
