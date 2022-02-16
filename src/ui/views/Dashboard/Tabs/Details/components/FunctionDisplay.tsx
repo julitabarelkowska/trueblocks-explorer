@@ -4,7 +4,7 @@ import { Function } from '@sdk';
 import { Space, Typography } from 'antd';
 
 import { Address } from '@components/Address';
-import { JsonDisplay } from '@components/JsonDisplay';
+import { DataDisplay } from '@components/DataDisplay';
 import { OnValue } from '@modules/tree';
 
 //-----------------------------------------------------------------
@@ -35,7 +35,7 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
         ? (
           <div>
             <Title level={5}>Details</Title>
-            <JsonDisplay data={func} onValue={onValue} />
+            <DataDisplay data={func} onValue={onValue} />
           </div>
         )
         : null}
@@ -44,7 +44,7 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
         ? (
           <div>
             <Title level={5}>Bytes</Title>
-            <JsonDisplay data={bytes} onValue={onValue} showCopy={false} />
+            <DataDisplay data={bytes} onValue={onValue} showCopy={false} />
           </div>
         )
         : null}

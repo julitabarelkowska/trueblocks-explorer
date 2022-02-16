@@ -2,13 +2,13 @@ import React from 'react';
 
 import { CopyTwoTone } from '@ant-design/icons';
 import { Log, Transaction } from '@sdk';
+import { useGlobalNames } from '@state';
 import { Button, Card } from 'antd';
 
 import { Address } from '@components/Address';
-import { JsonDisplay } from '@components/JsonDisplay';
+import { DataDisplay } from '@components/DataDisplay';
 import { OnValue } from '@modules/tree';
 
-import { useGlobalNames } from '../../../../../State';
 import { headerStyle, useAcctStyles } from '..';
 // import { FunctionDisplay } from '../components/FunctionDisplay';
 
@@ -98,7 +98,7 @@ const onValue: OnValue = (path, value) => {
 };
 
 const RelevantLog = ({ log }: { log: Log }) => (
-  <JsonDisplay data={log} onValue={onValue} />
+  <DataDisplay data={log} onValue={onValue} />
 );
 
 //-----------------------------------------------------------------

@@ -5,7 +5,7 @@ import { Alert } from 'antd';
 import { CopyAsJson } from '@components/CopyAsJson';
 import { createMakeTreeFromObject, OnValue, treeModelToComponents } from '@modules/tree';
 
-import './JsonDisplay.css';
+import './DataDisplay.css';
 
 const tooDeep = 'TOO_DEEP';
 const makeTreeFromObject = createMakeTreeFromObject({
@@ -18,7 +18,7 @@ const defaultOnTooDeep = () => (
   <Alert message='Too many nested levels to display data' type='info' showIcon />
 );
 
-export function JsonDisplay(
+export function DataDisplay(
   {
     data, onValue, onTooDeep = defaultOnTooDeep, showCopy = true,
   }: { data: {}, onValue: OnValue, onTooDeep?: () => JSX.Element, showCopy?: boolean},
@@ -42,7 +42,7 @@ export function JsonDisplay(
   );
 }
 
-JsonDisplay.defaultProps = {
+DataDisplay.defaultProps = {
   onTooDeep: defaultOnTooDeep,
   showCopy: true,
 };
