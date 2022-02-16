@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TraverseObject } from './traverse';
+import { MakeTreeFromObject } from './fromObject';
 
 const isArray = function <T> (v: unknown): v is Array<T> {
   return Array.isArray(v);
@@ -16,7 +16,7 @@ export type OnValue = (path: string[], value: string | number | boolean) => JSX.
 const defaultOnValue: OnValue = (path, value) => (<>{value}</>);
 
 export function treeModelToComponents(
-  model: ReturnType<TraverseObject>,
+  model: ReturnType<MakeTreeFromObject>,
   path: string[],
   onValue: OnValue = defaultOnValue,
 ) {

@@ -1,29 +1,29 @@
-import { createTraverser } from './traverse';
+import { createMakeTreeFromObject } from './fromObject';
 
-let traverseObject: ReturnType<typeof createTraverser>;
+let makeTreeFromObject: ReturnType<typeof createMakeTreeFromObject>;
 const config = {
   maxDeep: 4,
   onTooDeep: () => 'too deep',
   onEmpty: () => 'empty',
 };
 
-describe('traverse', () => {
+describe('makeTreeFromObject', () => {
   beforeEach(() => {
-    traverseObject = createTraverser(config);
+    makeTreeFromObject = createMakeTreeFromObject(config);
   });
 
   test('simple primitive value', () => {
-    const result = traverseObject('hello');
+    const result = makeTreeFromObject('hello');
     expect(result).toBe('hello');
   });
 
   test('empty value', () => {
-    const result = traverseObject({});
+    const result = makeTreeFromObject({});
     expect(result).toEqual([]);
   });
 
   test('simple object', () => {
-    const result = traverseObject({
+    const result = makeTreeFromObject({
       key1: 1,
       key2: 2,
     });
@@ -40,7 +40,7 @@ describe('traverse', () => {
   });
 
   test('simple array', () => {
-    const result = traverseObject([
+    const result = makeTreeFromObject([
       'a', 'b', 'c',
     ]);
     expect(result).toEqual([
@@ -60,7 +60,7 @@ describe('traverse', () => {
   });
 
   test('simple nested object', () => {
-    const result = traverseObject({
+    const result = makeTreeFromObject({
       key1: {
         nested: 'nested value',
         another: 'another value',
@@ -101,11 +101,11 @@ describe('traverse', () => {
   });
 
   test('too deep', () => {
-    const traverse = createTraverser({
+    const makeTreeFromObjectNotDeep = createMakeTreeFromObject({
       ...config,
       maxDeep: 1,
     });
-    const result = traverse({
+    const result = makeTreeFromObjectNotDeep({
       level1: {
         level2: {
           level3: 'some value',

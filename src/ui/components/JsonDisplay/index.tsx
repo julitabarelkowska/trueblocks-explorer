@@ -1,100 +1,48 @@
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 
-import { CopyTwoTone } from '@ant-design/icons';
-import { Name } from '@sdk';
-import { useGlobalState } from '@state';
-import { Alert, Button } from 'antd';
+import { Alert } from 'antd';
 
-import { createTraverser, OnValue, treeModelToComponents } from '@modules/tree';
-
-import { DashboardAccountsLocation } from '../../Routes';
+import { CopyAsJson } from '@components/CopyAsJson';
+import { createMakeTreeFromObject, OnValue, treeModelToComponents } from '@modules/tree';
 
 import './JsonDisplay.css';
 
 const tooDeep = 'TOO_DEEP';
-const traverseObject = createTraverser({
+const makeTreeFromObject = createMakeTreeFromObject({
   maxDeep: 3,
   onTooDeep: () => tooDeep,
   onEmpty: () => [],
 });
 
-// TODO: Merge with RenderAddress component?
-const renderAddress = (address: string, names: Map<string, Name>) => (
-  <>
-    <Link to={{
-      pathname: DashboardAccountsLocation, search: String(new URLSearchParams({ address: String(address) })),
-    }}
-    >
-      {address}
-    </Link>
-    <Button
-      type='text'
-      onClick={() => navigator.clipboard.writeText(String(address))}
-    >
-      <CopyTwoTone />
-    </Button>
-    <div>
-      {names.has(String(address))
-        ? names.get(String(address))?.name
-        : null}
-    </div>
-  </>
+const defaultOnTooDeep = () => (
+  <Alert message='Too many nested levels to display data' type='info' showIcon />
 );
 
-type CreateOnValue = (names: Map<string, Name>) => OnValue;
-
-const createOnValue: CreateOnValue = (names) => {
-  const onValue: OnValue = (path, value) => {
+export function JsonDisplay(
+  {
+    data, onValue, onTooDeep = defaultOnTooDeep, showCopy = true,
+  }: { data: {}, onValue: OnValue, onTooDeep?: () => JSX.Element, showCopy?: boolean},
+) {
+  const treeModel = useMemo(() => makeTreeFromObject(data), [data]);
+  const combinedOnValue: OnValue = (path, value) => {
     if (value === tooDeep) {
-      return (
-        <Alert message='Too many nested levels to display data' type='info' showIcon />
-      );
+      return onTooDeep();
     }
 
-    if (path[0] === 'address') {
-      return renderAddress(String(value), names);
-    }
-
-    if ((path[0] === 'articulatedLog' && path[1] === 'inputs') && (path[2] === '_from' || path[2] === '_to')) {
-      return renderAddress(String(value), names);
-    }
-
-    if (path[0] === 'compressedLog') {
-      return (
-        <>
-          <code>{value}</code>
-          <Button
-            onClick={() => navigator.clipboard.writeText(String(value))}
-            icon={<CopyTwoTone />}
-          >
-            Copy
-          </Button>
-        </>
-      );
-    }
-
-    return <>{value}</>;
+    return onValue(path, value);
   };
-
-  return onValue;
-};
-
-export function JsonDisplay({ data }: { data: {} }) {
-  const { namesMap: names } = useGlobalState();
-
-  const onValue = createOnValue(names);
-  const treeModel = useMemo(() => traverseObject(data), [data]);
 
   return (
     <div className='json-display'>
-      {treeModelToComponents(treeModel, [], onValue)}
-      <Button
-        onClick={() => navigator.clipboard.writeText(JSON.stringify(data))}
-        icon={<CopyTwoTone />}
-      >
-        Copy as JSON
-      </Button>
+      {treeModelToComponents(treeModel, [], combinedOnValue)}
+      { showCopy
+        ? <CopyAsJson content={data} />
+        : null}
     </div>
   );
 }
+
+JsonDisplay.defaultProps = {
+  onTooDeep: defaultOnTooDeep,
+  showCopy: true,
+};

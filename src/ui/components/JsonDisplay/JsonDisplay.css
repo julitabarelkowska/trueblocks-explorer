@@ -1,23 +1,32 @@
+.json-display {
+    /* These variables are here to make sure that we match
+     * antd layout and styles
+     */
+    --space: 8px;
+    --border: 1px solid #f0f0f0;
+    --term-background: #fafafa;
+}
+
 .json-display dl {
     margin: 0;
-    border: 1px solid #f0f0f0;
+    border: var(--border)
 }
 
 .json-display dl:not(:last-child) {
-    margin-bottom: 16px;
+    margin-bottom: var(--space);
 }
 
 .json-display dl dt {
-    background-color: #fafafa;
+    background-color: var(--term-background);
 }
 
 .json-display dl dt,
 .json-display dl dd {
     margin: 0;
-    padding: 8px 16px;
+    padding: var(--space) calc(2 * var(--space));
 }
 
 .json-display dl dt,
 .json-display dl dd:not(:last-child) {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: var(--border);
 }

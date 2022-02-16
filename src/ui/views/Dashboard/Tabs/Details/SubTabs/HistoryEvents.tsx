@@ -1,9 +1,12 @@
 import React from 'react';
 
+import { CopyTwoTone } from '@ant-design/icons';
 import { Log, Transaction } from '@sdk';
-import { Card } from 'antd';
+import { Button, Card } from 'antd';
 
+import { Address } from '@components/Address';
 import { JsonDisplay } from '@components/JsonDisplay';
+import { OnValue } from '@modules/tree';
 
 import { useGlobalNames } from '../../../../../State';
 import { headerStyle, useAcctStyles } from '..';
@@ -68,9 +71,35 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 };
 
 //-----------------------------------------------------------------
-const RelevantLog = ({ log }: { log: Log }) => ((
-  <JsonDisplay data={log} />
-));
+const onValue: OnValue = (path, value) => {
+  if (path[0] === 'address') {
+    return <Address address={String(value)} />;
+  }
+
+  if ((path[0] === 'articulatedLog' && path[1] === 'inputs') && (path[2] === '_from' || path[2] === '_to')) {
+    return <Address address={String(value)} />;
+  }
+
+  if (path[0] === 'compressedLog') {
+    return (
+      <>
+        <code>{value}</code>
+        <Button
+          onClick={() => navigator.clipboard.writeText(String(value))}
+          icon={<CopyTwoTone />}
+        >
+          Copy
+        </Button>
+      </>
+    );
+  }
+
+  return <>{value}</>;
+};
+
+const RelevantLog = ({ log }: { log: Log }) => (
+  <JsonDisplay data={log} onValue={onValue} />
+);
 
 //-----------------------------------------------------------------
 const IrrelevantLog = ({ index } : {index: number}) => {

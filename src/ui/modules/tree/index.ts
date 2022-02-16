@@ -1,2 +1,2 @@
+export * from './fromObject';
 export * from './mapToComponents';
-export * from './traverse';
