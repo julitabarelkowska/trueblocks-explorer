@@ -93,6 +93,7 @@ export const useAcctStyles = createUseStyles({
     padding: '1px',
   },
   card: {
+    width: '100%',
     border: '2px solid darkgrey',
     marginBottom: '4px',
   },
