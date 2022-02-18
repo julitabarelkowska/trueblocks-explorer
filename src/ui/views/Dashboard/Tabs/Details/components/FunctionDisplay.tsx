@@ -12,6 +12,27 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
   let thing = <></>;
   let articulated = <></>;
 
+  const entriesToTableRow = (name: string, object: object) => {
+    let firstKey = '';
+    const rows = Object.entries(object).map(([key, val]) => {
+      firstKey = firstKey || key;
+
+      return (
+        <tr key={`${name}${key}2`}>
+          <td key={`${name}11`} style={{ width: '1%' }} />
+          <td key={`${name}12`} style={{ fontWeight: 'bold', width: '20%' }}>{`${key.substr(0, 25)}:`}</td>
+          <td key={`${name}13`}>{`${val}`}</td>
+        </tr>
+      );
+    });
+
+    return (
+      <React.Fragment key={`${name}${firstKey}`}>
+        {rows}
+      </React.Fragment>
+    );
+  };
+
   // TODO: This hugely horrible thing is temporary -- the real one has to
   // TODO: handle irrelevant parameters and tuple parameters
   if (func) {
@@ -27,17 +48,7 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
                   </tr>
                 );
               }
-              return (
-                <>
-                  {Object.entries(value).map(([key, val]) => (
-                    <tr key={`${name}${key}2`}>
-                      <td key={`${name}11`} style={{ width: '1%' }} />
-                      <td key={`${name}12`} style={{ fontWeight: 'bold', width: '20%' }}>{`${key.substr(0, 25)}:`}</td>
-                      <td key={`${name}13`}>{`${val}`}</td>
-                    </tr>
-                  ))}
-                </>
-              );
+              return entriesToTableRow(name, value as object);
             },
           )}
         </tbody>
@@ -45,7 +56,7 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
     );
 
     articulated = (
-      <pre style={{ overflowX: 'hidden' }}>
+      <pre className={styles.pre}>
         {thing}
         <br />
       </pre>
@@ -53,7 +64,7 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
   }
 
   const bytes = (
-    <pre>
+    <pre className={styles.pre}>
       <div>{rawBytes.slice(0, 10)}</div>
       {rawBytes.replace(rawBytes.slice(0, 10), '')?.match(/.{1,64}/g)?.map((s, index) => (
         <div key={`${s + index}`}>
@@ -80,5 +91,9 @@ const useStyles = createUseStyles({
   header: {
     fontWeight: 'bold',
     textDecoration: 'underline',
+  },
+  pre: {
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
   },
 });

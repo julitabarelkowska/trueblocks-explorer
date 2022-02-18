@@ -85,8 +85,6 @@ export const DetailsView = ({ params }: { params: AccountViewParams }) => {
 
 export const useAcctStyles = createUseStyles({
   container: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 28fr 3fr',
   },
   cardHolder: {
     display: 'flex',
@@ -96,8 +94,11 @@ export const useAcctStyles = createUseStyles({
   },
   card: {
     border: '2px solid darkgrey',
-    width: '820px',
     marginBottom: '4px',
+  },
+  pre: {
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
   },
   tableHead: {
     padding: '0px',

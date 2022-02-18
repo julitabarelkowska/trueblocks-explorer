@@ -67,20 +67,24 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 };
 
 //-----------------------------------------------------------------
-const RelevantLog = ({ log, index } : {log: Log, index: number}) => ((
-  <pre key={log.logIndex}>
-    <b>
-      <u>
-        log
-        {' '}
-        {index}
-        :
-      </u>
-    </b>
-    <br />
-    {JSON.stringify(log, null, 2)}
-  </pre>
-));
+const RelevantLog = ({ log, index }: { log: Log, index: number }) => {
+  const styles = useAcctStyles();
+
+  return (
+    <pre key={log.logIndex} className={styles.pre}>
+      <b>
+        <u>
+          log
+          {' '}
+          {index}
+          :
+        </u>
+      </b>
+      <br />
+      {JSON.stringify(log, null, 2)}
+    </pre>
+  );
+};
 
 //-----------------------------------------------------------------
 const IrrelevantLog = ({ index } : {index: number}) => {
