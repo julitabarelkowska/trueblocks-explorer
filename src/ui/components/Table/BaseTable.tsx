@@ -35,7 +35,7 @@ export const BaseTable = ({
   const [curRow, setCurRow] = useState(Number(sessionStorage.getItem(`curRow${name}`)) || 0);
   const [curPage, setCurPage] = useState(Number(sessionStorage.getItem(`curPage${name}`)) || 1);
   const [pageSize, setPageSize] = useState(defPageSize);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedRow, setExpandedRow] = useState(-1);
   const [keyedData, setKeyedData] = useState([{ key: 0 }]);
   const tableRef = useRef<HTMLTableElement>(document.createElement('table'));
 
@@ -58,7 +58,11 @@ export const BaseTable = ({
   Mousetrap.bind('home', (event) => setRowAndHandleScroll(event, 0));
   Mousetrap.bind('end', (event) => setRowAndHandleScroll(event, dataSource.length - 1));
   Mousetrap.bind('enter', () => {
-    setIsExpanded(!isExpanded);
+    setExpandedRow((currentValue) => {
+      if (currentValue === curRow) return -1; // disable
+
+      return curRow;
+    });
   });
 
   useEffect(() => {
@@ -117,6 +121,7 @@ export const BaseTable = ({
         dataSource={keyedData}
         expandable={{
           expandedRowRender,
+          expandedRowKeys: [expandedRow],
         }}
         pagination={{
           onChange: (page, newPageSize) => {
@@ -133,5 +138,3 @@ export const BaseTable = ({
     </div>
   );
 };
-
-// TODO(tjayrush): We used to be able to press enter to open a record's details
