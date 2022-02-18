@@ -56,7 +56,11 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
           className={styles.card}
           headStyle={headerStyle}
           hoverable
-          title={title}
+          title={(
+            <span style={{ whiteSpace: 'break-spaces' }}>
+              {title}
+            </span>
+          )}
         >
           {relevants}
           {irrelevants}

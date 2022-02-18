@@ -141,7 +141,7 @@ export const History = ({ params }: { params: AccountViewParams }) => {
   return (
     <div>
       <Row wrap={false} gutter={16}>
-        <Col span={16}>
+        <Col flex='3'>
           {activeAssetFilter}
           {activeEventFilter}
           {activeFunctionFilter}
@@ -154,8 +154,11 @@ export const History = ({ params }: { params: AccountViewParams }) => {
             onSelectionChange={onSelectionChange}
           />
         </Col>
-        <Col flex={8}>
-          <AccountHistorySider record={selectedItem} params={params} />
+        <Col flex='2'>
+          {/* this minWidth: 0 stops children from overflowing flex parent */}
+          <div style={{ minWidth: 0 }}>
+            <AccountHistorySider record={selectedItem} params={params} />
+          </div>
         </Col>
       </Row>
     </div>

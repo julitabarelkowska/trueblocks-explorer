@@ -97,6 +97,8 @@ export const useAcctStyles = createUseStyles({
     marginBottom: '4px',
   },
   pre: {
+    width: '100%',
+    lineBreak: 'anywhere',
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
   },
