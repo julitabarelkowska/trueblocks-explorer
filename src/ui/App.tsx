@@ -134,7 +134,7 @@ export const App = () => {
   ];
 
   // TODO: BOGUS - list of configured chains
-  const chainList = ['mainnet', 'gnosis', 'rinkeby'];
+  const chainList = ['mainnet', 'gnosis', 'rinkeby', 'sepolia'];
   const chainDropdown = (
     <Select
       placeholder='chain'
