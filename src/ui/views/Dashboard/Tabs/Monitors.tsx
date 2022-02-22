@@ -42,7 +42,7 @@ export const Monitors = () => {
     chain,
     modes: ['monitors'],
     details: true,
-  })) as CallStatus<Status[]>;
+  }), undefined, []) as CallStatus<Status[]>;
   if (isFailedCall(monitorsCall)) {
     createErrorNotification({
       description: 'Could not fetch monitors',
@@ -244,7 +244,10 @@ const monitorSchema: ColumnsType<Monitor> = [
     title: 'Name / Address',
     dataIndex: 'searchStr',
     configuration: {
-      render: (unused, record) => <ClickableAddress name={record.name} address={record.address} />,
+      render: (unused, record) => (record.address
+        ? <ClickableAddress name={record.name} address={record.address} />
+        : null
+      ),
       width: 500,
     },
   }),

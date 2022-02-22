@@ -5,7 +5,6 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import { address } from '@sdk';
 import Mousetrap from 'mousetrap';
 
 import {
@@ -17,20 +16,21 @@ export const RootLocation = '/';
 export const DashboardLocation = '/dashboard';
 export const DashboardMonitorsLocation = '/dashboard/monitors';
 export const DashboardAccountsLocation = '/dashboard/accounts';
-export const DashboardAccountsAssetsLocation = '/dashboard/accounts/assets';
-export const DashboardAccountsHistoryLocation = '/dashboard/accounts/history';
-export const DashboardAccountsHistoryReconsLocation = '/dashboard/accounts/history/recons';
-export const DashboardAccountsHistoryFunctionsLocation = '/dashboard/accounts/history/functions';
+export const DashboardAccountsAddressLocation = '/dashboard/accounts/:address';
+export const DashboardAccountsAssetsLocation = '/dashboard/accounts/:address/assets';
+export const DashboardAccountsHistoryLocation = '/dashboard/accounts/:address/history';
+export const DashboardAccountsHistoryReconsLocation = '/dashboard/accounts/:address/history/recons';
+export const DashboardAccountsHistoryFunctionsLocation = '/dashboard/accounts/:address/history/functions';
 export const DashboardAccountsHistoryEventsLocation = '/dashboard/accounts/history/events';
 
-export const DashboardAccountsAddressLocation = (addr: address) => `/dashboard/accounts?address=${addr}`;
+// export const DashboardAccountsAddressLocation = (addr: address) => `/dashboard/accounts?address=${addr}`;
 
-export const DashboardAccountsHistoryCustomLocation = '/dashboard/accounts/history/custom';
-export const DashboardAccountsNeighborsLocation = '/dashboard/accounts/neighbors';
-export const DashboardAccountsGasLocation = '/dashboard/accounts/gas';
-export const DashboardAccountsChartsLocation = '/dashboard/accounts/charts';
-export const DashboardAccountsFunctionsLocation = '/dashboard/accounts/functions';
-export const DashboardAccountsEventsLocation = '/dashboard/accounts/events';
+export const DashboardAccountsHistoryCustomLocation = '/dashboard/accounts/:address/history/custom';
+export const DashboardAccountsNeighborsLocation = '/dashboard/accounts/:address/neighbors';
+export const DashboardAccountsGasLocation = '/dashboard/accounts/:address/gas';
+export const DashboardAccountsChartsLocation = '/dashboard/accounts/:address/charts';
+export const DashboardAccountsFunctionsLocation = '/dashboard/accounts/:address/functions';
+export const DashboardAccountsEventsLocation = '/dashboard/accounts/:address/events';
 export const DashboardCollectionsLocation = '/dashboard/collections';
 
 export const NamesLocation = '/names';
@@ -42,7 +42,7 @@ export const NamesSignaturesEventsLocation = '/names/signatures/events';
 export const NamesBlocksLocation = '/names/blocks';
 
 export const ExplorerLocation = '/explorer';
-export const ExplorerBlocksLocation = '/explorer/blocks';
+export const ExplorerBlocksLocation = '/explorer/blocks/:block?';
 export const ExplorerTransactionsLocation = '/explorer/transactions';
 export const ExplorerReceiptsLocation = '/explorer/receipts';
 export const ExplorerLogsLocation = '/explorer/logs';

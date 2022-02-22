@@ -1,7 +1,7 @@
 import React, {
   useEffect, useMemo, useState,
 } from 'react';
-import { useLocation } from 'react-router-dom';
+import { generatePath, useLocation } from 'react-router-dom';
 
 import {
   getExport, getList, ListStats, Transaction,
@@ -18,9 +18,11 @@ import {
 } from '@modules/types';
 
 import {
-  DashboardAccountsLocation,
+  DashboardAccountsAddressLocation,
   DashboardCollectionsLocation,
+  DashboardLocation,
   DashboardMonitorsLocation,
+  RootLocation,
 } from '../../Routes';
 import { useGlobalNames, useGlobalState } from '../../State';
 import { Collections } from './Tabs/Collections';
@@ -185,15 +187,24 @@ export const DashboardView = () => {
     },
   };
 
-  const tabs = [
-    { name: 'Monitors', location: DashboardMonitorsLocation, component: <Monitors /> },
+  const tabs = useMemo(() => [
+    {
+      name: 'Monitors',
+      location: [
+        DashboardMonitorsLocation,
+        DashboardLocation,
+        RootLocation,
+      ],
+      component: <Monitors />,
+    },
     {
       name: 'Details',
-      location: DashboardAccountsLocation,
+      location: generatePath(DashboardAccountsAddressLocation, { address: String(currentAddress) }),
+      disabled: !currentAddress,
       component: <DetailsView params={params} />,
     },
     { name: 'Collections', location: DashboardCollectionsLocation, component: <Collections /> },
-  ];
+  ], [currentAddress, params]);
 
   return (
     <BaseView

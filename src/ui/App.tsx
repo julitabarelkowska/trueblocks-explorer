@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createUseStyles } from 'react-jss';
+import { Redirect, useHistory } from 'react-router-dom';
 
 import {
   BookOutlined,
@@ -51,13 +52,18 @@ export const App = () => {
   dayjs.extend(relativeTime);
 
   const { setNamesMap } = useGlobalNames();
+  const { location } = useHistory();
   const [status, setStatus] = useState<Pick<SuccessResponse<Status>, 'data' | 'meta'>>({
     data: createEmptyStatus(),
     meta: createEmptyMeta(),
   });
   const [statusError, setStatusError] = useState(false);
   const [loadingStatus] = useState(false);
+  const [lastLocation, setLastLocation] = useState('');
   const styles = useStyles();
+
+  useEffect(() => localStorage.setItem('lastLocation', location.pathname), [location.pathname]);
+  useEffect(() => setLastLocation(localStorage.getItem('lastLocation') || ''), []);
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -149,6 +155,10 @@ export const App = () => {
       ))}
     </Select>
   );
+
+  if (lastLocation && lastLocation !== '/' && location.pathname === '/') {
+    return <Redirect to={lastLocation} />;
+  }
 
   // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
   return (
