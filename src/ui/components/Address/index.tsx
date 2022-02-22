@@ -7,17 +7,22 @@ import { Button } from 'antd';
 
 import { DashboardAccountsLocation } from '../../Routes';
 
-export const Address = ({ address, showCopy = true }: { address: string, showCopy?: boolean }) => {
+export const Address = (
+  { address, showCopy = true, link = false }: { address: string, showCopy?: boolean, link?: boolean },
+) => {
   const { namesMap: names } = useGlobalState();
+  const linkComponent = (
+    <Link to={{
+      pathname: DashboardAccountsLocation, search: String(new URLSearchParams({ address: String(address) })),
+    }}
+    >
+      {address}
+    </Link>
+  );
 
   return (
     <>
-      <Link to={{
-        pathname: DashboardAccountsLocation, search: String(new URLSearchParams({ address: String(address) })),
-      }}
-      >
-        {address}
-      </Link>
+      { link ? linkComponent : <span>{address}</span>}
       { showCopy
         ? (
           <Button
@@ -39,4 +44,5 @@ export const Address = ({ address, showCopy = true }: { address: string, showCop
 
 Address.defaultProps = {
   showCopy: true,
+  link: false,
 };
