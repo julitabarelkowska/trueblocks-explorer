@@ -1,0 +1,32 @@
+.json-display {
+    /* These variables are here to make sure that we match
+     * antd layout and styles
+     */
+    --space: 8px;
+    --border: 1px solid #f0f0f0;
+    --term-background: #fafafa;
+}
+
+.json-display dl {
+    margin: 0;
+    border: var(--border)
+}
+
+.json-display dl:not(:last-child) {
+    margin-bottom: var(--space);
+}
+
+.json-display dl dt {
+    background-color: var(--term-background);
+}
+
+.json-display dl dt,
+.json-display dl dd {
+    margin: 0;
+    padding: var(--space) calc(2 * var(--space));
+}
+
+.json-display dl dt,
+.json-display dl dd:not(:last-child) {
+    border-bottom: var(--border);
+}

@@ -1,9 +1,14 @@
 import React from 'react';
 
+import { CopyTwoTone } from '@ant-design/icons';
 import { Log, Transaction } from '@sdk';
-import { Card } from 'antd';
+import { useGlobalNames } from '@state';
+import { Button, Card } from 'antd';
 
-import { useGlobalNames } from '../../../../../State';
+import { Address } from '@components/Address';
+import { DataDisplay } from '@components/DataDisplay';
+import { OnValue } from '@modules/tree';
+
 import { headerStyle, useAcctStyles } from '..';
 // import { FunctionDisplay } from '../components/FunctionDisplay';
 
@@ -36,10 +41,10 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
     }
   }
 
-  const relevants = record.receipt?.logs?.map((log, index) => {
+  const relevants = record.receipt?.logs?.map((log) => {
     const hasAddress = Boolean(log.address);
     if (!hasAddress) return null;
-    return <RelevantLog key={log.logIndex} log={log} index={log.logIndex} />;
+    return <RelevantLog key={log.logIndex} log={log} />;
   });
 
   const irrelevants = record.receipt?.logs?.map((log, index) => {
@@ -71,24 +76,35 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 };
 
 //-----------------------------------------------------------------
-const RelevantLog = ({ log, index }: { log: Log, index: number }) => {
-  const styles = useAcctStyles();
+const onValue: OnValue = (path, value) => {
+  if (path[0] === 'address') {
+    return <Address address={String(value)} />;
+  }
 
-  return (
-    <pre key={log.logIndex} className={styles.pre}>
-      <b>
-        <u>
-          log
-          {' '}
-          {index}
-          :
-        </u>
-      </b>
-      <br />
-      {JSON.stringify(log, null, 2)}
-    </pre>
-  );
+  if ((path[0] === 'articulatedLog' && path[1] === 'inputs') && (path[2] === '_from' || path[2] === '_to')) {
+    return <Address address={String(value)} />;
+  }
+
+  if (path[0] === 'compressedLog') {
+    return (
+      <>
+        <code>{value}</code>
+        <Button
+          onClick={() => navigator.clipboard.writeText(String(value))}
+          icon={<CopyTwoTone />}
+        >
+          Copy
+        </Button>
+      </>
+    );
+  }
+
+  return <>{value}</>;
 };
+
+const RelevantLog = ({ log }: { log: Log }) => (
+  <DataDisplay data={log} onValue={onValue} />
+);
 
 //-----------------------------------------------------------------
 const IrrelevantLog = ({ index } : {index: number}) => {
