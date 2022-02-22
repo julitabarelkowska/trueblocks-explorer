@@ -38,14 +38,15 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 
   const relevants = record.receipt?.logs?.map((log, index) => {
     const hasAddress = Boolean(log.address);
-    if (!hasAddress) return <></>;
-    return <RelevantLog log={log} index={log.logIndex} />;
+    if (!hasAddress) return null;
+    return <RelevantLog key={log.logIndex} log={log} index={log.logIndex} />;
   });
 
   const irrelevants = record.receipt?.logs?.map((log, index) => {
     const hasAddress = Boolean(log.address);
-    if (hasAddress) return <></>;
-    return <IrrelevantLog index={index} />;
+    if (hasAddress) return null;
+    if (!Object.keys(log).length) return null;
+    return <IrrelevantLog key={log.logIndex} index={index} />;
   });
 
   return (
@@ -55,7 +56,11 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
           className={styles.card}
           headStyle={headerStyle}
           hoverable
-          title={title}
+          title={(
+            <span style={{ whiteSpace: 'break-spaces' }}>
+              {title}
+            </span>
+          )}
         >
           {relevants}
           {irrelevants}
@@ -66,20 +71,24 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 };
 
 //-----------------------------------------------------------------
-const RelevantLog = ({ log, index } : {log: Log, index: number}) => ((
-  <pre key={log.logIndex}>
-    <b>
-      <u>
-        log
-        {' '}
-        {index}
-        :
-      </u>
-    </b>
-    <br />
-    {JSON.stringify(log, null, 2)}
-  </pre>
-));
+const RelevantLog = ({ log, index }: { log: Log, index: number }) => {
+  const styles = useAcctStyles();
+
+  return (
+    <pre key={log.logIndex} className={styles.pre}>
+      <b>
+        <u>
+          log
+          {' '}
+          {index}
+          :
+        </u>
+      </b>
+      <br />
+      {JSON.stringify(log, null, 2)}
+    </pre>
+  );
+};
 
 //-----------------------------------------------------------------
 const IrrelevantLog = ({ index } : {index: number}) => {
