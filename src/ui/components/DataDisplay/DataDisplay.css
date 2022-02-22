@@ -24,6 +24,7 @@
 .json-display dl dd {
     margin: 0;
     padding: var(--space) calc(2 * var(--space));
+    word-wrap: anywhere;
 }
 
 .json-display dl dt,
