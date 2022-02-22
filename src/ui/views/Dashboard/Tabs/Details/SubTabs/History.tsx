@@ -1,8 +1,10 @@
 import React, {
+  useCallback,
   useEffect, useMemo, useState,
 } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
+import { Col, Row } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
 import { BaseView } from '@components/BaseView';
@@ -43,6 +45,7 @@ export const History = ({ params }: { params: AccountViewParams }) => {
   const [assetToFilterBy, setAssetToFilterBy] = useState('');
   const [eventToFilterBy, setEventToFilterBy] = useState('');
   const [functionToFilterBy, setFunctionToFilterBy] = useState('');
+  const [selectedItem, setSelectedItem] = useState<typeof theData>();
   const searchParams = useSearchParams();
 
   const assetNameToDisplay = useMemo(() => {
@@ -133,23 +136,31 @@ export const History = ({ params }: { params: AccountViewParams }) => {
     </FilterButton>
   );
 
-  const siderRender = (record: TransactionModel) => (
-    <AccountHistorySider record={record} params={params} />
-  );
+  const onSelectionChange = useCallback((item) => setSelectedItem(item), []);
 
   return (
     <div>
-      {activeAssetFilter}
-      {activeEventFilter}
-      {activeFunctionFilter}
-      <BaseTable
-        dataSource={filteredData}
-        columns={transactionSchema}
-        loading={loading}
-        extraData={currentAddress}
-        siderRender={siderRender}
-        name='history'
-      />
+      <Row wrap={false} gutter={16}>
+        <Col flex='3'>
+          {activeAssetFilter}
+          {activeEventFilter}
+          {activeFunctionFilter}
+          <BaseTable
+            dataSource={filteredData}
+            columns={transactionSchema}
+            loading={loading}
+            extraData={currentAddress}
+            name='history'
+            onSelectionChange={onSelectionChange}
+          />
+        </Col>
+        <Col flex='2'>
+          {/* this minWidth: 0 stops children from overflowing flex parent */}
+          <div style={{ minWidth: 0 }}>
+            <AccountHistorySider record={selectedItem} params={params} />
+          </div>
+        </Col>
+      </Row>
     </div>
   );
 };

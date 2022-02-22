@@ -43,13 +43,14 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 
   const relevants = record.receipt?.logs?.map((log) => {
     const hasAddress = Boolean(log.address);
-    if (!hasAddress) return <></>;
+    if (!hasAddress) return null;
     return <RelevantLog key={log.logIndex} log={log} />;
   });
 
   const irrelevants = record.receipt?.logs?.map((log, index) => {
     const hasAddress = Boolean(log.address);
     if (hasAddress) return null;
+    if (!Object.keys(log).length) return null;
     return <IrrelevantLog key={log.logIndex} index={index} />;
   });
 
@@ -60,7 +61,11 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
           className={styles.card}
           headStyle={headerStyle}
           hoverable
-          title={title}
+          title={(
+            <span style={{ whiteSpace: 'break-spaces' }}>
+              {title}
+            </span>
+          )}
         >
           {relevants}
           {irrelevants}
