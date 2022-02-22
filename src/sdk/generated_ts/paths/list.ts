@@ -6,27 +6,22 @@ export function getList(
     addrs: address[],
     count?: boolean,
     appearances?: boolean,
+    chain: string,
+    noHeader?: boolean,
     fmt?: string,
     verbose?: boolean,
     logLevel?: number,
-    noHeader?: boolean,
-    chain: string,
     wei?: boolean,
     ether?: boolean,
     dollars?: boolean,
-    help?: boolean,
     raw?: boolean,
     toFile?: boolean,
-    file?: string,
-    version?: boolean,
-    noop?: boolean,
-    mocked?: boolean,
-    noColor?: boolean,
-    outputFn?: string,
-    testMode?: boolean,
-    apiMode?: boolean,
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Appearance[] | ListStats[]>({ endpoint: '/list', method: 'get', parameters, options });
+  return ApiCallers.fetch<Appearance[] | ListStats[]>(
+    {
+      endpoint: '/list', method: 'get', parameters, options,
+    },
+  );
 }

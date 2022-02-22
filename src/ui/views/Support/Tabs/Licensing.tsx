@@ -4,11 +4,11 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 
 const t1: string = 'All files in the folder `./src/apps` and in all files in subfolders of that folder are:';
 const l1: string = `Confidential proprietary information of TrueBlocks, LLC
-Copyright (c) 2016, 2021 TrueBlocks, LLC (http://trueblocks.io)`;
+Copyright (c) 2016, 2021 TrueBlocks, LLC (https://trueblocks.io)`;
 
 const t2: string = 'All remaining files other than above (and unless otherwise noted) are GPL3.0 and:';
 const l2: string = `TrueBlocks - fully-decentralized data from blockchains
-Copyright (c) 2016, 2020 TrueBlocks, LLC (http://trueblocks.io)`;
+Copyright (c) 2016, 2020 TrueBlocks, LLC (https://trueblocks.io)`;
 
 const t3: string = 'The code in the file: `./src/libs/utillib/biguint.cpp` is:';
 const l3: string = `Derived, with heavy modifications, from Big Integer Library

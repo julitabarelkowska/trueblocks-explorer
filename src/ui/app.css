@@ -10,6 +10,13 @@ body,
 
 .app-header {
   color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-header h2 {
+  margin-bottom: 0;
 }
 
 .ant-table-tbody > tr:focus {

@@ -1,22 +1,28 @@
 import React from 'react';
 
+import { CopyTwoTone } from '@ant-design/icons';
 import { Log, Transaction } from '@sdk';
-import { Card } from 'antd';
+import { useGlobalNames } from '@state';
+import { Button, Card } from 'antd';
 
-import { useGlobalNames } from '../../../../../State';
+import { Address } from '@components/Address';
+import { DataDisplay } from '@components/DataDisplay';
+import { OnValue } from '@modules/tree';
+
 import { headerStyle, useAcctStyles } from '..';
-import { FunctionDisplay } from '../components/FunctionDisplay';
+// import { FunctionDisplay } from '../components/FunctionDisplay';
 
 //-----------------------------------------------------------------
 export const HistoryEvents = ({ record }: { record: Transaction }) => {
-  const key = `${record.blockNumber}.${record.transactionIndex}`;
   const styles = useAcctStyles();
+
+  const key = `${record.blockNumber}.${record.transactionIndex}`;
   const { namesMap } = useGlobalNames();
 
   let title = '[no logs]';
   if (record.receipt && record.receipt.logs && record.receipt.logs.length > 0) {
     let titles = record.receipt.logs.map((log) => {
-      const hasAddress = log.address !== null && log.address !== undefined;
+      const hasAddress = Boolean(log.address);
       if (hasAddress) {
         const n = namesMap.get(log.address);
         const name = n ? ` from ${n.name}` : ` from ${log.address.slice(0, 6)}`;
@@ -35,16 +41,17 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
     }
   }
 
-  const relevants = record.receipt?.logs?.map((log, index) => {
-    const hasAddress = log.address !== null && log.address !== undefined;
-    if (!hasAddress) return <></>;
-    return <RelevantLog log={log} index={log.logIndex} />;
+  const relevants = record.receipt?.logs?.map((log) => {
+    const hasAddress = Boolean(log.address);
+    if (!hasAddress) return null;
+    return <RelevantLog key={log.logIndex} log={log} />;
   });
 
   const irrelevants = record.receipt?.logs?.map((log, index) => {
-    const hasAddress = log.address !== null && log.address !== undefined;
-    if (hasAddress) return <></>;
-    return <IrrelevantLog index={index} />;
+    const hasAddress = Boolean(log.address);
+    if (hasAddress) return null;
+    if (!Object.keys(log).length) return null;
+    return <IrrelevantLog key={log.logIndex} index={index} />;
   });
 
   return (
@@ -54,7 +61,11 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
           className={styles.card}
           headStyle={headerStyle}
           hoverable
-          title={title}
+          title={(
+            <span style={{ whiteSpace: 'break-spaces' }}>
+              {title}
+            </span>
+          )}
         >
           {relevants}
           {irrelevants}
@@ -65,25 +76,39 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 };
 
 //-----------------------------------------------------------------
-const RelevantLog = ({ log, index } : {log: Log, index: number}) => ((
-  <pre key={log.logIndex}>
-    <b>
-      <u>
-        log
-        {' '}
-        {index}
-        :
-      </u>
-    </b>
-    <br />
-    {JSON.stringify(log, null, 2)}
-  </pre>
-));
+const onValue: OnValue = (path, value) => {
+  if (path[0] === 'address') {
+    return <Address address={String(value)} />;
+  }
+
+  if ((path[0] === 'articulatedLog' && path[1] === 'inputs') && (path[2] === '_from' || path[2] === '_to')) {
+    return <Address address={String(value)} />;
+  }
+
+  if (path[0] === 'compressedLog') {
+    return (
+      <>
+        <code>{value}</code>
+        <Button
+          onClick={() => navigator.clipboard.writeText(String(value))}
+          icon={<CopyTwoTone />}
+        >
+          Copy
+        </Button>
+      </>
+    );
+  }
+
+  return <>{value}</>;
+};
+
+const RelevantLog = ({ log }: { log: Log }) => (
+  <DataDisplay data={log} onValue={onValue} />
+);
 
 //-----------------------------------------------------------------
 const IrrelevantLog = ({ index } : {index: number}) => {
-  let s = `${index}`;
-  while (s.length < 4) s = ` ${s}`;
+  const s = `${index}`.padStart(4);
   return (
     <div key={s} style={{ fontStyle: 'italic', color: 'darkgrey' }}>
       {`[log ${s}] is irrelevant`}

@@ -67,25 +67,16 @@ export function makeFunctionParameters(refs: SwaggerParser.$Refs, parameters: Op
 function getGlobals(): Map<string, { name: string, required?: boolean }> {
   return new Map([
     // parameter variable name to type name
+    ['chain', { name: 'string', required: true }],
+    ['noHeader', { name: 'boolean' }],
     ['fmt', { name: 'string' }],
     ['verbose', { name: 'boolean' }],
     ['logLevel', { name: 'number' }],
-    ['noHeader', { name: 'boolean' }],
-    ['chain', { name: 'string', required: true }],
     ['wei', { name: 'boolean' }],
     ['ether', { name: 'boolean' }],
     ['dollars', { name: 'boolean' }],
-    ['help', { name: 'boolean' }],
     ['raw', { name: 'boolean' }],
     ['toFile', { name: 'boolean' }],
-    ['file', { name: 'string' }],
-    ['version', { name: 'boolean' }],
-    ['noop', { name: 'boolean' }],
-    ['mocked', { name: 'boolean' }],
-    ['noColor', { name: 'boolean' }],
-    ['outputFn', { name: 'string' }],
-    ['testMode', { name: 'boolean' }],
-    ['apiMode', { name: 'boolean' }],
   ]);
 }
 
@@ -107,19 +98,25 @@ export function makePathsInSameFile(project: Project, refs: SwaggerParser.$Refs,
       // Get function parameters (the options that we want to send with the request)
       const parameters = makeFunctionParameters(refs, path.parameters as OpenAPIV3.ParameterObject[]);
       // inject global parameters
-      const globals = new Map(
-        [...getGlobals().entries()]
-          .filter(([name]) => !parameters.names.find((alreadyPresent) => alreadyPresent.replace('?', '') === name)),
-      );
+      if (method !== 'delete') {
+        const globals = new Map(
+          [...getGlobals().entries()]
+            .filter(([name]) => !parameters.names.find((alreadyPresent) => alreadyPresent.replace('?', '') === name)),
+        );
 
-      parameters.names = parameters.names.concat(
-        [...globals.keys()]
-          .map((name) => `${name}${globals.get(name)?.required ? '' : '?'}`),
-      );
-      parameters.types = parameters.types.concat(
-        [...globals.values()]
-          .map((value) => ({ ...value, isRequired: !!value.required, isArray: false })),
-      );
+        parameters.names = parameters.names.concat(
+          [...globals.keys()]
+            .map((name) => `${name}${globals.get(name)?.required ? '' : '?'}`),
+        );
+        parameters.types = parameters.types.concat(
+          [...globals.values()]
+            .map((value) => ({ ...value, isRequired: !!value.required, isArray: false })),
+        );
+      } else {
+        const chainRequired = getGlobals().get('chain')?.required;
+        parameters.names.push(`chain${chainRequired ? '' : '?'}`);
+        parameters.types.push({ name: 'string', isRequired: Boolean(chainRequired), isArray: false });
+      }
 
       // Get the type of the data we will get in the response
       const responseType = types.getResponseBodyType(path);
@@ -149,8 +146,9 @@ export function makePathsInSameFile(project: Project, refs: SwaggerParser.$Refs,
         .setIndentationLevel(0)
         .write(')')
         .block(() => {
-          writer
-            .write(`return ApiCallers.fetch<${types.makeUnionType(responseType)}>({ endpoint: '${route}', method: '${method}', parameters, options });`);
+          // eslint-disable-next-line max-len
+          const line = `return ApiCallers.fetch<${types.makeUnionType(responseType)}>(\n\t{\n  endpoint: '${route}', method: '${method}', parameters, options,\n\t},\n);`;
+          writer.write(line);
         });
     });
   }, { overwrite: true });

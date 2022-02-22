@@ -10,14 +10,24 @@ export const Pills = ({ record } : {record: TransactionModel}) => {
   const isCon = record.to === '0x0';
   const is20 = record.toName?.isErc20 || (record?.statements?.length || 0) > 1;
   const is721 = record.toName?.isErc721;
+  const { staging } = record;
+
   const Pill = (name: string, tag: string, show: boolean) => (
     show
       ? <div className={`${style.tag} ${tag}`}>{name}</div>
       : <></>
   );
+
   // TODO(data): isErr and erc20 should be booleans from the back end
   return (
     <div style={{ display: 'flex' }}>
+      {Pill('stage', style.staging, Boolean(staging))}
+      {Pill('fin', style.final, Boolean(!staging))}
+      {Pill('mainnet', style.mainnet, Boolean(record.chain === 'mainnet'))}
+      {Pill('gnosis', style.gnosis, Boolean(record.chain === 'gnosis'))}
+      {Pill('rinkeby', style.rinkeby, Boolean(record.chain === 'rinkeby'))}
+      {Pill('blkreward', style.blkreward, record.transactionIndex > 99995 && record.transactionIndex !== 99998)}
+      {Pill('uncreward', style.uncreward, record.transactionIndex === 99998)}
       {Pill('int', style.intTag, isInt)}
       {Pill('err', style.errTag, Boolean(isErr))}
       {Pill('con', style.conTag, isCon)}
@@ -60,5 +70,41 @@ const useStyles = createUseStyles({
     backgroundColor: 'darkgreen',
     borderColor: 'darkgreen',
     color: 'white',
+  },
+  staging: {
+    backgroundColor: 'palegreen',
+    borderColor: 'darkblue',
+    color: 'darkblue',
+  },
+  final: {
+    backgroundColor: 'lightgrey',
+    borderColor: 'grey',
+    color: 'grey',
+  },
+  blkreward: {
+    backgroundColor: 'green',
+    borderColor: 'darkgreen',
+    color: 'white',
+  },
+  uncreward: {
+    backgroundColor: 'dodgerblue',
+    borderColor: 'darkblue',
+    color: 'white',
+  },
+  // TODO: BOGUS - per chain
+  mainnet: {
+    backgroundColor: '#eceeee',
+    borderColor: 'darkblue',
+    color: 'darkblue',
+  },
+  gnosis: {
+    backgroundColor: '#eceeee',
+    borderColor: 'darkblue',
+    color: 'darkblue',
+  },
+  rinkeby: {
+    backgroundColor: '#eceeee',
+    borderColor: 'darkblue',
+    color: 'darkblue',
   },
 });

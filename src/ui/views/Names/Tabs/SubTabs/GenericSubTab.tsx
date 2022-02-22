@@ -5,6 +5,7 @@ import { Function, getAbis } from '@sdk';
 import { ResourceTable } from '@components/ResourceTable';
 import { useSdk } from '@hooks/useSdk';
 
+import { useGlobalState } from '../../../../State';
 import { abiSignature } from '../Signatures';
 
 type GenericSubTabProps = {
@@ -14,11 +15,11 @@ type GenericSubTabProps = {
 
 // This component encapsulates all the similarities that Event and Function signatures tabs share
 export function GenericSubTab({ filterFunc, resourceName }: GenericSubTabProps) {
+  const { chain } = useGlobalState();
   const dataCall = useSdk(() => getAbis({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     addrs: [],
     known: true,
-    source: true,
     logLevel: 2,
   }));
 

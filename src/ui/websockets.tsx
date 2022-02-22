@@ -1,3 +1,5 @@
+import { number, string } from 'prop-types';
+
 let {
   socket, socketReady, listeners, messageQueue,
 } = getInitialState();
@@ -72,7 +74,7 @@ export function clear() {
   messageQueue = state.messageQueue;
 }
 
-export function setup({ host = 'localhost', port = 8080, path = 'websocket' } = {}) {
+export function setupWebsocket(host: string, port: number, path: string) {
   // @ts-ignore
   socket = new WebSocket(`ws://${host}:${port}/${path}`);
   // @ts-ignore

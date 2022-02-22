@@ -9,6 +9,7 @@ import {
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
+import { ClickableAddress } from '@components/ClickableAddress';
 import { NamesEditModal } from '@components/NameEditModal';
 import {
   addActionsColumn, addColumn, addNumColumn, addTagsColumn, BaseTable, TableActions,
@@ -18,12 +19,12 @@ import {
   CallStatus, isFailedCall, isPendingCall, isSuccessfulCall,
 } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
-import { renderClickableAddress } from '@modules/renderers';
 
-import { useGlobalState } from '../../../State';
-import { goToUrl } from '../../../Utilities';
+import { useGlobalState, useGlobalState2 } from '../../../State';
 
 export const Monitors = () => {
+  const { chain } = useGlobalState();
+  const { apiProvider } = useGlobalState2();
   const [, setSearchText] = useState('');
   const [, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -38,7 +39,7 @@ export const Monitors = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
 
   const monitorsCall = useSdk(() => getStatus({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     modes: ['monitors'],
     details: true,
   })) as CallStatus<Status[]>;
@@ -99,7 +100,7 @@ export const Monitors = () => {
 
   const onEditItem = () => {
     setLoadingEdit(true);
-    fetch(`${process.env.CORE_URL}/names`, {
+    fetch(`${apiProvider}/names`, {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -176,7 +177,9 @@ export const Monitors = () => {
         <div style={{ borderRight: '1px solid lightgrey', marginLeft: '5' }}>
           <h2>Recents</h2>
           {recents.map((item) => (
-            <div key={item.address}>{renderClickableAddress(item.name, item.address)}</div>
+            <div key={item.address}>
+              <ClickableAddress name={item.name} address={item.address} />
+            </div>
           ))}
         </div>
         <BaseTable
@@ -241,7 +244,7 @@ const monitorSchema: ColumnsType<Monitor> = [
     title: 'Name / Address',
     dataIndex: 'searchStr',
     configuration: {
-      render: (unused, record) => renderClickableAddress(record.name, record.address),
+      render: (unused, record) => <ClickableAddress name={record.name} address={record.address} />,
       width: 500,
     },
   }),
@@ -292,12 +295,12 @@ const monitorSchema: ColumnsType<Monitor> = [
   ),
 ];
 
+// TODO: BOGUS - per chain data
 function getTableActions(item: Monitor) {
-  // TODO: BOGUS - per chain data
   const onClick = (action: string, monitor: typeof item) => {
     switch (action) {
       case 'info':
-        goToUrl(`https://etherscan.io/address/${monitor.address}`);
+        openInExplorer(`https://etherscan.io/address/${monitor.address}`);
         break;
       case 'delete':
         console.log('DELETE');
@@ -315,4 +318,12 @@ function getTableActions(item: Monitor) {
   };
 
   return <TableActions item={item} onClick={onClick} />;
+}
+
+//-------------------------------------------------------------------------
+export function openInExplorer(href: string) {
+  const a = document.createElement('a');
+  a.href = href;
+  a.setAttribute('target', '_blank');
+  a.click();
 }

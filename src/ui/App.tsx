@@ -12,7 +12,10 @@ import {
 import {
   getNames, getStatus, Name, Status, SuccessResponse,
 } from '@sdk';
-import { Layout, Typography } from 'antd';
+import {
+  Layout, Select,
+  Typography,
+} from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -31,7 +34,7 @@ import { createEmptyStatus } from '@modules/types/Status';
 import {
   ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation,
 } from './Routes';
-import { useGlobalNames } from './State';
+import { useGlobalNames, useGlobalState } from './State';
 
 import 'antd/dist/antd.css';
 import './app.css';
@@ -44,9 +47,10 @@ const useStyles = createUseStyles({
 });
 
 export const App = () => {
+  const { chain, setChain } = useGlobalState();
   dayjs.extend(relativeTime);
 
-  const { setNamesMap, setNamesArray } = useGlobalNames();
+  const { setNamesMap } = useGlobalNames();
   const [status, setStatus] = useState<Pick<SuccessResponse<Status>, 'data' | 'meta'>>({
     data: createEmptyStatus(),
     meta: createEmptyMeta(),
@@ -58,7 +62,7 @@ export const App = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       const statusResponse = wrapResponse(await getStatus({
-        chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+        chain,
       }));
 
       if (isSuccessfulCall(statusResponse)) {
@@ -78,10 +82,10 @@ export const App = () => {
     const intervalId = setInterval(fetchStatus, 10 * 1000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [chain]);
 
   const namesRequest = useSdk(() => getNames({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     terms: [''],
     expand: true,
     all: true,
@@ -99,8 +103,7 @@ export const App = () => {
     })();
 
     setNamesMap(resultMap);
-    setNamesArray([...resultMap.values()]);
-  }, [namesRequest, setNamesMap, setNamesArray]);
+  }, [namesRequest, setNamesMap]);
 
   const menuItems: MenuItems = [
     {
@@ -130,13 +133,31 @@ export const App = () => {
     },
   ];
 
- // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
+  // TODO: BOGUS - list of configured chains
+  const chainList = ['mainnet', 'gnosis', 'rinkeby', 'sepolia'];
+  const chainDropdown = (
+    <Select
+      placeholder='chain'
+      value={chain}
+      onChange={(newValue) => setChain(newValue)}
+      style={{ width: '10vw' }}
+    >
+      {chainList.map((item) => (
+        <Select.Option key={item} value={item}>
+          {item}
+        </Select.Option>
+      ))}
+    </Select>
+  );
+
+  // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
   return (
     <Layout>
       <Header className='app-header'>
         <Title style={{ color: 'white' }} level={2}>
-          {'TrueBlocks Account Explorer - mainnet chain'}
+          {`TrueBlocks Account Explorer - ${chain} chain`}
         </Title>
+        {chainDropdown}
       </Header>
       <Layout>
         <SidePanel header='Menu' dir={PanelDirection.Left} cookieName='MENU_EXPANDED' collapsibleContent={false}>
@@ -154,7 +175,7 @@ export const App = () => {
               <Routes />
             </Content>
             <SidePanel header='Status' cookieName='STATUS_EXPANDED' dir={PanelDirection.Right}>
-              <StatusPanel status={status} loading={loadingStatus} error={statusError} />
+              <StatusPanel chain={chain} status={status} loading={loadingStatus} error={statusError} />
             </SidePanel>
             <SidePanel
               header='Help'

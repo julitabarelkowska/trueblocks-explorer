@@ -1,52 +1,53 @@
 import React from 'react';
 
 import { Function } from '@sdk';
+import { Space, Typography } from 'antd';
+
+import { Address } from '@components/Address';
+import { DataDisplay } from '@components/DataDisplay';
+import { OnValue } from '@modules/tree';
 
 //-----------------------------------------------------------------
-export const FunctionDisplay = ({ func, bytes }: { func: Function, bytes: string }) => {
-  if (!bytes) return <></>;
+export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: string }) => {
+  if (!func && (!rawBytes || rawBytes.length === 0)) return <></>;
 
-  const head = bytes.slice(0, 10);
-  const input = bytes.replace(head, '');
+  const bytes = {
+    function: rawBytes.slice(0, 10),
+    rest: rawBytes.replace(rawBytes.slice(0, 10), '')?.match(/.{1,64}/g)?.map((s) => (
+      `0x${s}`
+    )),
+  };
 
-  const json = <pre style={{ overflowX: 'hidden' }}>{JSON.stringify(func, null, 2)}</pre>;
-  const b = (
-    <pre>
-      <div>{head}</div>
-      {input?.match(/.{1,64}/g)?.map((s, index) => (
-        <div key={`${s + index}`}>
-          0x
-          {s}
-        </div>
-      ))}
-    </pre>
-  );
+  const onValue: OnValue = (path, value) => {
+    if (path[0] === 'inputs' && path[1] === '_to') {
+      return <Address address={String(value)} />;
+    }
 
+    return (
+      <span>{value}</span>
+    );
+  };
+
+  const { Title } = Typography;
   return (
-    <ArticulatedBytes display={json} bytes={b} />
-  );
-};
+    <Space direction='vertical' size='middle'>
+      { func
+        ? (
+          <div>
+            <Title level={5}>Details</Title>
+            <DataDisplay data={func} onValue={onValue} />
+          </div>
+        )
+        : null}
 
-//-----------------------------------------------------------------
-const ArticulatedBytes = ({ display, bytes }: { display: any, bytes: any }) => {
-  const art = (
-    <>
-      <div style={{ fontWeight: 'bold', textDecoration: 'underline' }}>
-        Articulated:
-      </div>
-      {display}
-      <br />
-    </>
-  );
-
-  return (
-    <div>
-      {art}
-      <div style={{ fontWeight: 'bold', textDecoration: 'underline' }}>
-        Bytes:
-      </div>
-      {bytes}
-      <br />
-    </div>
+      { rawBytes !== '0x'
+        ? (
+          <div>
+            <Title level={5}>Bytes</Title>
+            <DataDisplay data={bytes} onValue={onValue} showCopy={false} />
+          </div>
+        )
+        : null}
+    </Space>
   );
 };

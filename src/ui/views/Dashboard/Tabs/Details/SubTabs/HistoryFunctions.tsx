@@ -8,8 +8,10 @@ import { FunctionDisplay } from '../components/FunctionDisplay';
 
 //-----------------------------------------------------------------
 export const HistoryFunctions = ({ record }: { record: Transaction }) => {
-  const key = `${record.blockNumber}.${record.transactionIndex}`;
   const styles = useAcctStyles();
+
+  if (!record) return <></>;
+  const key = `${record.blockNumber}.${record.transactionIndex}`;
 
   let title = record.articulatedTx?.name;
   if (!title) { title = (record.input !== '0x' ? '[unknown]' : '[native send]'); }
@@ -23,7 +25,7 @@ export const HistoryFunctions = ({ record }: { record: Transaction }) => {
           hoverable
           title={title}
         >
-          <FunctionDisplay func={record.articulatedTx} bytes={record.input} />
+          <FunctionDisplay func={record.articulatedTx} rawBytes={record.input} />
         </Card>
       </div>
     </div>

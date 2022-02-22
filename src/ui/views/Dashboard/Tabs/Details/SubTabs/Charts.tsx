@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
+import { Reconciliation, Transaction } from '@sdk';
 import dayjs from 'dayjs';
 
 import { MyAreaChart } from '@components/MyAreaChart';
@@ -10,20 +11,81 @@ import { createWrapper } from '@hooks/useSearchParams';
 import { AssetHistory, Balance } from '@modules/types';
 
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
-import { useGlobalNames, useGlobalState } from '../../../../../State';
+import { useGlobalNames, useGlobalState, useGlobalState2 } from '../../../../../State';
 import { chartColors } from '../../../../../Utilities';
 import { AccountViewParams } from '../../../Dashboard';
 
 export const Charts = ({ params }: { params: AccountViewParams }) => {
-  const { uniqAssets } = params;
+  const {
+    theData,
+    userPrefs,
+  } = params;
+  const {
+    hideNamed,
+    hideZero,
+  } = userPrefs;
+  const { denom } = useGlobalState();
+  const { namesMap } = useGlobalNames();
+
+  const uniqAssets = useMemo(() => {
+    if (!theData.length) return [];
+
+    const unique: Array<AssetHistory> = [];
+
+    theData.forEach((tx: Transaction) => {
+      tx.statements?.forEach((statement: Reconciliation) => {
+        if (unique.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
+          unique.push({
+            assetAddr: statement.assetAddr,
+            assetSymbol: statement.assetSymbol,
+            balHistory: [],
+          });
+        }
+      });
+
+      unique.forEach((asset: AssetHistory, index: number) => {
+        const found = tx.statements?.find((statement: Reconciliation) => asset.assetAddr === statement.assetAddr);
+        // TODO: do not convert the below to strings
+        if (found) {
+          unique[index].balHistory = [
+            ...unique[index].balHistory,
+            {
+              balance: (denom === 'dollars'
+                ? parseInt(found.endBal.toString() || '0', 10) * Number(found.spotPrice)
+                : parseInt(found.endBal.toString() || '0', 10)),
+              date: new Date(found.timestamp * 1000),
+              reconciled: found.reconciled,
+            },
+          ];
+        }
+      });
+    });
+
+    unique.sort((a: any, b: any) => {
+      if (b.balHistory.length === a.balHistory.length) {
+        if (b.balHistory.length === 0) {
+          return b.assetAddr - a.assetAddr;
+        }
+        return b.balHistory[b.balHistory.length - 1].balance - a.balHistory[a.balHistory.length - 1].balance;
+      }
+      return b.balHistory.length - a.balHistory.length;
+    });
+
+    return unique.filter((asset: AssetHistory) => {
+      if (asset.balHistory.length === 0) return false;
+      const show = hideZero === 'all'
+        || (hideZero === 'show' && asset.balHistory[asset.balHistory.length - 1].balance === 0)
+        || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
+      return show && (!hideNamed || !namesMap.get(asset.assetAddr));
+    });
+  }, [hideNamed, hideZero, namesMap, theData, denom]);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
       {uniqAssets.map((asset: AssetHistory, index: number) => {
         const color = asset.assetSymbol === 'ETH'
           ? '#63b598'
-          : chartColors[Number(`0x${asset.assetAddr.substr(2, 6)}`) % chartColors.length];
-
+          : chartColors[Number(`0x${asset.assetAddr.substr(4, 3)}`) % chartColors.length];
         const columns: any[] = [
           addColumn({
             title: 'Date',
@@ -56,13 +118,13 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
   );
 };
 
-export function getLink(type: string, addr1: string, addr2?: string) {
+// TODO: BOGUS -- per chain data
+export function getLink(chain: string, type: string, addr1: string, addr2?: string) {
   if (type === 'uni') {
     return `https://info.uniswap.org/#/tokens/${addr1}`;
   }
 
-  // TODO: BOGUS - per chain data
-  if (process.env.CHAIN === 'gnosis') {
+  if (chain === 'gnosis') {
     if (type === 'token') {
       return `https://blockscout.com/xdai/mainnet/address/${addr1}`;
     } if (type === 'holding') {
@@ -80,7 +142,8 @@ export function getLink(type: string, addr1: string, addr2?: string) {
 
 const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
   const { namesMap } = useGlobalNames();
-  const { currentAddress } = useGlobalState();
+  const { currentAddress, chain } = useGlobalState();
+  const { apiProvider } = useGlobalState2();
 
   const links = [];
   links.push(
@@ -93,25 +156,25 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
   );
   if (!namesMap.get(asset.assetAddr)) {
     links.push(
-      <a target='_blank' href={`${process.env.CORE_URL}/names?autoname=${asset.assetAddr}`} rel='noreferrer'>
+      <a target='_blank' href={`${apiProvider}/names?chain=${chain}&autoname=${asset.assetAddr}`} rel='noreferrer'>
         Name
       </a>,
     );
   }
   if (asset.assetSymbol !== 'ETH') {
     links.push(
-      <a target='_blank' href={getLink('holding', asset.assetAddr, currentAddress)} rel='noreferrer'>
+      <a target='_blank' href={getLink(chain, 'holding', asset.assetAddr, currentAddress)} rel='noreferrer'>
         Holdings
       </a>,
     );
   }
   links.push(
-    <a target='_blank' href={getLink('token', asset.assetAddr, '')} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'token', asset.assetAddr, '')} rel='noreferrer'>
       Token
     </a>,
   );
   links.push(
-    <a target='_blank' href={getLink('uni', asset.assetAddr, '')} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'uni', asset.assetAddr, '')} rel='noreferrer'>
       Uniswap
     </a>,
   );

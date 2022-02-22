@@ -4,31 +4,25 @@ import { address, Function } from "../types";
 export function getAbis(
   parameters?: {
     addrs: address[],
+    known?: boolean,
     sol?: boolean,
     find?: string[],
-    known?: boolean,
-    source?: boolean,
-    logLevel?: number,
+    chain: string,
+    noHeader?: boolean,
     fmt?: string,
     verbose?: boolean,
-    noHeader?: boolean,
-    chain: string,
+    logLevel?: number,
     wei?: boolean,
     ether?: boolean,
     dollars?: boolean,
-    help?: boolean,
     raw?: boolean,
     toFile?: boolean,
-    file?: string,
-    version?: boolean,
-    noop?: boolean,
-    mocked?: boolean,
-    noColor?: boolean,
-    outputFn?: string,
-    testMode?: boolean,
-    apiMode?: boolean,
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Function[]>({ endpoint: '/abis', method: 'get', parameters, options });
+  return ApiCallers.fetch<Function[]>(
+    {
+      endpoint: '/abis', method: 'get', parameters, options,
+    },
+  );
 }

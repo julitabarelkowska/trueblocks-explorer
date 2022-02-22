@@ -23,14 +23,6 @@ export const sendTheExport = (format: string, theOutput: string) => {
 };
 
 //-------------------------------------------------------------------------
-export function goToUrl(href: string) {
-  const a = document.createElement('a');
-  a.href = href;
-  a.setAttribute('target', '_blank');
-  a.click();
-}
-
-//-------------------------------------------------------------------------
 export const chartColors = [
   '#63b598',
   '#ce7d78',

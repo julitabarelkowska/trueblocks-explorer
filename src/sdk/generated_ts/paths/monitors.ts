@@ -7,27 +7,38 @@ export function getMonitors(
     appearances?: boolean,
     count?: boolean,
     clean?: boolean,
+    chain: string,
+    noHeader?: boolean,
     fmt?: string,
     verbose?: boolean,
     logLevel?: number,
-    noHeader?: boolean,
-    chain: string,
     wei?: boolean,
     ether?: boolean,
     dollars?: boolean,
-    help?: boolean,
     raw?: boolean,
     toFile?: boolean,
-    file?: string,
-    version?: boolean,
-    noop?: boolean,
-    mocked?: boolean,
-    noColor?: boolean,
-    outputFn?: string,
-    testMode?: boolean,
-    apiMode?: boolean,
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Monitor[]>({ endpoint: '/monitors', method: 'get', parameters, options });
+  return ApiCallers.fetch<Monitor[]>(
+    {
+      endpoint: '/monitors', method: 'get', parameters, options,
+    },
+  );
+}
+export function deleteMonitors(
+  parameters?: {
+    addrs: address[],
+    delete?: boolean,
+    undelete?: boolean,
+    remove?: boolean,
+    chain: string,
+  },
+  options?: RequestInit,
+) {
+  return ApiCallers.fetch<never>(
+    {
+      endpoint: '/monitors', method: 'delete', parameters, options,
+    },
+  );
 }

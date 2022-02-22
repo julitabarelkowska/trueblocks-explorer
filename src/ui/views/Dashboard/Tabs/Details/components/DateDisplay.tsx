@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { Transaction } from '@sdk';
 import dayjs from 'dayjs';
 
-export const DateDisplay = ({ record }: { record: Transaction}) => {
+import { TransactionModel } from '@modules/types/models/Transaction';
+
+export const DateDisplay = ({ record }: { record: TransactionModel}) => {
   if (!record) return <div />;
 
   // Convert the date to standard ISO 8601 format that JavaScript understands

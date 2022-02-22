@@ -4,7 +4,7 @@ import React, {
 import { useLocation } from 'react-router-dom';
 
 import {
-  getExport, getList, ListStats, Reconciliation, Transaction,
+  getExport, getList, ListStats, Transaction,
 } from '@sdk';
 import Mousetrap from 'mousetrap';
 
@@ -13,9 +13,6 @@ import { useSdk } from '@hooks/useSdk';
 import { CallStatus, isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 import {
-  // This type seems like a part of UI (presentation layer)
-  AssetHistory,
-  AssetHistoryArray,
   createEmptyAccountname,
   // Reconciliation,
 } from '@modules/types';
@@ -32,67 +29,77 @@ import { Monitors } from './Tabs/Monitors';
 
 export const DashboardView = () => {
   const [loading, setLoading] = useState(false);
-  const [staging, setStaging] = useState(false);
+  const [showReversed, setShowReversed] = useState(false);
+  const [showStaging, setShowStaging] = useState(false);
+  const [showUnripe, setShowUnripe] = useState(false);
   const [hideZero, setHideZero] = useState('all');
   const [hideNamed, setHideNamed] = useState(false);
   const [hideReconciled, setHideReconciled] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [period, setPeriod] = useState('by tx');
   const [cancel, setCancel] = useState(false);
-  const { denom } = useGlobalState();
 
+  const { chain } = useGlobalState();
   const { currentAddress, setCurrentAddress } = useGlobalState();
   const { namesMap } = useGlobalNames();
   const { totalRecords, setTotalRecords } = useGlobalState();
   const {
-    transactions,
-    meta: transactionsMeta,
-    setTransactions,
-    addTransactions,
+    transactions, meta: transactionsMeta, setTransactions, addTransactions,
   } = useGlobalState();
 
-  const { search: searchParams } = useLocation();
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    const addressParam = params.get('address');
-
-    if (addressParam) {
-      setCurrentAddress(addressParam);
-    }
-  }, [searchParams, setCurrentAddress]);
-
-  // clean up mouse control when we unmount
+  //----------------------
+  // This adds (and cleans up) the escape key to allow quiting the transfer mid-way
   useEffect(() => {
     Mousetrap.bind('esc', () => setCancel(true));
-
     return () => {
       Mousetrap.unbind(['esc']);
     };
   }, []);
 
+  //----------------------
+  // Fires when the address switches and kicks off the whole process of re-building the data
+  const { search: searchParams } = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    const addressParam = params.get('address');
+    if (addressParam) {
+      setCurrentAddress(addressParam);
+    }
+  }, [searchParams, setCurrentAddress]);
+
+  //----------------------
+  // Fires when the address changes and builds the request transaction count
   const listRequest = useSdk(() => getList({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     count: true,
     appearances: true,
     addrs: [currentAddress as string],
   }),
-  () => currentAddress?.slice(0, 2) === '0x',
-  [currentAddress]) as CallStatus<ListStats[]>;
+  () => (currentAddress?.slice(0, 2) === '0x' && !!chain),
+  [currentAddress, chain]) as CallStatus<ListStats[]>;
 
+  //----------------------
+  // Fires when listRequest changes and sets the transaction count
   useEffect(() => {
     if (!isSuccessfulCall(listRequest)) return;
     setTotalRecords(listRequest.data[0]?.nRecords);
   }, [listRequest, listRequest.type, setTotalRecords]);
 
-  // Run this effect until we fetch the last transaction
+  //----------------------
+  useEffect(() => {
+    setTransactions([]);
+  }, [setTransactions, chain]);
+
+  //----------------------
+  // Fires when the number of records or the address changes, repeats until all transactions are fetched
   const transactionsRequest = useSdk(() => getExport({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     addrs: [currentAddress as string],
     fmt: 'json',
     cache: true,
     cacheTraces: true,
-    // staging: false, // staging,
-    // unripe: false, // unripe: '',
+    staging: showStaging,
+    // unripe: showUnripe,
     ether: true,
     // dollars: false,
     articulate: true,
@@ -101,19 +108,24 @@ export const DashboardView = () => {
     relevant: true,
     // summarize_by: 'monthly',
     firstRecord: transactions.length,
-    maxRecords: String((() => {
-      if (transactions.length < 50) return 10;
-
-      if (transactions.length < 150) return 71;
-
-      if (transactions.length < 1500) return 239;
-
+    maxRecords: (() => {
+      if (transactions.length < 20) return 10;
+      if (transactions.length < 800) return 239;
       return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
-    })()),
+    })(),
   }),
   () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
-  [currentAddress, totalRecords, transactions.length]);
+  [totalRecords, transactions.length, currentAddress, showStaging]);
 
+  //----------------------
+  // Fires when there are new transactions, appends them to the growing array
+  useEffect(() => {
+    if (!isSuccessfulCall(transactionsRequest)) return;
+    addTransactions(transactionsRequest.data as Transaction[]);
+  }, [addTransactions, transactionsRequest]);
+
+  //----------------------
+  // First when new transactions are present, reports an error if any
   useEffect(() => {
     if (isFailedCall(transactionsRequest)) {
       createErrorNotification({
@@ -122,105 +134,44 @@ export const DashboardView = () => {
     }
   }, [transactionsRequest]);
 
-  useEffect(() => {
-    const stateToSet = !transactionsRequest.loading ? false : transactions.length < 10;
-
-    setLoading(stateToSet);
-  }, [transactions.length, transactionsRequest.loading]);
-
-  useEffect(() => {
-    if (!isSuccessfulCall(transactionsRequest)) return;
-
-    addTransactions(
-      transactionsRequest.data as Transaction[],
-    );
-  }, [addTransactions, transactionsRequest]);
-
-  // Store raw data, because it can be huge and we don't want to have to reload it
-  // every time a user toggles "hide reconciled".
-  const transactionModels = useMemo(() => transactions
-  // TODO: remove this filter when we fix emptyData in useCommand (it should never
-  // return an array with an empty object)
-    .filter(({ hash }) => Boolean(hash))
+  //----------------------
+  // Enhance the data with some names and other data we need
+  const theData = useMemo(() => transactions
     .map((transaction, index) => {
-      const newId = String(index + 1);
+      const id = String(index + 1);
       const fromName = namesMap.get(transaction.from) || createEmptyAccountname();
       const toName = namesMap.get(transaction.to) || createEmptyAccountname();
-
+      const staging = showStaging;
       return {
         ...transaction,
-        id: newId,
+        id,
         fromName,
         toName,
+        staging,
+        chain,
       };
-    }), [namesMap, transactions]);
+    }), [namesMap, transactions, chain, showStaging]); // TODO: the staging data should come from the backend
 
-  // TODO(data): fix this if you can
-  const theData = useMemo(() => transactionModels.filter((transaction) => {
-    if (!hideReconciled) return true;
-
-    return transaction?.statements?.some?.(({ reconciled }) => !reconciled);
-  }), [hideReconciled, transactionModels]);
-
-  const uniqAssets = useMemo(() => {
-    if (!theData.length) return [];
-
-    const unique: Array<AssetHistory> = [];
-
-    theData.forEach((tx: Transaction) => {
-      tx.statements?.forEach((statement: Reconciliation) => {
-        if (unique.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
-          unique.push({
-            assetAddr: statement.assetAddr,
-            assetSymbol: statement.assetSymbol,
-            balHistory: [],
-          });
-        }
-      });
-
-      unique.forEach((asset: AssetHistory, index: number) => {
-        const found = tx.statements?.find((statement: Reconciliation) => asset.assetAddr === statement.assetAddr);
-        // TODO: do not convert the below to strings
-        if (found) {
-          unique[index].balHistory = [
-            ...unique[index].balHistory,
-            {
-              balance: (denom === 'dollars'
-                ? parseInt(found.endBal.toString() || '0', 10) * Number(found.spotPrice)
-                : parseInt(found.endBal.toString() || '0', 10)),
-              date: new Date(found.timestamp * 1000),
-              reconciled: found.reconciled,
-            },
-          ];
-        }
-      });
-    });
-
-    unique.sort((a: any, b: any) => {
-      if (b.balHistory.length === a.balHistory.length) {
-        if (b.balHistory.length === 0) {
-          return b.assetAddr - a.assetAddr;
-        }
-        return b.balHistory[b.balHistory.length - 1].balance - a.balHistory[a.balHistory.length - 1].balance;
-      }
-      return b.balHistory.length - a.balHistory.length;
-    });
-
-    return unique.filter((asset: AssetHistory) => {
-      if (asset.balHistory.length === 0) return false;
-      const show = hideZero === 'all'
-        || (hideZero === 'show' && asset.balHistory[asset.balHistory.length - 1].balance === 0)
-        || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
-      return show && (!hideNamed || !namesMap.get(asset.assetAddr));
-    });
-  }, [hideNamed, hideZero, namesMap, theData, denom]);
+  //----------------------
+  // Sets and unsets the loading flag
+  useEffect(() => {
+    const stateToSet = !transactionsRequest.loading ? false : transactions.length < 10;
+    setLoading(stateToSet);
+  }, [transactions.length, transactionsRequest.loading]);
 
   const params: AccountViewParams = {
     loading,
     setLoading,
-    prefs: {
-      staging,
-      setStaging,
+    totalRecords,
+    theData,
+    theMeta: transactionsMeta,
+    userPrefs: {
+      showReversed,
+      setShowReversed,
+      showStaging,
+      setShowStaging,
+      showUnripe,
+      setShowUnripe,
       hideZero,
       setHideZero,
       hideNamed,
@@ -231,13 +182,7 @@ export const DashboardView = () => {
       setShowDetails,
       period,
       setPeriod,
-      denom,
     },
-    totalRecords,
-    theData,
-    setTransactions,
-    theMeta: transactionsMeta,
-    uniqAssets,
   };
 
   const tabs = [
@@ -260,9 +205,14 @@ export const DashboardView = () => {
 };
 
 declare type stateSetter<Type> = React.Dispatch<React.SetStateAction<Type>>;
+
 export type UserPrefs = {
-  staging: boolean;
-  setStaging: stateSetter<boolean>;
+  showReversed: boolean;
+  setShowReversed: stateSetter<boolean>;
+  showStaging: boolean;
+  setShowStaging: stateSetter<boolean>;
+  showUnripe: boolean;
+  setShowUnripe: stateSetter<boolean>;
   hideZero: string;
   setHideZero: stateSetter<string>;
   hideNamed: boolean;
@@ -273,17 +223,13 @@ export type UserPrefs = {
   setShowDetails: stateSetter<boolean>;
   period: string;
   setPeriod: stateSetter<string>;
-  denom: string;
 };
 
 export type AccountViewParams = {
-  prefs: UserPrefs;
   loading: boolean;
   setLoading: stateSetter<boolean>;
   totalRecords: number | null;
   theData: any;
-  // This should not be passed down, as it is in GlobalState
-  setTransactions: any;
   theMeta: any;
-  uniqAssets: AssetHistoryArray;
+  userPrefs: UserPrefs;
 };

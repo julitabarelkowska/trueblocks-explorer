@@ -11,9 +11,13 @@ import { useSdk } from '@hooks/useSdk';
 import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 
+import { useGlobalState } from '../../../State';
+
 export const Blocks = () => {
+  const { chain } = useGlobalState();
+
   const blocksCall = useSdk(() => getBlocks({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     blocks: [],
     list: 0,
     listCount: 12,
@@ -31,7 +35,13 @@ export const Blocks = () => {
   return <BaseTable dataSource={theData} columns={blockListSchema} loading={blocksCall.loading} />;
 };
 
-const blockListSchema: ColumnsType<Block> = [
+export type BlockModel =
+  Block
+  & {
+    gasUsed: string,
+  }
+
+const blockListSchema: ColumnsType<BlockModel> = [
   addColumn({
     title: 'Date',
     dataIndex: 'timestamp',
@@ -51,7 +61,7 @@ const blockListSchema: ColumnsType<Block> = [
       render: (value, record) => (
         <div>
           <div>{value}</div>
-          <div style={{ fontStyle: 'italic' }}>{Intl.NumberFormat().format(record.blockNumber)}</div>
+          <div style={{ fontStyle: 'italic' }}>{record.blockNumber}</div>
         </div>
       ),
       width: 620,
@@ -76,16 +86,29 @@ const blockListSchema: ColumnsType<Block> = [
     title: 'Difficulty',
     dataIndex: 'difficulty',
     configuration: {
+      render: (value, record) => (
+        <div>{record.difficulty}</div>
+      ),
       width: 180,
     },
   }),
   addNumColumn({
     title: 'Gas Used',
     dataIndex: 'gasUsed',
+    configuration: {
+      render: (value, record) => (
+        <div>{record.gasUsed}</div>
+      ),
+    },
   }),
   addNumColumn({
     title: 'Gas Limit',
     dataIndex: 'gasLimit',
+    configuration: {
+      render: (value, record) => (
+        <div>{record.gasLimit}</div>
+      ),
+    },
   }),
   addNumColumn({
     title: 'nTransactions',

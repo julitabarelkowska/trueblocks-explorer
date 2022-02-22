@@ -27,8 +27,8 @@ cd trueblocks-explorer
 Do these two commands:
 
 ```
-echo "REACT_APP_API_URL = 96.245.231.250" >.env
-echo "REACT_APP_API_PORT = 8082" >>.env
+echo "REACT_APP_API_URL = xx.xxx.xxx.xxx" >.env
+echo "REACT_APP_API_PORT = xxxx" >>.env
 ```
 
 **Note:** These value point to our remote server. They will only work for a short time during testing.

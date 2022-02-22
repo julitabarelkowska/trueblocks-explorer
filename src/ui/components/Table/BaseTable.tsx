@@ -1,7 +1,12 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable react/require-default-props */
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 
 import Table, { ColumnsType } from 'antd/lib/table';
 import Mousetrap from 'mousetrap';
+
+import { handleSelectionScroll } from '@modules/scroll';
 
 import 'antd/dist/antd.css';
 
@@ -13,41 +18,51 @@ export const BaseTable = ({
   loading,
   extraData,
   expandRender = undefined,
-  siderRender = undefined,
   defPageSize = 7,
+  name = '',
+  onSelectionChange = () => { },
 }: {
   dataSource: JsonResponse;
   columns: ColumnsType<any>;
   loading: boolean;
   extraData?: string;
   expandRender?: (row: any) => JSX.Element;
-  siderRender?: (record: any) => JSX.Element;
   defPageSize?: number;
+  name?: string;
+  onSelectionChange?: (row: unknown) => void,
 }) => {
-  const [displayedRow, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
-  const [curRow, setCurRow] = useState(Number(sessionStorage.getItem('curRow')) || 0);
-  const [curPage, setCurPage] = useState(Number(sessionStorage.getItem('curPage')) || 1);
+  const [, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
+  const [curRow, setCurRow] = useState(Number(sessionStorage.getItem(`curRow${name}`)) || 0);
+  const [curPage, setCurPage] = useState(Number(sessionStorage.getItem(`curPage${name}`)) || 1);
   const [pageSize, setPageSize] = useState(defPageSize);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedRow, setExpandedRow] = useState(-1);
   const [keyedData, setKeyedData] = useState([{ key: 0 }]);
+  const tableRef = useRef<HTMLTableElement>(document.createElement('table'));
 
-  const setRowNumber = (n: number) => {
+  const setRowNumber = useCallback((n: number) => {
     const num = Math.max(0, Math.min(dataSource.length - 1, n));
     setCurRow(num);
     const page = Math.floor(num / pageSize) + 1;
     setCurPage(page);
-    // sessionStorage.setItem('curRow', num.toString());
-    // sessionStorage.setItem('curPage', page.toString());
-  };
+    if (name !== '') {
+      sessionStorage.setItem(`curRow${name}`, num.toString());
+      sessionStorage.setItem(`curPage${name}`, page.toString());
+    }
+    return { row: num, page };
+  }, [dataSource.length, name, pageSize]);
 
-  Mousetrap.bind('up', () => setRowNumber(curRow - 1));
-  Mousetrap.bind('down', () => setRowNumber(curRow + 1));
-  Mousetrap.bind(['left', 'pageup'], () => setRowNumber(curRow - pageSize));
-  Mousetrap.bind(['right', 'pagedown'], () => setRowNumber(curRow + pageSize));
-  Mousetrap.bind('home', () => setRowNumber(0));
-  Mousetrap.bind('end', () => setRowNumber(dataSource.length - 1));
+  Mousetrap.bind('up', (event) => setRowAndHandleScroll(event, curRow - 1));
+  Mousetrap.bind('down', (event) => setRowAndHandleScroll(event, curRow + 1));
+  Mousetrap.bind(['left', 'pageup'], (event) => setRowAndHandleScroll(event, curRow - pageSize));
+  Mousetrap.bind(['right', 'pagedown'], (event) => setRowAndHandleScroll(event, curRow + pageSize));
+  Mousetrap.bind('home', (event) => setRowAndHandleScroll(event, 0));
+  Mousetrap.bind('end', (event) => setRowAndHandleScroll(event, dataSource.length - 1));
   Mousetrap.bind('enter', () => {
-    setIsExpanded(!isExpanded);
+    setExpandedRow((currentValue) => {
+      if (currentValue === curRow) return -1; // disable
+
+      return curRow;
+    });
   });
 
   useEffect(() => {
@@ -67,7 +82,18 @@ export const BaseTable = ({
 
   useEffect(() => {
     setDisplayedRow(keyedData[curRow]);
-  }, [curRow, keyedData]);
+    onSelectionChange(keyedData[curRow]);
+  }, [curRow, keyedData, onSelectionChange]);
+
+  const setRowAndHandleScroll = useCallback((event: KeyboardEvent, rowNumber: number) => {
+    const { row } = setRowNumber(rowNumber);
+    handleSelectionScroll({
+      event,
+      tableRef,
+      rowNumber: row,
+      pageSize,
+    });
+  }, [pageSize, setRowNumber]);
 
   // clean up mouse control when we unmount
   useEffect(() => () => {
@@ -76,14 +102,15 @@ export const BaseTable = ({
     Mousetrap.unbind(['up', 'down', 'pageup', 'pagedown', 'home', 'end', 'enter']);
   }, []);
 
-  const gridStyle = siderRender ? { display: 'grid', gridTemplateColumns: '30fr 1fr 12fr 1fr' } : {};
-  const expandedRowRender = expandRender !== undefined ? expandRender : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
+  const expandedRowRender = expandRender !== undefined
+    ? expandRender
+    : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
 
   return (
-    <div style={gridStyle}>
+    <div ref={tableRef}>
       <Table
-        onRow={(record, rowIndex) => ({
-          onClick: (event) => {
+        onRow={(record) => ({
+          onClick: () => {
             setRowNumber(record.key);
           },
           style: record.key === curRow ? { color: 'darkblue', backgroundColor: 'rgb(236, 235, 235)' } : {},
@@ -94,6 +121,7 @@ export const BaseTable = ({
         dataSource={keyedData}
         expandable={{
           expandedRowRender,
+          expandedRowKeys: [expandedRow],
         }}
         pagination={{
           onChange: (page, newPageSize) => {
@@ -107,11 +135,6 @@ export const BaseTable = ({
           pageSizeOptions: ['5', '10', '20', '50', '100'],
         }}
       />
-      <div />
-      {siderRender ? siderRender(displayedRow) : <></>}
-      <div />
     </div>
   );
 };
-
-// TODO(tjayrush): We used to be able to press enter to open a record's details

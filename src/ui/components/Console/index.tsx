@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { addActionListener, removeListener } from '../../websockets';
 import { useGlobalState } from '../../State';
+import { addActionListener, removeListener } from '../../websockets';
 
 function getProgress(string: string) {
   const str = string.replace(/\s+/g, ' ');
@@ -21,9 +21,9 @@ export const Console = (props: any) => {
         const { msg, done, total } = getProgress(content);
         const toPercent = () => ((parseInt(done, 10) / parseInt(total, 10)) * 100).toFixed(0);
         const completed = done == total;
-        content = content.replace("Completed", "Fetching");
-        content = content.replace("Finished", "Fetching");
-        content = content.replace("\n", "");
+        content = content.replace('Completed', 'Fetching');
+        content = content.replace('Finished', 'Fetching');
+        content = content.replace('\n', '');
         const progressPercentage = completed ? 0 : toPercent();
         setOp(completed ? '' : content);
         setProgressPct(progressPercentage);
@@ -37,7 +37,7 @@ export const Console = (props: any) => {
 
   return (
     <div>
-      <progress style={{width: '800px', height: '30px'}} value={progPct} max='100'/>
+      <progress style={{ width: '800px', height: '30px' }} value={progPct} max='100' />
       <div
         style={{
           backgroundColor: 'black',
@@ -49,7 +49,7 @@ export const Console = (props: any) => {
           alignItems: 'center',
         }}
       >
-        <div style={{fontFamily: 'Courier New,monospace'}}>{op}</div>
+        <div style={{ fontFamily: 'Courier New,monospace' }}>{op}</div>
       </div>
     </div>
   );

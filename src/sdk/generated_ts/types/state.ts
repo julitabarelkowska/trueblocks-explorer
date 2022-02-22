@@ -1,4 +1,4 @@
-import { blknum, wei, uint64, bytes, address, double } from "../types";
+import { blknum, wei, uint64, bytes, address } from "../types";
 
 export type State = {
   blockNumber: blknum
@@ -9,5 +9,4 @@ export type State = {
   address: address
   deployed: blknum
   accttype: string
-  ether: double
 }

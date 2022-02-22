@@ -1,7 +1,8 @@
 import React from 'react';
 
 import { Reconciliation, Transaction } from '@sdk';
-import { Card } from 'antd';
+import { useGlobalState } from '@state';
+import { Card, Space, Tag } from 'antd';
 
 import {
   double, priceReconciliation,
@@ -12,8 +13,8 @@ import { useAcctStyles } from '..';
 
 //-----------------------------------------------------------------
 export const HistoryRecons = ({ record, params }: { record: Transaction; params: AccountViewParams }) => {
-  const { prefs } = params;
-  const { denom } = params.prefs;
+  const { userPrefs } = params;
+  const { denom } = useGlobalState();
   const styles = useAcctStyles();
 
   if (!record) return <></>;
@@ -23,7 +24,7 @@ export const HistoryRecons = ({ record, params }: { record: Transaction; params:
       <div key={key} className={styles.cardHolder}>
         {(record?.statements as unknown as Reconciliation[])?.map((statement: Reconciliation, index: number) => {
           const statementIn = priceReconciliation(statement, denom);
-          return oneStatement(statementIn, index, prefs.showDetails, prefs.setShowDetails, styles, key);
+          return oneStatement(statementIn, index, userPrefs.showDetails, userPrefs.setShowDetails, styles, key);
         })}
       </div>
       <div />
@@ -31,11 +32,12 @@ export const HistoryRecons = ({ record, params }: { record: Transaction; params:
   );
 };
 
+declare type stateSetter<Type> = React.Dispatch<React.SetStateAction<Type>>;
 const oneStatement = (
   statement: Reconciliation,
   index: number,
   details: boolean,
-  setShowDetails: any,
+  setShowDetails: stateSetter<boolean>,
   styles: any,
   key: string,
 ) => (
@@ -50,29 +52,52 @@ const oneStatement = (
     hoverable
     title={statementHeader(statement, details, setShowDetails)}
   >
-    {statementBody(statement, details, styles)}
+    <Space size='middle' direction='vertical' style={{ width: '100%' }}>
+      <Space>
+        <div>
+          Spot price:
+          {' '}
+          USD
+          {' '}
+          <strong>
+            {statement.spotPrice}
+          </strong>
+          {' '}
+
+          (
+          {statement.priceSource}
+          )
+        </div>
+        {statement.reconciliationType
+          ? (
+            <Tag>
+              {statement.reconciliationType}
+            </Tag>
+          )
+          : null}
+      </Space>
+      {statementBody(statement, details, styles)}
+    </Space>
   </Card>
 );
 
 //-----------------------------------------------------------------
-const statementHeader = (statement: Reconciliation, details: boolean, setShowDetails: any) => (
-  <div style={{ display: 'grid', gridTemplateColumns: '20fr 1fr', textAlign: 'start' }}>
-    <div>
-      {`${statement.assetSymbol} reconciliation`}
-      {' '}
-      [
-      {statement.reconciliationType}
-      ] (spotPrice:
-      {statement.spotPrice}
-      -
-      {statement.priceSource}
-      )
+const statementHeader = (statement: Reconciliation, details: boolean, setShowDetails: any) => {
+  const title = `${statement.assetSymbol} reconciliation`;
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '20fr 1fr', textAlign: 'start', alignItems: 'center',
+    }}
+    >
+      <div style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }} title={title}>
+        {title}
+      </div>
+      <button style={{ outline: 'none' }} type='button' onClick={() => setShowDetails(!details)}>
+        {details ? '-' : '+'}
+      </button>
     </div>
-    <button style={{ outline: 'none' }} type='button' onClick={() => setShowDetails(!details)}>
-      {details ? '-' : '+'}
-    </button>
-  </div>
-);
+  );
+};
 
 //-----------------------------------------------------------------
 const statementBody = (statement: Reconciliation, details: boolean, styles: any) => {
@@ -104,13 +129,18 @@ const statementBody = (statement: Reconciliation, details: boolean, styles: any)
     someString === '' ? 0.0 : parseFloat(someString)));
 
   return (
-    <table>
+    <table style={{ width: '100%', tableLayout: 'fixed' }}>
       <tbody>
         <HeaderRow />
         {BodyRow(rowStyle, 'begBal', details, 0, 0, ...toNumberArguments(statement.begBal, statement.begBalDiff))}
         {BodyRow(rowStyle, 'amount', details, ...toNumberArguments(statement.amountIn, statement.amountOut))}
         {BodyRow(rowStyle, 'internal', details, ...toNumberArguments(statement.internalIn, statement.internalOut))}
-        {BodyRow(rowStyle, 'selfDestruct', details, ...toNumberArguments(statement.selfDestructIn, statement.selfDestructOut))}
+        {BodyRow(
+          rowStyle,
+          'selfDestruct',
+          details,
+          ...toNumberArguments(statement.selfDestructIn, statement.selfDestructOut),
+        )}
         {BodyRow(rowStyle, 'baseReward', details, ...toNumberArguments(statement.minerBaseRewardIn), 0)}
         {BodyRow(rowStyle, 'txFee', details, ...toNumberArguments(statement.minerTxFeeIn), 0)}
         {BodyRow(rowStyle, 'nephewReward', details, ...toNumberArguments(statement.minerNephewRewardIn), 0)}
@@ -146,25 +176,23 @@ const BodyRow = (
 ) => {
   const isShowZero = name === 'begBal' || name === 'endBal' || name === 'totalNet';
   const isBal = name === 'begBal' || name === 'endBal';
-  // TODO: Comment by @dszlachta
-  // TODO: If I remove Number here, the test fails and empty rows show up on Reconciliation component
-  if (Number(valueIn) === 0
-    && Number(valueOut) === 0
-    && Number(balance) === 0
-    && Number(diffIn) === 0
+
+  if (valueIn === 0
+    && valueOut === 0
+    && balance === 0
+    && diffIn === 0
     && !isShowZero && !details) { return <></>; }
 
-  const plain = { color: 'black', width: '100px' };
-  const green = { color: 'green', width: '100px' };
-  const red = { color: 'red', width: '100px' };
+  const plain = { color: 'black' };
+  const green = { color: 'green' };
+  const red = { color: 'red' };
   const balStyle = balance < 0 ? red : green;
 
   return (
     <tr>
-      <td className={style} style={plain}>
+      <td className={style} style={{ textOverflow: 'ellipsis', ...plain }} title={name}>
         {name}
       </td>
-      <td className={style} style={{ width: '20px' }} />
       <td className={style} style={green}>
         {clip2(valueIn)}
       </td>
@@ -186,7 +214,7 @@ const DetailRow = (style: string, name: string, value: double | string) => {
   const isErr: boolean = name?.includes('Diff') && value !== 0;
   const disp = (
     <tr>
-      <td className={style} style={{ width: '100px' }} colSpan={2}>
+      <td className={style} colSpan={2}>
         {name}
       </td>
       <td
@@ -196,7 +224,6 @@ const DetailRow = (style: string, name: string, value: double | string) => {
       >
         {typeof value === 'string' ? value : clip2(value)}
       </td>
-      <td className={style} />
     </tr>
   );
   return disp;
@@ -205,7 +232,7 @@ const DetailRow = (style: string, name: string, value: double | string) => {
 //-----------------------------------------------------------------
 const DividerRow = (style: string) => (
   <tr>
-    <td className={style} colSpan={6}>
+    <td className={style} colSpan={5}>
       <hr />
     </td>
   </tr>
@@ -216,12 +243,11 @@ const HeaderRow = () => {
   const styles = useAcctStyles();
   return (
     <tr>
-      <td className={styles.tableHead} style={{ width: '100px' }} />
-      <td className={styles.tableHead} style={{ width: '20px' }} />
-      <td className={styles.tableHead} style={{ width: '100px' }}>income</td>
-      <td className={styles.tableHead} style={{ width: '100px' }}>outflow</td>
-      <td className={styles.tableHead} style={{ width: '100px' }}>balance</td>
-      <td className={styles.tableHead} style={{ width: '100px' }}>diff</td>
+      <td className={styles.tableHead} style={{ paddingRight: '20px' }} />
+      <td className={styles.tableHead} style={{ }}>income</td>
+      <td className={styles.tableHead} style={{ }}>outflow</td>
+      <td className={styles.tableHead} style={{ }}>balance</td>
+      <td className={styles.tableHead} style={{ }}>diff</td>
     </tr>
   );
 };

@@ -10,15 +10,15 @@ import {
 import Modal from 'antd/lib/modal/Modal';
 import { ColumnsType } from 'antd/lib/table';
 
+import { ClickableAddress } from '@components/ClickableAddress';
 import {
   addActionsColumn, addColumn, addFlagColumn, addTagsColumn, BaseTable, TableActions,
 } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
 import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
-import { renderClickableAddress } from '@modules/renderers';
 
-import { useGlobalState } from '../../../State';
+import { useGlobalState, useGlobalState2 } from '../../../State';
 
 type NameModel =
   & Name
@@ -28,6 +28,8 @@ type NameModel =
   };
 
 export const Names = () => {
+  const { chain } = useGlobalState();
+  const { apiProvider } = useGlobalState2();
   const [, setSearchText] = useState('');
   const [, setSearchedColumn] = useState('');
   const searchInputRef = useRef(null);
@@ -42,7 +44,7 @@ export const Names = () => {
 
   // App also makes this request, maybe we can use global state?
   const namesCall = useSdk(() => getNames({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     terms: [],
     expand: true,
     all: true,
@@ -144,7 +146,7 @@ export const Names = () => {
 
   const onEditItem = () => {
     setLoadingEdit(true);
-    fetch(`${process.env.CORE_URL}/names`, {
+    fetch(`${apiProvider}/names`, {
       method: 'POST',
       mode: 'cors',
       cache: 'no-cache',
@@ -305,7 +307,7 @@ const addressSchema: ColumnsType<Name> = [
     title: 'Name / Address',
     dataIndex: 'searchStr',
     configuration: {
-      render: (unused, record) => renderClickableAddress(record.name, record.address),
+      render: (unused, record) => <ClickableAddress name={record.name} address={record.address} />,
       width: 500,
     },
   }),

@@ -6,4 +6,6 @@ export type TransactionModel =
     id: string,
     fromName: Name,
     toName: Name,
+    staging: boolean,
+    chain: string,
   }

@@ -7,9 +7,13 @@ import { ResourceTable } from '@components/ResourceTable';
 import { addColumn } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
 
+import { useGlobalState } from '../../../../State';
+
 export const IndexManifest = () => {
+  const { chain } = useGlobalState();
+
   const pinsCall = useSdk(() => getPins({
-    chain: 'mainnet', // TODO: BOGUS `${process.env.CHAIN}`
+    chain,
     list: true,
   }));
 

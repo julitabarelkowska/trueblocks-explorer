@@ -17,6 +17,7 @@ import { createEmptyMeta, Meta } from '@modules/types/Meta';
 
 const THEME: ThemeName = Cookies.get('theme') as ThemeName || 'default';
 const ADDRESS = Cookies.get('address');
+const CHAIN = Cookies.get('chain') || process.env.CHAIN || 'mainnet';
 const DENOM = Cookies.get('denom') || 'ether';
 
 type NamesEditModalState = {
@@ -29,10 +30,10 @@ type NamesEditModalState = {
 
 type State = {
   theme: Theme,
+  chain: string,
   denom: string,
   currentAddress?: string,
   namesMap: Map<Address, Name>
-  namesArray?: Name[],
   namesEditModalVisible: boolean,
   namesEditModal: NamesEditModalState,
   transactions: Transaction[],
@@ -50,10 +51,10 @@ const getDefaultNamesEditModalValue = () => ({
 
 const initialState: State = {
   theme: getThemeByName(THEME),
+  chain: CHAIN,
   denom: DENOM,
   currentAddress: ADDRESS,
   namesMap: new Map(),
-  namesArray: [],
   namesEditModalVisible: false,
   namesEditModal: getDefaultNamesEditModalValue(),
   transactions: [],
@@ -64,6 +65,11 @@ const initialState: State = {
 type SetTheme = {
   type: 'SET_THEME',
   theme: State['theme'],
+};
+
+type SetChain = {
+  type: 'SET_CHAIN',
+  chain: State['chain'],
 };
 
 type SetDenom = {
@@ -79,11 +85,6 @@ type SetCurrentAddress = {
 type SetNamesMap = {
   type: 'SET_NAMES_MAP',
   namesMap: State['namesMap'],
-};
-
-type SetNamesArray = {
-  type: 'SET_NAMES_ARRAY',
-  namesArray: State['namesArray'],
 };
 
 type SetNamesEditModal = {
@@ -118,10 +119,10 @@ type SetTotalRecords = {
 
 type GlobalAction =
   | SetTheme
+  | SetChain
   | SetDenom
   | SetCurrentAddress
   | SetNamesMap
-  | SetNamesArray
   | SetNamesEditModal
   | SetNamesEditModalVisible
   | SetTransactions
@@ -142,6 +143,12 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         ...state,
         theme: action.theme,
       };
+    case 'SET_CHAIN':
+      Cookies.set('chain', action.chain);
+      return {
+        ...state,
+        chain: action.chain,
+      };
     case 'SET_DENOM':
       // TODO(tjayrush): not sure why this doesn't work
       // Cookies.set('denom', action.denom);
@@ -151,7 +158,6 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
       };
     case 'SET_CURRENT_ADDRESS':
       Cookies.set('address', action.address || '');
-
       if (action.address !== state.currentAddress) {
         return {
           ...state,
@@ -160,17 +166,11 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
           totalRecords: 0,
         };
       }
-
       return state;
     case 'SET_NAMES_MAP':
       return {
         ...state,
         namesMap: action.namesMap,
-      };
-    case 'SET_NAMES_ARRAY':
-      return {
-        ...state,
-        namesArray: action.namesArray,
       };
     case 'SET_NAMES_EDIT_MODAL':
       return {
@@ -211,11 +211,33 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
   }
 };
 
+export const useGlobalState2 = () => {
+  // TODO: Bogus
+  const chain = Cookies.get('chain');
+  let apiProvider = new URL('http://localhost:8080');
+  if (chain === 'rinkeby') {
+    apiProvider = new URL('http://localhost:8080');
+  } else if (chain === 'gnosis') {
+    apiProvider = new URL('http://localhost:8080');
+  }
+  const host = apiProvider.hostname;
+  const port = apiProvider.port as unknown as number;
+  return ({
+    host,
+    port,
+    apiProvider: apiProvider.href,
+  });
+};
+
 export const useGlobalState = () => {
   const [state, dispatch] = useContext(GlobalStateContext);
 
   const setTheme = (theme: SetTheme['theme']) => {
     dispatch({ type: 'SET_THEME', theme });
+  };
+
+  const setChain = (chain: SetChain['chain']) => {
+    dispatch({ type: 'SET_CHAIN', chain });
   };
 
   const setDenom = (denom: SetDenom['denom']) => {
@@ -228,10 +250,6 @@ export const useGlobalState = () => {
 
   const setNamesMap = useCallback((namesMap: SetNamesMap['namesMap']) => {
     dispatch({ type: 'SET_NAMES_MAP', namesMap });
-  }, [dispatch]);
-
-  const setNamesArray = useCallback((namesArray: SetNamesArray['namesArray']) => {
-    dispatch({ type: 'SET_NAMES_ARRAY', namesArray });
   }, [dispatch]);
 
   const setNamesEditModal = (val: SetNamesEditModal['val']) => {
@@ -261,14 +279,14 @@ export const useGlobalState = () => {
   return {
     theme: state.theme,
     setTheme,
+    chain: state.chain,
+    setChain,
     denom: state.denom,
     setDenom,
     currentAddress: state.currentAddress,
     setCurrentAddress,
     namesMap: state.namesMap,
     setNamesMap,
-    namesArray: state.namesArray,
-    setNamesArray,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
     namesEditModalVisible: state.namesEditModalVisible,
@@ -292,9 +310,9 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 
 export const useGlobalNames = () => {
   const {
-    namesMap, setNamesMap, namesArray, setNamesArray,
+    namesMap, setNamesMap,
   } = useGlobalState();
   return {
-    namesMap, setNamesMap, namesArray, setNamesArray,
+    namesMap, setNamesMap,
   };
 };

@@ -7,27 +7,22 @@ export function getSlurp(
     blocks?: blknum[],
     types?: string[],
     appearances?: boolean,
+    chain: string,
+    noHeader?: boolean,
     fmt?: string,
     verbose?: boolean,
     logLevel?: number,
-    noHeader?: boolean,
-    chain: string,
     wei?: boolean,
     ether?: boolean,
     dollars?: boolean,
-    help?: boolean,
     raw?: boolean,
     toFile?: boolean,
-    file?: string,
-    version?: boolean,
-    noop?: boolean,
-    mocked?: boolean,
-    noColor?: boolean,
-    outputFn?: string,
-    testMode?: boolean,
-    apiMode?: boolean,
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Transaction[]>({ endpoint: '/slurp', method: 'get', parameters, options });
+  return ApiCallers.fetch<Transaction[]>(
+    {
+      endpoint: '/slurp', method: 'get', parameters, options,
+    },
+  );
 }

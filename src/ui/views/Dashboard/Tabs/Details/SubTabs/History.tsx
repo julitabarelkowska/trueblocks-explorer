@@ -1,8 +1,10 @@
 import React, {
+  useCallback,
   useEffect, useMemo, useState,
 } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
+import { Col, Row } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
 import { BaseView } from '@components/BaseView';
@@ -19,7 +21,6 @@ import {
   DashboardAccountsHistoryEventsLocation,
   DashboardAccountsHistoryFunctionsLocation,
   DashboardAccountsHistoryReconsLocation,
-  DashboardAccountsHistoryTracesLocation,
 } from '../../../../../Routes';
 import { useGlobalState } from '../../../../../State';
 import { AccountViewParams } from '../../../Dashboard';
@@ -37,12 +38,14 @@ const searchParamFunction = 'function';
 
 export const History = ({ params }: { params: AccountViewParams }) => {
   const { theData, loading } = params;
-  const { currentAddress, namesMap } = useGlobalState();
+  const { showReversed } = params.userPrefs;
+  const { currentAddress, namesMap, chain } = useGlobalState();
   const history = useHistory();
   const { pathname } = useLocation();
   const [assetToFilterBy, setAssetToFilterBy] = useState('');
   const [eventToFilterBy, setEventToFilterBy] = useState('');
   const [functionToFilterBy, setFunctionToFilterBy] = useState('');
+  const [selectedItem, setSelectedItem] = useState<typeof theData>();
   const searchParams = useSearchParams();
 
   const assetNameToDisplay = useMemo(() => {
@@ -73,14 +76,33 @@ export const History = ({ params }: { params: AccountViewParams }) => {
   );
 
   const filteredData = useMemo(() => {
-    if (!assetToFilterBy && !eventToFilterBy && !functionToFilterBy) return theData;
-
-    return applyFilters(theData, {
-      assetAddress: assetToFilterBy,
-      eventName: eventToFilterBy,
-      functionName: functionToFilterBy,
+    let ret;
+    if (!assetToFilterBy && !eventToFilterBy && !functionToFilterBy) {
+      ret = theData;
+    } else {
+      ret = applyFilters(theData, {
+        assetAddress: assetToFilterBy,
+        eventName: eventToFilterBy,
+        functionName: functionToFilterBy,
+      });
+    }
+    if (showReversed) {
+      return ret.sort((b: TransactionModel, a: TransactionModel) => {
+        if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
+        return a.blockNumber - b.blockNumber;
+      });
+    }
+    return ret.sort((a: TransactionModel, b: TransactionModel) => {
+      if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
+      return a.blockNumber - b.blockNumber;
     });
-  }, [assetToFilterBy, eventToFilterBy, functionToFilterBy, theData]);
+  }, [assetToFilterBy, eventToFilterBy, functionToFilterBy, theData, showReversed]);
+
+  useEffect(() => {
+    setAssetToFilterBy('');
+    setEventToFilterBy('');
+    setFunctionToFilterBy('');
+  }, [chain]);
 
   const makeClearFilter = (searchParamKey: string) => () => {
     const searchString = searchParams.delete(searchParamKey).toString();
@@ -92,9 +114,7 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       visible={Boolean(assetToFilterBy)}
       onClick={makeClearFilter(searchParamAsset)}
     >
-      Asset:
-      {' '}
-      {assetNameToDisplay || assetToFilterBy}
+      {`Asset: ${assetNameToDisplay || assetToFilterBy}`}
     </FilterButton>
   );
 
@@ -103,9 +123,7 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       visible={Boolean(eventToFilterBy)}
       onClick={makeClearFilter(searchParamEvent)}
     >
-      Event:
-      {' '}
-      {eventToFilterBy}
+      {`Event: ${eventToFilterBy}`}
     </FilterButton>
   );
 
@@ -114,38 +132,40 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       visible={Boolean(functionToFilterBy)}
       onClick={makeClearFilter(searchParamFunction)}
     >
-      Function:
-      {' '}
-      {functionToFilterBy}
+      {`Function: ${functionToFilterBy}`}
     </FilterButton>
   );
 
-  const siderRender = (record: any) => {
-    // TODO: Do we need this test? Why?
-    if (!record) return <></>;
-    return (
-      <AccountHistorySider key='account-transactions' record={record} params={params} />
-    );
-  };
+  const onSelectionChange = useCallback((item) => setSelectedItem(item), []);
 
   return (
     <div>
-      {activeAssetFilter}
-      {activeEventFilter}
-      {activeFunctionFilter}
-
-      <BaseTable
-        dataSource={filteredData}
-        columns={transactionSchema}
-        loading={loading}
-        extraData={currentAddress}
-        siderRender={siderRender}
-      />
+      <Row wrap={false} gutter={16}>
+        <Col flex='3'>
+          {activeAssetFilter}
+          {activeEventFilter}
+          {activeFunctionFilter}
+          <BaseTable
+            dataSource={filteredData}
+            columns={transactionSchema}
+            loading={loading}
+            extraData={currentAddress}
+            name='history'
+            onSelectionChange={onSelectionChange}
+          />
+        </Col>
+        <Col flex='2'>
+          {/* this minWidth: 0 stops children from overflowing flex parent */}
+          <div style={{ minWidth: 0 }}>
+            <AccountHistorySider record={selectedItem} params={params} />
+          </div>
+        </Col>
+      </Row>
     </div>
   );
 };
 
-export const AccountHistorySider = ({ record, params }: { record: any; params: AccountViewParams }) => {
+export const AccountHistorySider = ({ record, params }: { record: TransactionModel; params: AccountViewParams }) => {
   const tabs = [
     {
       name: 'Events',
@@ -169,6 +189,7 @@ export const AccountHistorySider = ({ record, params }: { record: any; params: A
     },
   ];
 
+  if (!record) return <></>;
   return <BaseView title='' cookieName='COOKIE_DASHBOARD_DETAILS' tabs={tabs} />;
 };
 
@@ -201,7 +222,7 @@ export const transactionSchema: ColumnsType<TransactionModel> = [
     title: '',
     dataIndex: 'statements',
     configuration: {
-      width: '5%',
+      width: '3%',
       render: (unused, record) => <ExtraDisplay record={record} />,
     },
   }),
