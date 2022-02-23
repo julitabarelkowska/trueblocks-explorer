@@ -9,6 +9,7 @@ import { Address } from '@components/Address';
 import { DataDisplay } from '@components/DataDisplay';
 import { OnValue } from '@modules/tree';
 
+import { isAddress } from '../../../../../Utilities';
 import { headerStyle, useAcctStyles } from '..';
 // import { FunctionDisplay } from '../components/FunctionDisplay';
 
@@ -77,11 +78,7 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 
 //-----------------------------------------------------------------
 const onValue: OnValue = (path, value) => {
-  if (path[0] === 'address') {
-    return <Address address={String(value)} />;
-  }
-
-  if ((path[0] === 'articulatedLog' && path[1] === 'inputs') && (path[2] === '_from' || path[2] === '_to')) {
+  if (isAddress(value)) {
     return <Address address={String(value)} />;
   }
 

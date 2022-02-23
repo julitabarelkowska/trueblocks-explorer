@@ -7,6 +7,8 @@ import { Address } from '@components/Address';
 import { DataDisplay } from '@components/DataDisplay';
 import { OnValue } from '@modules/tree';
 
+import { isAddress } from '../../../../../Utilities';
+
 //-----------------------------------------------------------------
 export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: string }) => {
   if (!func && (!rawBytes || rawBytes.length === 0)) return <></>;
@@ -19,7 +21,7 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
   };
 
   const onValue: OnValue = (path, value) => {
-    if (path[0] === 'inputs' && path[1] === '_to') {
+    if (isAddress(value)) {
       return <Address address={String(value)} />;
     }
 

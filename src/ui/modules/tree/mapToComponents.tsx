@@ -31,10 +31,10 @@ export function treeModelToComponents(
     const subtreeKey = [...path, key].join('-');
 
     return (
-      <React.Fragment key={subtreeKey}>
+      <div key={subtreeKey} style={{ display: 'grid', gridTemplateColumns: '1fr 6fr' }}>
         <dt>{key}</dt>
         <dd>{valueResult}</dd>
-      </React.Fragment>
+      </div>
     );
   });
 
