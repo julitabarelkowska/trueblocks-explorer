@@ -1,5 +1,5 @@
 import * as ApiCallers from "../lib/api_callers";
-import { Name } from "../types";
+import { Name, address } from "../types";
 
 export function getNames(
   parameters?: {
@@ -34,6 +34,7 @@ export function getNames(
 }
 export function deleteNames(
   parameters?: {
+    addrs: address[],
     delete?: boolean,
     undelete?: boolean,
     remove?: boolean,

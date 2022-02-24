@@ -3,7 +3,7 @@ import { address, blknum, Token } from "../types";
 
 export function getTokens(
   parameters?: {
-    addrs2: address[],
+    addrs: address[],
     blocks?: blknum[],
     parts?: string[],
     byAcct?: boolean,

@@ -26,6 +26,8 @@ export function getExport(
     clean?: boolean,
     staging?: boolean,
     unripe?: boolean,
+    firstBlock?: number,
+    lastBlock?: number,
     chain: string,
     noHeader?: boolean,
     fmt?: string,
