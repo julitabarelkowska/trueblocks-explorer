@@ -6,28 +6,31 @@ import { addActionListener, removeListener } from '../../websockets';
 function getProgress(string: string) {
   const str = string.replace(/\s+/g, ' ');
   const tokens = str.split(' ');
-  return { msg: tokens[1], done: tokens[2], total: tokens[4] };
+  return { done: tokens[2], total: tokens[4] };
 }
 
 //-----------------------------------------------------
-export const Console = (props: any) => {
+export const Console = () => {
   const [progPct, setProgressPct] = useState<string | 0>(0);
   const [finished, setFinished] = useState(false);
   const [op, setOp] = useState('');
 
   useEffect(() => {
-    const listener = addActionListener('progress', ({ id, content }: { id: any; content: any }) => {
+    const listener = addActionListener('progress', ({ id, content }: { id: any; content: string }) => {
       if (content) {
-        const { msg, done, total } = getProgress(content);
+        const { done, total } = getProgress(content);
         const toPercent = () => ((parseInt(done, 10) / parseInt(total, 10)) * 100).toFixed(0);
-        const completed = done == total;
-        content = content.replace('Completed', 'Fetching');
-        content = content.replace('Finished', 'Fetching');
-        content = content.replace('\n', '');
-        const progressPercentage = completed ? 0 : toPercent();
-        setOp(completed ? '' : content);
-        setProgressPct(progressPercentage);
+
+        const completed = done === total;
         setFinished(completed);
+
+        const progressPercentage = completed ? 0 : toPercent();
+        setProgressPct(progressPercentage);
+
+        let display = content.replace('\n', '');
+        display = display.replace('\r', '');
+        display = display.replace('Completed', 'Fetching');
+        setOp(completed ? '' : display);
       }
     });
     return () => removeListener(listener);
@@ -37,19 +40,19 @@ export const Console = (props: any) => {
 
   return (
     <div>
-      <progress style={{ width: '800px', height: '30px' }} value={progPct} max='100' />
+      <progress style={{ width: '800px', height: '25px' }} value={progPct} max='100' />
       <div
         style={{
           backgroundColor: 'black',
           color: 'yellow',
           borderRadius: '4px',
-          padding: '4px',
+          padding: '2px',
           minWidth: '800px',
           display: 'flex',
           alignItems: 'center',
         }}
       >
-        <div style={{ fontFamily: 'Courier New,monospace' }}>{op}</div>
+        <pre style={{ display: 'inline' }}>{op}</pre>
       </div>
     </div>
   );
