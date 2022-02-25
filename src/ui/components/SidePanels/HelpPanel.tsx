@@ -13,8 +13,16 @@ export const HelpPanel = () => {
     () => helpRoutes.find((item: any) => location.pathname.endsWith(item.path)),
     [location.pathname],
   );
+
   const url = useMemo(
-    () => String(matchedRoute && new URL(`docs/explorer${matchedRoute.path}`, 'https://docs.trueblocks.io/')),
+    () => {
+      if (!matchedRoute) { return 'https://docs.trueblocks.io/'; }
+      const parts = `docs/explorer${matchedRoute.path}`.split('/');
+      const tag = parts.pop();
+      return (
+        String(new URL(`${parts.join('/')}#${tag}`, 'https://docs.trueblocks.io/'))
+      );
+    },
     [matchedRoute],
   );
 
