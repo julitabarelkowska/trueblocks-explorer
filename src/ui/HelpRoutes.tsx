@@ -1,6 +1,7 @@
 import {
+  // DashboardAccountsChartsLocation,
+  DashboardAccountsAddressLocation,
   DashboardAccountsAssetsLocation,
-  DashboardAccountsChartsLocation,
   DashboardAccountsEventsLocation,
   DashboardAccountsFunctionsLocation,
   DashboardAccountsGasLocation,
@@ -108,7 +109,7 @@ export const helpRoutes = [
     render: () => 'Analyze gas usage.',
   },
   {
-    path: DashboardAccountsChartsLocation,
+    path: DashboardAccountsAddressLocation,
     exact: true,
     render: () => 'See all assets for a given address.',
   },

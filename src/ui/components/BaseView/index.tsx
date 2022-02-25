@@ -20,7 +20,7 @@ export interface ViewParams {
 }
 
 export const BaseView = ({
-  tabs, title = '',
+  tabs, title = '', position,
 }: ViewParams) => {
   const titleComponent = title.length === 0 ? <></> : <PageHeader style={{ padding: '0px' }} title={title} />;
   return (
@@ -28,6 +28,7 @@ export const BaseView = ({
       {titleComponent}
       <RouteTabs
         tabs={tabs}
+        tabPosition={position}
       />
     </>
   );

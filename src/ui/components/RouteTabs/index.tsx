@@ -3,7 +3,7 @@ import {
   Route, useHistory,
 } from 'react-router-dom';
 
-import { Tabs } from 'antd';
+import { Tabs, TabsProps } from 'antd';
 
 export type RouteTabsProps = {
   tabs: {
@@ -12,32 +12,39 @@ export type RouteTabsProps = {
     disabled?: boolean,
     component: JSX.Element,
   }[],
+  tabPosition?: TabsProps['tabPosition'],
 }
 
-export function RouteTabs({ tabs }: RouteTabsProps) {
+export function RouteTabs({ tabs, tabPosition }: RouteTabsProps) {
   const history = useHistory();
-  const getSingleLocation = (location: string | string[]) => (Array.isArray(location) ? location[0] : location);
+  const getSingleLocation = useCallback((location: string | string[]) => (Array.isArray(location) ? location[0] : location), []);
   const onChange = useCallback((location: string) => {
     history.push(location);
   }, [history]);
 
   const findActive = useCallback(() => {
     const activeRoute = tabs.find(({ location }) => location.includes(history.location.pathname));
+
     if (!activeRoute) {
       return getSingleLocation(tabs[0].location);
     }
+
     return getSingleLocation(activeRoute.location);
-  }, [history.location.pathname, tabs]);
+  }, [getSingleLocation, history.location.pathname, tabs]);
 
   return (
-    <Tabs onChange={onChange} activeKey={findActive()}>
+    <Tabs
+      onChange={onChange}
+      activeKey={findActive()}
+      tabPosition={tabPosition}
+    >
       {tabs.map((tab) => (
         <Tabs.TabPane
           key={getSingleLocation(tab.location)}
           tab={tab.name}
           disabled={tab.disabled}
         >
-          <Route path={tab.location} render={() => tab.component} />
+          <Route path={tab.location} render={() => tab.component} exact />
         </Tabs.TabPane>
       ))}
     </Tabs>

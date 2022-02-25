@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { createUseStyles } from 'react-jss';
+import { generatePath } from 'react-router-dom';
 
+import { useGlobalState } from '@state';
 import { Divider } from 'antd';
 
 import { BaseView, ViewTab } from '@components/BaseView';
 
 import {
-  DashboardAccountsChartsLocation,
+  DashboardAccountsAddressLocation,
+  // DashboardAccountsChartsLocation,
   DashboardAccountsEventsLocation,
   DashboardAccountsFunctionsLocation,
   DashboardAccountsGasLocation,
@@ -21,55 +24,50 @@ import {
 } from './SubTabs';
 
 export const DetailsView = ({ params }: { params: AccountViewParams }) => {
+  const { currentAddress } = useGlobalState();
   const {
     theData, loading,
   } = params;
-  if (!theData) return <></>;
-  // const { showReversed } = params.userPrefs;
 
-  let leftSideTabs: ViewTab[];
-  if (theData.length) {
-    leftSideTabs = [
-      {
-        name: 'Charts',
-        location: DashboardAccountsChartsLocation,
-        component: <Charts params={params} />,
-      },
-      {
-        name: 'History',
-        location: DashboardAccountsHistoryLocation,
-        component: <History params={params} />,
-      },
-      {
-        name: 'Events',
-        location: DashboardAccountsEventsLocation,
-        component: <Events theData={theData} />,
-      },
-      {
-        name: 'Functions',
-        location: DashboardAccountsFunctionsLocation,
-        component: <Functions theData={theData} loading={loading} />,
-      },
-      {
-        name: 'Gas',
-        location: DashboardAccountsGasLocation,
-        component: <Gas theData={theData} />,
-      },
-      {
-        name: 'Neighbors',
-        location: DashboardAccountsNeighborsLocation,
-        component: <Neighbors theData={theData} />,
-      },
-    ];
-  } else {
-    leftSideTabs = [
-      {
-        name: 'History',
-        location: DashboardAccountsHistoryLocation,
-        component: <History params={params} />,
-      },
-    ];
-  }
+  const generatePathWithAddress = useCallback((pathname: string) => generatePath(pathname, {
+    address: currentAddress,
+  }), [currentAddress]);
+
+  const leftSideTabs: ViewTab[] = useMemo(() => [
+    {
+      name: 'Charts',
+      location: generatePathWithAddress(DashboardAccountsAddressLocation),
+      component: <Charts params={params} />,
+    },
+    {
+      name: 'History',
+      location: generatePathWithAddress(DashboardAccountsHistoryLocation),
+      component: <History params={params} />,
+    },
+    {
+      name: 'Events',
+      location: generatePathWithAddress(DashboardAccountsEventsLocation),
+      component: <Events theData={theData} />,
+    },
+    {
+      name: 'Functions',
+      location: generatePathWithAddress(DashboardAccountsFunctionsLocation),
+      component: <Functions theData={theData} loading={loading} />,
+    },
+    {
+      name: 'Gas',
+      location: generatePathWithAddress(DashboardAccountsGasLocation),
+      component: <Gas theData={theData} />,
+    },
+    {
+      name: 'Neighbors',
+      location: generatePathWithAddress(DashboardAccountsNeighborsLocation),
+      component: <Neighbors theData={theData} />,
+    },
+  ],
+  [generatePathWithAddress, loading, params, theData]);
+
+  if (!theData) return <></>;
 
   return (
     <div>

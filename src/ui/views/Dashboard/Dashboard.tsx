@@ -19,6 +19,17 @@ import {
 
 import {
   DashboardAccountsAddressLocation,
+  DashboardAccountsAssetsLocation,
+  // DashboardAccountsChartsLocation,
+  DashboardAccountsEventsLocation,
+  DashboardAccountsFunctionsLocation,
+  DashboardAccountsGasLocation,
+  DashboardAccountsHistoryCustomLocation,
+  DashboardAccountsHistoryEventsLocation,
+  DashboardAccountsHistoryFunctionsLocation,
+  DashboardAccountsHistoryLocation,
+  DashboardAccountsHistoryReconsLocation,
+  DashboardAccountsNeighborsLocation,
   DashboardCollectionsLocation,
   DashboardLocation,
   DashboardMonitorsLocation,
@@ -187,6 +198,21 @@ export const DashboardView = () => {
     },
   };
 
+  const detailsPaths = useMemo(() => [
+    DashboardAccountsAddressLocation,
+    DashboardAccountsAssetsLocation,
+    DashboardAccountsHistoryLocation,
+    DashboardAccountsHistoryReconsLocation,
+    DashboardAccountsHistoryFunctionsLocation,
+    DashboardAccountsHistoryEventsLocation,
+    DashboardAccountsHistoryCustomLocation,
+    DashboardAccountsNeighborsLocation,
+    DashboardAccountsGasLocation,
+    // DashboardAccountsChartsLocation,
+    DashboardAccountsFunctionsLocation,
+    DashboardAccountsEventsLocation,
+  ], []);
+
   const tabs = useMemo(() => [
     {
       name: 'Monitors',
@@ -199,12 +225,12 @@ export const DashboardView = () => {
     },
     {
       name: 'Details',
-      location: generatePath(DashboardAccountsAddressLocation, { address: String(currentAddress) }),
+      location: detailsPaths.map((path) => generatePath(path, { address: String(currentAddress) })),
       disabled: !currentAddress,
       component: <DetailsView params={params} />,
     },
     { name: 'Collections', location: DashboardCollectionsLocation, component: <Collections /> },
-  ], [currentAddress, params]);
+  ], [currentAddress, detailsPaths, params]);
 
   return (
     <BaseView

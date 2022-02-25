@@ -21,14 +21,12 @@ export const DashboardAccountsAssetsLocation = '/dashboard/accounts/:address/ass
 export const DashboardAccountsHistoryLocation = '/dashboard/accounts/:address/history';
 export const DashboardAccountsHistoryReconsLocation = '/dashboard/accounts/:address/history/recons';
 export const DashboardAccountsHistoryFunctionsLocation = '/dashboard/accounts/:address/history/functions';
-export const DashboardAccountsHistoryEventsLocation = '/dashboard/accounts/history/events';
-
-// export const DashboardAccountsAddressLocation = (addr: address) => `/dashboard/accounts?address=${addr}`;
+export const DashboardAccountsHistoryEventsLocation = '/dashboard/accounts/:address/history/events';
 
 export const DashboardAccountsHistoryCustomLocation = '/dashboard/accounts/:address/history/custom';
 export const DashboardAccountsNeighborsLocation = '/dashboard/accounts/:address/neighbors';
 export const DashboardAccountsGasLocation = '/dashboard/accounts/:address/gas';
-export const DashboardAccountsChartsLocation = '/dashboard/accounts/:address/charts';
+// export const DashboardAccountsChartsLocation = '/dashboard/accounts/:address/charts';
 export const DashboardAccountsFunctionsLocation = '/dashboard/accounts/:address/functions';
 export const DashboardAccountsEventsLocation = '/dashboard/accounts/:address/events';
 export const DashboardCollectionsLocation = '/dashboard/collections';
@@ -74,6 +72,7 @@ export const dashboardLocations = [
   DashboardLocation,
   DashboardMonitorsLocation,
   DashboardAccountsLocation,
+  DashboardAccountsAddressLocation,
   DashboardAccountsAssetsLocation,
   DashboardAccountsHistoryLocation,
   DashboardAccountsHistoryReconsLocation,
@@ -82,7 +81,7 @@ export const dashboardLocations = [
   DashboardAccountsHistoryCustomLocation,
   DashboardAccountsNeighborsLocation,
   DashboardAccountsGasLocation,
-  DashboardAccountsChartsLocation,
+  // DashboardAccountsChartsLocation,
   DashboardAccountsFunctionsLocation,
   DashboardAccountsEventsLocation,
   DashboardCollectionsLocation,
