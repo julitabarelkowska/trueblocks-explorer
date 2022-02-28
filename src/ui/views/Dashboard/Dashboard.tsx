@@ -1,7 +1,7 @@
 import React, {
   useEffect, useMemo, useState,
 } from 'react';
-import { generatePath, useLocation } from 'react-router-dom';
+import { generatePath, useParams } from 'react-router-dom';
 
 import {
   getExport, getList, ListStats, Transaction,
@@ -60,6 +60,8 @@ export const DashboardView = () => {
     transactions, meta: transactionsMeta, setTransactions, addTransactions,
   } = useGlobalState();
 
+  const routeParams = useParams<{ address: string }>();
+
   //----------------------
   // This adds (and cleans up) the escape key to allow quiting the transfer mid-way
   useEffect(() => {
@@ -71,14 +73,12 @@ export const DashboardView = () => {
 
   //----------------------
   // Fires when the address switches and kicks off the whole process of re-building the data
-  const { search: searchParams } = useLocation();
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    const addressParam = params.get('address');
-    if (addressParam) {
-      setCurrentAddress(addressParam);
+    const { address } = routeParams;
+    if (address) {
+      setCurrentAddress(address);
     }
-  }, [searchParams, setCurrentAddress]);
+  }, [routeParams, setCurrentAddress]);
 
   //----------------------
   // Fires when the address changes and builds the request transaction count
