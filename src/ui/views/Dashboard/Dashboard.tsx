@@ -101,7 +101,8 @@ export const DashboardView = () => {
   //----------------------
   useEffect(() => {
     setTransactions([]);
-  }, [setTransactions, chain]);
+    setTotalRecords(0);
+  }, [setTransactions, chain, setTotalRecords]);
 
   //----------------------
   // Fires when the number of records or the address changes, repeats until all transactions are fetched
