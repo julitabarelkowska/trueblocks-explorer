@@ -31,10 +31,10 @@ export function treeModelToComponents(
     const subtreeKey = [...path, key].join('-');
 
     return (
-      <div key={subtreeKey} style={{ display: 'grid', gridTemplateColumns: '1fr 6fr' }}>
+      <dl key={subtreeKey}>
         <dt>{key}</dt>
         <dd>{valueResult}</dd>
-      </div>
+      </dl>
     );
   });
 

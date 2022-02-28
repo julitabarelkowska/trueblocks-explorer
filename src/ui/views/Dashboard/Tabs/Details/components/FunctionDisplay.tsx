@@ -25,6 +25,8 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
       return <Address address={String(value)} />;
     }
 
+    if (!value) return <></>;
+
     return (
       <span>{value}</span>
     );
