@@ -1,11 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { createUseStyles } from 'react-jss';
-import { generatePath } from 'react-router-dom';
 
-import { useGlobalState } from '@state';
 import { Divider } from 'antd';
 
 import { BaseView, ViewTab } from '@components/BaseView';
+import { usePathWithAddress } from '@hooks/paths';
 
 import {
   DashboardAccountsAddressLocation,
@@ -13,7 +12,11 @@ import {
   DashboardAccountsEventsLocation,
   DashboardAccountsFunctionsLocation,
   DashboardAccountsGasLocation,
+  DashboardAccountsHistoryCustomLocation,
+  DashboardAccountsHistoryEventsLocation,
+  DashboardAccountsHistoryFunctionsLocation,
   DashboardAccountsHistoryLocation,
+  DashboardAccountsHistoryReconsLocation,
   DashboardAccountsNeighborsLocation,
 } from '../../../../Routes';
 import { AccountViewParams } from '../../Dashboard';
@@ -24,14 +27,18 @@ import {
 } from './SubTabs';
 
 export const DetailsView = ({ params }: { params: AccountViewParams }) => {
-  const { currentAddress } = useGlobalState();
   const {
     theData, loading,
   } = params;
 
-  const generatePathWithAddress = useCallback((pathname: string) => generatePath(pathname, {
-    address: currentAddress,
-  }), [currentAddress]);
+  const generatePathWithAddress = usePathWithAddress();
+  const historyPaths = [
+    DashboardAccountsHistoryLocation,
+    DashboardAccountsHistoryReconsLocation,
+    DashboardAccountsHistoryFunctionsLocation,
+    DashboardAccountsHistoryEventsLocation,
+    DashboardAccountsHistoryCustomLocation,
+  ];
 
   const leftSideTabs: ViewTab[] = useMemo(() => [
     {
@@ -41,7 +48,7 @@ export const DetailsView = ({ params }: { params: AccountViewParams }) => {
     },
     {
       name: 'History',
-      location: generatePathWithAddress(DashboardAccountsHistoryLocation),
+      location: historyPaths.map((path) => generatePathWithAddress(path)),
       component: <History params={params} />,
     },
     {
