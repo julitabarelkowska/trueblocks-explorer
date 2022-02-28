@@ -100,12 +100,6 @@ export const History = ({ params }: { params: AccountViewParams }) => {
     });
   }, [assetToFilterBy, eventToFilterBy, functionToFilterBy, theData, showReversed]);
 
-  useEffect(() => {
-    setAssetToFilterBy('');
-    setEventToFilterBy('');
-    setFunctionToFilterBy('');
-  }, [chain]);
-
   const makeClearFilter = (searchParamKey: string) => () => {
     const searchString = searchParams.delete(searchParamKey).toString();
     history.replace(`${pathname}?${searchString}`);

@@ -5,6 +5,8 @@ import {
 
 import { Tabs, TabsProps } from 'antd';
 
+import { useSearchParams } from '@hooks/useSearchParams';
+
 export type RouteTabsProps = {
   tabs: {
     location: string | string[],
@@ -17,10 +19,14 @@ export type RouteTabsProps = {
 
 export function RouteTabs({ tabs, tabPosition }: RouteTabsProps) {
   const history = useHistory();
+  const search = useSearchParams();
   const getSingleLocation = useCallback((location: string | string[]) => (Array.isArray(location) ? location[0] : location), []);
   const onChange = useCallback((location: string) => {
-    history.push(location);
-  }, [history]);
+    history.push({
+      pathname: location,
+      search: search.toString(),
+    });
+  }, [history, search]);
 
   const findActive = useCallback(() => {
     const activeRoute = tabs.find(({ location }) => location.includes(history.location.pathname));
