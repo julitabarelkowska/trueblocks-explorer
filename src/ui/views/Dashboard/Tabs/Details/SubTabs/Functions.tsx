@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Transaction } from '@sdk';
-import { ColumnsType } from 'antd/lib/table';
 
 import { Loading } from '@components/Loading';
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
+import { usePathWithAddress } from '@hooks/paths';
 import { createWrapper } from '@hooks/useSearchParams';
 import {
   ItemCounter, ItemCounterArray,
@@ -15,6 +15,10 @@ import {
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 
 export const Functions = ({ theData, loading }: { theData: Transaction[]; loading: boolean }) => {
+  const generatePathWithAddress = usePathWithAddress();
+  const historyUrl = generatePathWithAddress(DashboardAccountsHistoryLocation);
+  const schema = useMemo(() => getSchema(historyUrl), [historyUrl]);
+
   if (!theData) return <></>;
 
   const counts: Record<string, number> = {};
@@ -46,14 +50,14 @@ export const Functions = ({ theData, loading }: { theData: Transaction[]; loadin
   return (
     <Loading loading={loading}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-        <MyAreaChart title='Top Ten Functions' items={top} columns={funcCountSchema} table />
-        <MyAreaChart title='Other Functions' items={remains} columns={funcCountSchema} table />
+        <MyAreaChart title='Top Ten Functions' items={top} columns={schema} table />
+        <MyAreaChart title='Other Functions' items={remains} columns={schema} table />
       </div>
     </Loading>
   );
 };
 
-export const funcCountSchema: ColumnsType<ItemCounter> = [
+const getSchema = (historyUrl: string) => [
   addColumn({
     title: 'Function',
     dataIndex: 'evt',
@@ -62,7 +66,7 @@ export const funcCountSchema: ColumnsType<ItemCounter> = [
         if (!record) return <></>;
         return (
           <Link to={
-            ({ search }) => `${DashboardAccountsHistoryLocation}?${createWrapper(search).set('function', field)}`
+            ({ search }) => `${historyUrl}?${createWrapper(search).set('function', field)}`
           }
           >
             {field}
