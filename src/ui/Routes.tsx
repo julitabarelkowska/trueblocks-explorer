@@ -15,20 +15,20 @@ export const RootLocation = '/';
 
 export const DashboardLocation = '/dashboard';
 export const DashboardMonitorsLocation = '/dashboard/monitors';
-export const DashboardAccountsLocation = '/dashboard/accounts';
-export const DashboardAccountsAddressLocation = '/dashboard/accounts/:address';
-export const DashboardAccountsAssetsLocation = '/dashboard/accounts/:address/assets';
-export const DashboardAccountsHistoryLocation = '/dashboard/accounts/:address/history';
-export const DashboardAccountsHistoryReconsLocation = '/dashboard/accounts/:address/history/recons';
-export const DashboardAccountsHistoryFunctionsLocation = '/dashboard/accounts/:address/history/functions';
-export const DashboardAccountsHistoryEventsLocation = '/dashboard/accounts/:address/history/events';
+export const DashboardAccountsLocation = '/address';
+export const DashboardAccountsAddressLocation = '/address/:address';
+export const DashboardAccountsAssetsLocation = '/address/:address/assets';
+export const DashboardAccountsHistoryLocation = '/address/:address/history';
+export const DashboardAccountsHistoryReconsLocation = '/address/:address/history/recons';
+export const DashboardAccountsHistoryFunctionsLocation = '/address/:address/history/functions';
+export const DashboardAccountsHistoryEventsLocation = '/address/:address/history/events';
 
-export const DashboardAccountsHistoryCustomLocation = '/dashboard/accounts/:address/history/custom';
-export const DashboardAccountsNeighborsLocation = '/dashboard/accounts/:address/neighbors';
-export const DashboardAccountsGasLocation = '/dashboard/accounts/:address/gas';
-// export const DashboardAccountsChartsLocation = '/dashboard/accounts/:address/charts';
-export const DashboardAccountsFunctionsLocation = '/dashboard/accounts/:address/functions';
-export const DashboardAccountsEventsLocation = '/dashboard/accounts/:address/events';
+export const DashboardAccountsHistoryCustomLocation = '/address/:address/history/custom';
+export const DashboardAccountsNeighborsLocation = '/address/:address/neighbors';
+export const DashboardAccountsGasLocation = '/address/:address/gas';
+// export const DashboardAccountsChartsLocation = '/address/:address/charts';
+export const DashboardAccountsFunctionsLocation = '/address/:address/functions';
+export const DashboardAccountsEventsLocation = '/address/:address/events';
 export const DashboardCollectionsLocation = '/dashboard/collections';
 
 export const NamesLocation = '/names';
