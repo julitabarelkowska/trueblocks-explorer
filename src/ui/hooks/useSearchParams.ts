@@ -6,6 +6,7 @@ type SearchParamsWrapper = {
   getAll: URLSearchParams['getAll'],
   set(name: string, value: string): URLSearchParams,
   delete(name: string): URLSearchParams,
+  toString(): string,
 }
 
 export function createWrapper(search: string): SearchParamsWrapper {
@@ -25,6 +26,9 @@ export function createWrapper(search: string): SearchParamsWrapper {
     delete(name) {
       searchParams.delete(name);
       return searchParams;
+    },
+    toString() {
+      return searchParams.toString();
     },
   };
 }

@@ -1,6 +1,7 @@
 import {
+  // DashboardAccountsChartsLocation,
+  DashboardAccountsAddressLocation,
   DashboardAccountsAssetsLocation,
-  DashboardAccountsChartsLocation,
   DashboardAccountsEventsLocation,
   DashboardAccountsFunctionsLocation,
   DashboardAccountsGasLocation,
@@ -108,7 +109,7 @@ export const helpRoutes = [
     render: () => 'Analyze gas usage.',
   },
   {
-    path: DashboardAccountsChartsLocation,
+    path: DashboardAccountsAddressLocation,
     exact: true,
     render: () => 'See all assets for a given address.',
   },
@@ -162,14 +163,8 @@ export const helpRoutes = [
     exact: true,
     render: () => 'The blocks tab allows you to name particular blocks such as smart contract deployments or hard forks.',
   },
-
   {
-    path: ExplorerLocation,
-    exact: true,
-    render: () => 'View the contents of the TrueBlocks index cache.',
-  },
-  {
-    path: ExplorerBlocksLocation,
+    path: [ExplorerLocation, ExplorerBlocksLocation],
     exact: true,
     render: () => 'View blockchain block details.',
   },

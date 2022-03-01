@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createUseStyles } from 'react-jss';
+import { Redirect, useHistory } from 'react-router-dom';
 
 import {
   BookOutlined,
@@ -13,12 +14,13 @@ import {
   getNames, getStatus, Name, Status, SuccessResponse,
 } from '@sdk';
 import {
-  Layout, Select,
+  Layout,
   Typography,
 } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
+import { ChainSelect } from '@components/ChainSelect';
 import { Console } from '@components/Console';
 import { MainMenu, MenuItems } from '@components/MainMenu';
 import { HelpPanel } from '@components/SidePanels/HelpPanel';
@@ -47,17 +49,27 @@ const useStyles = createUseStyles({
 });
 
 export const App = () => {
-  const { chain, setChain } = useGlobalState();
+  const { chain } = useGlobalState();
   dayjs.extend(relativeTime);
 
   const { setNamesMap } = useGlobalNames();
+  const { location, action } = useHistory();
   const [status, setStatus] = useState<Pick<SuccessResponse<Status>, 'data' | 'meta'>>({
     data: createEmptyStatus(),
     meta: createEmptyMeta(),
   });
   const [statusError, setStatusError] = useState(false);
   const [loadingStatus] = useState(false);
+  const [lastLocation, setLastLocation] = useState('');
   const styles = useStyles();
+
+  useEffect(() => setLastLocation(localStorage.getItem('lastLocation') || ''), []);
+  useEffect(() => {
+    // if action is POP, it means that the site was just loaded. Otherwise router
+    // navigation occured.
+    if (action === 'POP') return;
+    localStorage.setItem('lastLocation', location.pathname);
+  }, [action, location.pathname]);
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -133,22 +145,11 @@ export const App = () => {
     },
   ];
 
-  // TODO: BOGUS - list of configured chains
-  const chainList = ['mainnet', 'gnosis', 'rinkeby', 'sepolia'];
-  const chainDropdown = (
-    <Select
-      placeholder='chain'
-      value={chain}
-      onChange={(newValue) => setChain(newValue)}
-      style={{ width: '10vw' }}
-    >
-      {chainList.map((item) => (
-        <Select.Option key={item} value={item}>
-          {item}
-        </Select.Option>
-      ))}
-    </Select>
-  );
+  // If the app was just loaded, the route is / and the last visited location is something else,
+  // then we want to redirect the user to the place they viewed last time.
+  if (action === 'POP' && lastLocation && lastLocation !== '/' && location.pathname === '/') {
+    return <Redirect to={lastLocation} />;
+  }
 
   // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
   return (
@@ -157,7 +158,7 @@ export const App = () => {
         <Title style={{ color: 'white' }} level={2}>
           {`TrueBlocks Account Explorer - ${chain} chain`}
         </Title>
-        {chainDropdown}
+        <ChainSelect />
       </Header>
       <Layout>
         <SidePanel header='Menu' dir={PanelDirection.Left} cookieName='MENU_EXPANDED' collapsibleContent={false}>

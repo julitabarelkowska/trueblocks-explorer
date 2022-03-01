@@ -307,7 +307,7 @@ const addressSchema: ColumnsType<Name> = [
     title: 'Name / Address',
     dataIndex: 'searchStr',
     configuration: {
-      render: (unused, record) => <ClickableAddress name={record.name} address={record.address} />,
+      render: (unused, record) => (record.address ? <ClickableAddress name={record.name} address={record.address} /> : null),
       width: 500,
     },
   }),

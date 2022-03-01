@@ -10,6 +10,7 @@ import { ColumnsType } from 'antd/lib/table';
 import { BaseView } from '@components/BaseView';
 import { FilterButton } from '@components/FilterButton';
 import { addColumn, BaseTable } from '@components/Table';
+import { usePathWithAddress } from '@hooks/paths';
 import { useSearchParams } from '@hooks/useSearchParams';
 import {
   applyFilters,
@@ -20,6 +21,7 @@ import {
   DashboardAccountsHistoryCustomLocation,
   DashboardAccountsHistoryEventsLocation,
   DashboardAccountsHistoryFunctionsLocation,
+  DashboardAccountsHistoryLocation,
   DashboardAccountsHistoryReconsLocation,
 } from '../../../../../Routes';
 import { useGlobalState } from '../../../../../State';
@@ -98,12 +100,6 @@ export const History = ({ params }: { params: AccountViewParams }) => {
     });
   }, [assetToFilterBy, eventToFilterBy, functionToFilterBy, theData, showReversed]);
 
-  useEffect(() => {
-    setAssetToFilterBy('');
-    setEventToFilterBy('');
-    setFunctionToFilterBy('');
-  }, [chain]);
-
   const makeClearFilter = (searchParamKey: string) => () => {
     const searchString = searchParams.delete(searchParamKey).toString();
     history.replace(`${pathname}?${searchString}`);
@@ -166,25 +162,30 @@ export const History = ({ params }: { params: AccountViewParams }) => {
 };
 
 export const AccountHistorySider = ({ record, params }: { record: TransactionModel; params: AccountViewParams }) => {
+  const generatePathWithAddress = usePathWithAddress();
+
   const tabs = [
     {
       name: 'Events',
-      location: DashboardAccountsHistoryEventsLocation,
+      location: [
+        generatePathWithAddress(DashboardAccountsHistoryLocation),
+        generatePathWithAddress(DashboardAccountsHistoryEventsLocation),
+      ],
       component: <HistoryEvents record={record} />,
     },
     {
       name: 'Function',
-      location: DashboardAccountsHistoryFunctionsLocation,
+      location: generatePathWithAddress(DashboardAccountsHistoryFunctionsLocation),
       component: <HistoryFunctions record={record} />,
     },
     {
       name: 'Reconciliations',
-      location: DashboardAccountsHistoryReconsLocation,
+      location: generatePathWithAddress(DashboardAccountsHistoryReconsLocation),
       component: <HistoryRecons record={record} params={params} />,
     },
     {
       name: 'Custom',
-      location: DashboardAccountsHistoryCustomLocation,
+      location: generatePathWithAddress(DashboardAccountsHistoryCustomLocation),
       component: <pre>{JSON.stringify(record?.to, null, 2)}</pre>,
     },
   ];

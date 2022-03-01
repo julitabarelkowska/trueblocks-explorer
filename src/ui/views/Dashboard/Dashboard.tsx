@@ -1,7 +1,7 @@
 import React, {
   useEffect, useMemo, useState,
 } from 'react';
-import { useLocation } from 'react-router-dom';
+import { generatePath, useParams } from 'react-router-dom';
 
 import {
   getExport, getList, ListStats, Transaction,
@@ -18,9 +18,22 @@ import {
 } from '@modules/types';
 
 import {
-  DashboardAccountsLocation,
+  DashboardAccountsAddressLocation,
+  DashboardAccountsAssetsLocation,
+  // DashboardAccountsChartsLocation,
+  DashboardAccountsEventsLocation,
+  DashboardAccountsFunctionsLocation,
+  DashboardAccountsGasLocation,
+  DashboardAccountsHistoryCustomLocation,
+  DashboardAccountsHistoryEventsLocation,
+  DashboardAccountsHistoryFunctionsLocation,
+  DashboardAccountsHistoryLocation,
+  DashboardAccountsHistoryReconsLocation,
+  DashboardAccountsNeighborsLocation,
   DashboardCollectionsLocation,
+  DashboardLocation,
   DashboardMonitorsLocation,
+  RootLocation,
 } from '../../Routes';
 import { useGlobalNames, useGlobalState } from '../../State';
 import { Collections } from './Tabs/Collections';
@@ -47,6 +60,8 @@ export const DashboardView = () => {
     transactions, meta: transactionsMeta, setTransactions, addTransactions,
   } = useGlobalState();
 
+  const routeParams = useParams<{ address: string }>();
+
   //----------------------
   // This adds (and cleans up) the escape key to allow quiting the transfer mid-way
   useEffect(() => {
@@ -58,14 +73,12 @@ export const DashboardView = () => {
 
   //----------------------
   // Fires when the address switches and kicks off the whole process of re-building the data
-  const { search: searchParams } = useLocation();
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    const addressParam = params.get('address');
-    if (addressParam) {
-      setCurrentAddress(addressParam);
+    const { address } = routeParams;
+    if (address) {
+      setCurrentAddress(address);
     }
-  }, [searchParams, setCurrentAddress]);
+  }, [routeParams, setCurrentAddress]);
 
   //----------------------
   // Fires when the address changes and builds the request transaction count
@@ -88,7 +101,8 @@ export const DashboardView = () => {
   //----------------------
   useEffect(() => {
     setTransactions([]);
-  }, [setTransactions, chain]);
+    setTotalRecords(0);
+  }, [setTransactions, chain, setTotalRecords]);
 
   //----------------------
   // Fires when the number of records or the address changes, repeats until all transactions are fetched
@@ -185,15 +199,39 @@ export const DashboardView = () => {
     },
   };
 
-  const tabs = [
-    { name: 'Monitors', location: DashboardMonitorsLocation, component: <Monitors /> },
+  const detailsPaths = useMemo(() => [
+    DashboardAccountsAddressLocation,
+    DashboardAccountsAssetsLocation,
+    DashboardAccountsHistoryLocation,
+    DashboardAccountsHistoryReconsLocation,
+    DashboardAccountsHistoryFunctionsLocation,
+    DashboardAccountsHistoryEventsLocation,
+    DashboardAccountsHistoryCustomLocation,
+    DashboardAccountsNeighborsLocation,
+    DashboardAccountsGasLocation,
+    // DashboardAccountsChartsLocation,
+    DashboardAccountsFunctionsLocation,
+    DashboardAccountsEventsLocation,
+  ], []);
+
+  const tabs = useMemo(() => [
+    {
+      name: 'Monitors',
+      location: [
+        DashboardMonitorsLocation,
+        DashboardLocation,
+        RootLocation,
+      ],
+      component: <Monitors />,
+    },
     {
       name: 'Details',
-      location: DashboardAccountsLocation,
+      location: detailsPaths.map((path) => generatePath(path, { address: String(currentAddress) })),
+      disabled: !currentAddress,
       component: <DetailsView params={params} />,
     },
     { name: 'Collections', location: DashboardCollectionsLocation, component: <Collections /> },
-  ];
+  ], [currentAddress, detailsPaths, params]);
 
   return (
     <BaseView

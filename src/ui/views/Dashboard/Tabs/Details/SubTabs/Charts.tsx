@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
+import { usePathWithAddress } from '@hooks/paths';
 import { createWrapper } from '@hooks/useSearchParams';
 // FIXME: these look like UI-related types
 import { AssetHistory, Balance } from '@modules/types';
@@ -144,11 +145,15 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
   const { namesMap } = useGlobalNames();
   const { currentAddress, chain } = useGlobalState();
   const { apiProvider } = useGlobalState2();
+  const generatePathWithAddress = usePathWithAddress();
 
   const links = [];
   links.push(
     <Link to={
-      ({ search }) => `${DashboardAccountsHistoryLocation}?${createWrapper(search).set('asset', asset.assetAddr)}`
+      ({ search }) => {
+        const path = generatePathWithAddress(DashboardAccountsHistoryLocation);
+        return `${path}?${createWrapper(search).set('asset', asset.assetAddr)}`;
+      }
     }
     >
       History
