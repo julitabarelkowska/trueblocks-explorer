@@ -53,7 +53,7 @@ export const App = () => {
   dayjs.extend(relativeTime);
 
   const { setNamesMap } = useGlobalNames();
-  const { location } = useHistory();
+  const { location, action } = useHistory();
   const [status, setStatus] = useState<Pick<SuccessResponse<Status>, 'data' | 'meta'>>({
     data: createEmptyStatus(),
     meta: createEmptyMeta(),
@@ -63,8 +63,13 @@ export const App = () => {
   const [lastLocation, setLastLocation] = useState('');
   const styles = useStyles();
 
-  useEffect(() => localStorage.setItem('lastLocation', location.pathname), [location.pathname]);
   useEffect(() => setLastLocation(localStorage.getItem('lastLocation') || ''), []);
+  useEffect(() => {
+    // if action is POP, it means that the site was just loaded. Otherwise router
+    // navigation occured.
+    if (action === 'POP') return;
+    localStorage.setItem('lastLocation', location.pathname);
+  }, [action, location.pathname]);
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -140,7 +145,9 @@ export const App = () => {
     },
   ];
 
-  if (lastLocation && lastLocation !== '/' && location.pathname === '/') {
+  // If the app was just loaded, the route is / and the last visited location is something else,
+  // then we want to redirect the user to the place they viewed last time.
+  if (action === 'POP' && lastLocation && lastLocation !== '/' && location.pathname === '/') {
     return <Redirect to={lastLocation} />;
   }
 
