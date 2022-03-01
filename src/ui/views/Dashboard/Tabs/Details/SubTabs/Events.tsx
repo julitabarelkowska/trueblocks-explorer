@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Transaction } from '@sdk';
-import { ColumnsType } from 'antd/lib/table';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
+import { usePathWithAddress } from '@hooks/paths';
 import { createWrapper } from '@hooks/useSearchParams';
 import {
   ItemCounter, ItemCounterArray,
@@ -14,6 +14,10 @@ import {
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 
 export const Events = ({ theData }: { theData: Transaction[] }) => {
+  const generatePathWithAddress = usePathWithAddress();
+  const historyUrl = generatePathWithAddress(DashboardAccountsHistoryLocation);
+  const schema = useMemo(() => getSchema(historyUrl), [historyUrl]);
+
   if (!theData) return <></>;
 
   const counts: Record<string, number> = {};
@@ -58,13 +62,13 @@ export const Events = ({ theData }: { theData: Transaction[] }) => {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-      <MyAreaChart title='Top Ten Events' items={top} columns={evtCountSchema} table />
-      <MyAreaChart title='Other Events' items={remains} columns={evtCountSchema} table />
+      <MyAreaChart title='Top Ten Events' items={top} columns={schema} table />
+      <MyAreaChart title='Other Events' items={remains} columns={schema} table />
     </div>
   );
 };
 
-export const evtCountSchema: ColumnsType<ItemCounter> = [
+const getSchema = (historyUrl: string) => [
   addColumn({
     title: 'Event',
     dataIndex: 'evt',
@@ -74,7 +78,7 @@ export const evtCountSchema: ColumnsType<ItemCounter> = [
 
         return (
           <Link to={
-            ({ search }) => `${DashboardAccountsHistoryLocation}?${createWrapper(search).set('event', field)}`
+            ({ search }) => `${historyUrl}?${createWrapper(search).set('event', field)}`
           }
           >
             {field}
