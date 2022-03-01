@@ -4,6 +4,7 @@ import { BaseView } from '@components/BaseView';
 
 import {
   ExplorerBlocksLocation,
+  ExplorerLocation,
   ExplorerLogsLocation,
   ExplorerReceiptsLocation,
   ExplorerTracesLocation,
@@ -17,7 +18,14 @@ import { Transactions } from './Tabs/Transactions';
 
 export const ExplorerView = () => {
   const tabs = [
-    { name: 'Blocks', location: ExplorerBlocksLocation, component: <Blocks /> },
+    {
+      name: 'Blocks',
+      location: [
+        ExplorerLocation,
+        ExplorerBlocksLocation,
+      ],
+      component: <Blocks />,
+    },
     { name: 'Transactions', location: ExplorerTransactionsLocation, component: <Transactions /> },
     { name: 'Receipts', location: ExplorerReceiptsLocation, component: <Receipts /> },
     { name: 'Logs', location: ExplorerLogsLocation, component: <Logs /> },

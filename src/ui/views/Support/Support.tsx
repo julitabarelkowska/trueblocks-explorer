@@ -8,6 +8,7 @@ import {
   SupportDocumentationLocation,
   SupportHotKeysLocation,
   SupportLicensingLocation,
+  SupportLocation,
 } from '../../Routes';
 import { About } from './Tabs/About';
 import { Contact } from './Tabs/Contact';
@@ -17,7 +18,14 @@ import { Licensing } from './Tabs/Licensing';
 
 export const SupportView = () => {
   const tabs = [
-    { name: 'Contact Us', location: SupportContactUsLocation, component: <Contact /> },
+    {
+      name: 'Contact Us',
+      location: [
+        SupportLocation,
+        SupportContactUsLocation,
+      ],
+      component: <Contact />,
+    },
     { name: 'Documentation', location: SupportDocumentationLocation, component: <Documentation /> },
     { name: 'Hot Keys', location: SupportHotKeysLocation, component: <HotKeys /> },
     { name: 'Licensing', location: SupportLicensingLocation, component: <Licensing /> },

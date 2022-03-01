@@ -41,7 +41,7 @@ export const HelpPanel = () => {
           <Switch>
             {helpRoutes.map((route) => (
             // eslint-disable-next-line
-                <Route {...route} key={route.path} />
+                <Route {...route} key={Array.isArray(route.path) ? route.path[0] : route.path} />
             ))}
           </Switch>
           <div>

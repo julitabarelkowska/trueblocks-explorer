@@ -8,7 +8,7 @@ import { ColumnsType } from 'antd/lib/table';
 import { BaseView } from '@components/BaseView';
 import { addActionsColumn, addColumn, TableActions } from '@components/Table';
 
-import { NamesSignaturesEventsLocation, NamesSignaturesFunctionsLocation } from '../../../Routes';
+import { NamesSignaturesEventsLocation, NamesSignaturesFunctionsLocation, NamesSignaturesLocation } from '../../../Routes';
 import { EventSignatures } from './SubTabs/EventSignatures';
 import { FunctionSignatures } from './SubTabs/FunctionSignatures';
 
@@ -16,7 +16,10 @@ export const Signatures = () => {
   const tabs = [
     {
       name: 'Functions',
-      location: NamesSignaturesFunctionsLocation,
+      location: [
+        NamesSignaturesLocation,
+        NamesSignaturesFunctionsLocation,
+      ],
       component: <FunctionSignatures />,
     },
     {
