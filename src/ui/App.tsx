@@ -11,7 +11,7 @@ import {
   UnorderedListOutlined,
 } from '@ant-design/icons';
 import {
-  getNames, getStatus, Name, Status, SuccessResponse,
+  getNames, getStatus, Name, Status, SuccessResponse, Transaction,
 } from '@sdk';
 import {
   Layout,
@@ -26,6 +26,7 @@ import { MainMenu, MenuItems } from '@components/MainMenu';
 import { HelpPanel } from '@components/SidePanels/HelpPanel';
 import { PanelDirection, SidePanel } from '@components/SidePanels/SidePanel';
 import { StatusPanel } from '@components/SidePanels/StatusPanel';
+import { useDatastore } from '@hooks/useDatastore';
 import { useSdk } from '@hooks/useSdk';
 import {
   isFailedCall, isSuccessfulCall, wrapResponse,
@@ -62,6 +63,26 @@ export const App = () => {
   const [loadingStatus] = useState(false);
   const [lastLocation, setLastLocation] = useState('');
   const styles = useStyles();
+  const { onMessage, loadTransactions, getPage } = useDatastore();
+
+  useEffect(() => onMessage<Transaction[]>((message) => {
+    console.log('[ App ]', message.call, message.result);
+
+    // TODO: fix type
+    if (message.result.length === 0) console.log('Ooops');
+
+    if (message.call === 'getPage') {
+      const page = message.result;
+      console.log('[ App ] Got page', page);
+    }
+  }), [onMessage]);
+  useEffect(() => loadTransactions({ address: '0x308fedfb88F6E85F27b85c8011cCb9b5e15BCbF7' }), [loadTransactions]);
+  useEffect(() => {
+    setTimeout(() => {
+      console.log('Getting page');
+      getPage({ address: '0x308fedfb88F6E85F27b85c8011cCb9b5e15BCbF7', page: 1, pageSize: 10 });
+    }, 10000);
+  }, [getPage]);
 
   useEffect(() => setLastLocation(localStorage.getItem('lastLocation') || ''), []);
   useEffect(() => {
