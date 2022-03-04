@@ -1,0 +1,94 @@
+import {
+  address as Address, AnyResponse, getExport, getList, ListStats, Transaction,
+} from '@sdk';
+
+import { isFailedCall, wrapResponse } from '@modules/api/call_status';
+
+async function fetchTransactions(chain: string, addresses: Address[], loaded: number) {
+  const response = wrapResponse((await getExport({
+    chain,
+    addrs: addresses,
+    fmt: 'json',
+    cache: true,
+    cacheTraces: true,
+    staging: false, // showStaging,
+    // unripe: showUnripe,
+    ether: true,
+    // dollars: false,
+    articulate: true,
+    accounting: true,
+    // reversed: false,
+    relevant: true,
+    // summarize_by: 'monthly',
+    firstRecord: loaded,
+    maxRecords: (() => {
+      if (loaded < 20) return 10;
+      if (loaded < 800) return 239;
+      return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
+    })(),
+  }) as AnyResponse<Transaction[]>));
+
+  if (isFailedCall(response)) {
+    throw new Error(response.errors.join());
+  }
+
+  const transactions = response.data;
+
+  return transactions;
+}
+
+export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Transaction[]> {
+  let total = 0;
+
+  let loaded = 0;
+  // TODO: it would be good to be able to cancel request in progress
+  // (listen for cancelled change?)
+  let cancelled = false;
+
+  return new ReadableStream({
+    async start() {
+      loaded = 0;
+
+      const listCall = wrapResponse((await getList({
+        chain,
+        count: true,
+        appearances: true,
+        addrs: addresses,
+      }) as AnyResponse<ListStats[]>));
+
+      if (isFailedCall(listCall)) {
+        throw new Error(listCall.errors.join());
+      }
+
+      total = listCall.data[0].nRecords;
+    },
+    async pull(controller) {
+      const transactions = await fetchTransactions(chain, addresses, loaded);
+      const count = transactions.length;
+
+      if (cancelled || count === 0 || loaded + count >= total) {
+        controller.close();
+      }
+
+      loaded += count;
+      controller.enqueue(transactions);
+    },
+    cancel() {
+      cancelled = true;
+    },
+  });
+}
+
+type GetPage = (
+  getTransactions: (address: Address) => Transaction[] | undefined,
+  { address, page, pageSize }: { address: Address, page: number, pageSize: number }
+) => Transaction[];
+export const getPage: GetPage = (getTransactions, { address, page, pageSize }) => {
+  const pageStart = ((page - 1) * pageSize) + 1; // end is not included by slice
+  const source = getTransactions(address);
+  if (!source) {
+    throw new Error(`store is empty for address ${address}`);
+  }
+
+  return source.slice(pageStart, pageStart + pageSize);
+};
