@@ -43,8 +43,8 @@ const getTransaction = () => ({
 
 test('store', () => {
   const tx = getTransaction();
-  Store.append('0xf503017d7baf7fbc0fff7492b751025c6a78179b', [tx]);
+  Store.appendTransactions('0xf503017d7baf7fbc0fff7492b751025c6a78179b', [tx]);
 
-  const result = Store.getBy('0xf503017d7baf7fbc0fff7492b751025c6a78179b');
+  const result = Store.getTransactionsFor('0xf503017d7baf7fbc0fff7492b751025c6a78179b');
   expect(result).toEqual([tx]);
 });

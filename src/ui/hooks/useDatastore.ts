@@ -5,7 +5,9 @@ import {
 import {
   DataStoreMessage,
   DataStoreResult,
+  GetChartItems,
   GetPage,
+  LoadNames,
   LoadTransactions,
 } from '../datastore/messages';
 import { DataStoreContext } from '../DatastoreContext';
@@ -28,7 +30,7 @@ export function useDatastore() {
       throw new Error('Datastore worker has not been initialized');
     }
 
-    console.log('>>> sending', message);
+    console.log('[ App ] sending', message);
     context.datastore.port.postMessage(message);
   }, [context.datastore]);
 
@@ -55,6 +57,15 @@ export function useDatastore() {
     }), [sendMessage]),
     getPage: useCallback((args: GetPage['args']) => sendMessage({
       call: 'getPage',
+      args,
+    }), [sendMessage]),
+    getChartItems: useCallback((args: GetChartItems['args']) => sendMessage({
+      call: 'getChartItems',
+      args,
+    }), [sendMessage]),
+
+    loadNames: useCallback((args: LoadNames['args']) => sendMessage({
+      call: 'loadNames',
       args,
     }), [sendMessage]),
   };

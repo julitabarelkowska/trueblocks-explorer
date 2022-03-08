@@ -11,7 +11,7 @@ import {
   UnorderedListOutlined,
 } from '@ant-design/icons';
 import {
-  getNames, getStatus, Name, Status, SuccessResponse, Transaction,
+  getStatus, Status, SuccessResponse,
 } from '@sdk';
 import {
   Layout,
@@ -27,7 +27,6 @@ import { HelpPanel } from '@components/SidePanels/HelpPanel';
 import { PanelDirection, SidePanel } from '@components/SidePanels/SidePanel';
 import { StatusPanel } from '@components/SidePanels/StatusPanel';
 import { useDatastore } from '@hooks/useDatastore';
-import { useSdk } from '@hooks/useSdk';
 import {
   isFailedCall, isSuccessfulCall, wrapResponse,
 } from '@modules/api/call_status';
@@ -37,7 +36,7 @@ import { createEmptyStatus } from '@modules/types/Status';
 import {
   ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation,
 } from './Routes';
-import { useGlobalNames, useGlobalState } from './State';
+import { useGlobalState } from './State';
 
 import 'antd/dist/antd.css';
 import './app.css';
@@ -53,7 +52,6 @@ export const App = () => {
   const { chain } = useGlobalState();
   dayjs.extend(relativeTime);
 
-  const { setNamesMap } = useGlobalNames();
   const { location, action } = useHistory();
   const [status, setStatus] = useState<Pick<SuccessResponse<Status>, 'data' | 'meta'>>({
     data: createEmptyStatus(),
@@ -63,26 +61,16 @@ export const App = () => {
   const [loadingStatus] = useState(false);
   const [lastLocation, setLastLocation] = useState('');
   const styles = useStyles();
-  const { onMessage, loadTransactions, getPage } = useDatastore();
+  const {
+    loadNames,
+  } = useDatastore();
 
-  useEffect(() => onMessage<Transaction[]>((message) => {
-    console.log('[ App ]', message.call, message.result);
-
-    // TODO: fix type
-    if (message.result.length === 0) console.log('Ooops');
-
-    if (message.call === 'getPage') {
-      const page = message.result;
-      console.log('[ App ] Got page', page);
-    }
-  }), [onMessage]);
-  useEffect(() => loadTransactions({ address: '0x308fedfb88F6E85F27b85c8011cCb9b5e15BCbF7' }), [loadTransactions]);
-  useEffect(() => {
-    setTimeout(() => {
-      console.log('Getting page');
-      getPage({ address: '0x308fedfb88F6E85F27b85c8011cCb9b5e15BCbF7', page: 1, pageSize: 10 });
-    }, 10000);
-  }, [getPage]);
+  useEffect(() => loadNames({
+    chain,
+    terms: [''],
+    expand: true,
+    all: true,
+  }), [chain, loadNames]);
 
   useEffect(() => setLastLocation(localStorage.getItem('lastLocation') || ''), []);
   useEffect(() => {
@@ -117,26 +105,26 @@ export const App = () => {
     return () => clearInterval(intervalId);
   }, [chain]);
 
-  const namesRequest = useSdk(() => getNames({
-    chain,
-    terms: [''],
-    expand: true,
-    all: true,
-  }));
+  // const namesRequest = useSdk(() => getNames({
+  //   chain,
+  //   terms: [''],
+  //   expand: true,
+  //   all: true,
+  // }));
 
-  useEffect(() => {
-    const resultMap = (() => {
-      if (!isSuccessfulCall(namesRequest)) return new Map();
+  // useEffect(() => {
+  //   const resultMap = (() => {
+  //     if (!isSuccessfulCall(namesRequest)) return new Map();
 
-      const { data: fetchedNames } = namesRequest;
+  //     const { data: fetchedNames } = namesRequest;
 
-      if (typeof fetchedNames === 'string') return new Map();
+  //     if (typeof fetchedNames === 'string') return new Map();
 
-      return new Map((fetchedNames as Name[]).map((name) => [name.address, name]));
-    })();
+  //     return new Map((fetchedNames as Name[]).map((name) => [name.address, name]));
+  //   })();
 
-    setNamesMap(resultMap);
-  }, [namesRequest, setNamesMap]);
+  //   setNamesMap(resultMap);
+  // }, [namesRequest, setNamesMap]);
 
   const menuItems: MenuItems = [
     {

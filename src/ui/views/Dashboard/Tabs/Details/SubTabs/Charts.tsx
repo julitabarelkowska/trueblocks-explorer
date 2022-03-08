@@ -1,89 +1,127 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-
-import { Reconciliation, Transaction } from '@sdk';
-import dayjs from 'dayjs';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
 import { usePathWithAddress } from '@hooks/paths';
+import { useDatastore } from '@hooks/useDatastore';
 import { createWrapper } from '@hooks/useSearchParams';
-// FIXME: these look like UI-related types
-import { AssetHistory, Balance } from '@modules/types';
 
+// FIXME: these look like UI-related types
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 import { useGlobalNames, useGlobalState, useGlobalState2 } from '../../../../../State';
 import { chartColors } from '../../../../../Utilities';
 import { AccountViewParams } from '../../../Dashboard';
 
-export const Charts = ({ params }: { params: AccountViewParams }) => {
+// TODO: this should be in messages.ts
+type ChartData = { assetAddr: string, assetSymbol: string, items: { [key: string]: string | number }[] }[];
+
+export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const {
-    theData,
     userPrefs,
   } = params;
   const {
-    hideNamed,
     hideZero,
   } = userPrefs;
-  const { denom } = useGlobalState();
-  const { namesMap } = useGlobalNames();
+  const {
+    denom,
+    currentAddress,
+    transactionsLoaded,
+  } = useGlobalState();
 
-  const uniqAssets = useMemo(() => {
-    if (!theData.length) return [];
+  const {
+    onMessage,
+    getChartItems,
+  } = useDatastore();
 
-    const unique: Array<AssetHistory> = [];
+  const [items, setItems] = useState<ChartData>([]);
+  const [count, setCount] = useState(0);
 
-    theData.forEach((tx: Transaction) => {
-      tx.statements?.forEach((statement: Reconciliation) => {
-        if (unique.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
-          unique.push({
-            assetAddr: statement.assetAddr,
-            assetSymbol: statement.assetSymbol,
-            balHistory: [],
-          });
-        }
-      });
+  useEffect(() => {
+    if (!currentAddress) return;
 
-      unique.forEach((asset: AssetHistory, index: number) => {
-        const found = tx.statements?.find((statement: Reconciliation) => asset.assetAddr === statement.assetAddr);
-        // TODO: do not convert the below to strings
-        if (found) {
-          unique[index].balHistory = [
-            ...unique[index].balHistory,
-            {
-              balance: (denom === 'dollars'
-                ? parseInt(found.endBal.toString() || '0', 10) * Number(found.spotPrice)
-                : parseInt(found.endBal.toString() || '0', 10)),
-              date: new Date(found.timestamp * 1000),
-              reconciled: found.reconciled,
-            },
-          ];
-        }
-      });
+    if (!transactionsLoaded) return;
+
+    getChartItems({
+      address: currentAddress,
+      // TODO: typecast
+      denom: denom as 'ether' | 'dollars',
+      zeroBalanceStrategy: (() => {
+        if (hideZero === 'all') return 'unset';
+        if (hideZero === 'show') return 'ignore-non-zero';
+        return 'ignore-zero';
+      })(),
     });
+  }, [currentAddress, denom, getChartItems, hideZero, transactionsLoaded]);
 
-    unique.sort((a: any, b: any) => {
-      if (b.balHistory.length === a.balHistory.length) {
-        if (b.balHistory.length === 0) {
-          return b.assetAddr - a.assetAddr;
-        }
-        return b.balHistory[b.balHistory.length - 1].balance - a.balHistory[a.balHistory.length - 1].balance;
-      }
-      return b.balHistory.length - a.balHistory.length;
-    });
+  useEffect(() => onMessage<ChartData>((message) => {
+    // if (message.call === 'loadTransactions') {
 
-    return unique.filter((asset: AssetHistory) => {
-      if (asset.balHistory.length === 0) return false;
-      const show = hideZero === 'all'
-        || (hideZero === 'show' && asset.balHistory[asset.balHistory.length - 1].balance === 0)
-        || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
-      return show && (!hideNamed || !namesMap.get(asset.assetAddr));
-    });
-  }, [hideNamed, hideZero, namesMap, theData, denom]);
+    //   return;
+    // }
+
+    if (message.call !== 'getChartItems') return;
+
+    console.log('Got', message);
+    setItems(message.result);
+  }), [onMessage]);
+
+  // const uniqAssets = useMemo(() => {
+  //   if (!theData.length) return [];
+
+  //   const unique: Array<AssetHistory> = [];
+
+  //   theData.forEach((tx: Transaction) => {
+  //     tx.statements?.forEach((statement: Reconciliation) => {
+  //       if (unique.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
+  //         unique.push({
+  //           assetAddr: statement.assetAddr,
+  //           assetSymbol: statement.assetSymbol,
+  //           balHistory: [],
+  //         });
+  //       }
+  //     });
+
+  //     unique.forEach((asset: AssetHistory, index: number) => {
+  //       const found = tx.statements?.find((statement: Reconciliation) => asset.assetAddr === statement.assetAddr);
+  //       // TODO: do not convert the below to strings
+  //       if (found) {
+  //         unique[index].balHistory = [
+  //           ...unique[index].balHistory,
+  //           {
+  //             balance: (denom === 'dollars'
+  //               ? parseInt(found.endBal.toString() || '0', 10) * Number(found.spotPrice)
+  //               : parseInt(found.endBal.toString() || '0', 10)),
+  //             date: new Date(found.timestamp * 1000),
+  //             reconciled: found.reconciled,
+  //           },
+  //         ];
+  //       }
+  //     });
+  //   });
+
+  //   unique.sort((a: any, b: any) => {
+  //     if (b.balHistory.length === a.balHistory.length) {
+  //       if (b.balHistory.length === 0) {
+  //         return b.assetAddr - a.assetAddr;
+  //       }
+  //       return b.balHistory[b.balHistory.length - 1].balance - a.balHistory[a.balHistory.length - 1].balance;
+  //     }
+  //     return b.balHistory.length - a.balHistory.length;
+  //   });
+
+  //   return unique.filter((asset: AssetHistory) => {
+  //     if (asset.balHistory.length === 0) return false;
+  //     const show = hideZero === 'all'
+  //       || (hideZero === 'show' && asset.balHistory[asset.balHistory.length - 1].balance === 0)
+  //       || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
+  //     return show && (!hideNamed || !namesMap.get(asset.assetAddr));
+  //   });
+  // }, [hideNamed, hideZero, namesMap, theData, denom]);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
-      {uniqAssets.map((asset: AssetHistory, index: number) => {
+      {items.map((asset, index: number) => {
         const color = asset.assetSymbol === 'ETH'
           ? '#63b598'
           : chartColors[Number(`0x${asset.assetAddr.substr(4, 3)}`) % chartColors.length];
@@ -98,14 +136,14 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
           }),
         ];
 
-        const items = asset.balHistory.map((item: Balance) => ({
-          date: dayjs(item.date).format('YYYY-MM-DD'),
-          [asset.assetAddr]: item.balance,
-        }));
+        // const items = asset.balHistory.map((item: Balance) => ({
+        //   date: dayjs(item.date).format('YYYY-MM-DD'),
+        //   [asset.assetAddr]: item.balance,
+        // }));
 
         return (
           <MyAreaChart
-            items={items}
+            items={asset.items}
             columns={columns}
             key={asset.assetAddr}
             index={asset.assetAddr}
@@ -141,7 +179,7 @@ export function getLink(chain: string, type: string, addr1: string, addr2?: stri
   return '';
 }
 
-const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
+const ChartTitle = ({ index, asset }: { asset: ChartData[0]; index: number }) => {
   const { namesMap } = useGlobalNames();
   const { currentAddress, chain } = useGlobalState();
   const { apiProvider } = useGlobalState2();
@@ -202,7 +240,7 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
       <br />
       <small>
         (
-        {asset.balHistory.length}
+        {asset.items.length}
         {' '}
         txs)
         {' '}

@@ -6,27 +6,23 @@ import { usePathWithAddress } from '@hooks/paths';
 
 import {
   DashboardAccountsAddressLocation,
-  // DashboardAccountsChartsLocation,
-  DashboardAccountsEventsLocation,
-  DashboardAccountsFunctionsLocation,
-  DashboardAccountsGasLocation,
   DashboardAccountsHistoryCustomLocation,
   DashboardAccountsHistoryEventsLocation,
   DashboardAccountsHistoryFunctionsLocation,
   DashboardAccountsHistoryLocation,
   DashboardAccountsHistoryReconsLocation,
-  DashboardAccountsNeighborsLocation,
 } from '../../../../Routes';
 import { AccountViewParams } from '../../Dashboard';
 import { AddressBar } from './components/AddressBar';
 import { ViewOptions } from './components/ViewOptions';
 import {
-  Charts, Events, Functions, Gas, History, Neighbors,
+  Charts,
+  History,
 } from './SubTabs';
 
-export const DetailsView = ({ params }: { params: AccountViewParams }) => {
+export const DetailsView = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const {
-    theData, loading,
+    loading,
   } = params;
 
   const generatePathWithAddress = usePathWithAddress();
@@ -39,6 +35,7 @@ export const DetailsView = ({ params }: { params: AccountViewParams }) => {
   ];
 
   const leftSideTabs: ViewTab[] = useMemo(() => [
+    // TODO: this uses another data layout: txs per asset, so we should return it from datastore.
     {
       name: 'Charts',
       location: generatePathWithAddress(DashboardAccountsAddressLocation),
@@ -49,36 +46,37 @@ export const DetailsView = ({ params }: { params: AccountViewParams }) => {
       location: historyPaths.map((path) => generatePathWithAddress(path)),
       component: <History params={params} />,
     },
-    {
-      name: 'Events',
-      location: generatePathWithAddress(DashboardAccountsEventsLocation),
-      component: <Events theData={theData} />,
-    },
-    {
-      name: 'Functions',
-      location: generatePathWithAddress(DashboardAccountsFunctionsLocation),
-      component: <Functions theData={theData} loading={loading} />,
-    },
-    {
-      name: 'Gas',
-      location: generatePathWithAddress(DashboardAccountsGasLocation),
-      component: <Gas theData={theData} />,
-    },
-    {
-      name: 'Neighbors',
-      location: generatePathWithAddress(DashboardAccountsNeighborsLocation),
-      component: <Neighbors theData={theData} />,
-    },
+    // TODO: following tabs are similar: they use aggregated data
+    // {
+    //   name: 'Events',
+    //   location: generatePathWithAddress(DashboardAccountsEventsLocation),
+    //   component: <Events theData={theData} />,
+    // },
+    // {
+    //   name: 'Functions',
+    //   location: generatePathWithAddress(DashboardAccountsFunctionsLocation),
+    //   component: <Functions theData={theData} loading={loading} />,
+    // },
+    // {
+    //   name: 'Gas',
+    //   location: generatePathWithAddress(DashboardAccountsGasLocation),
+    //   component: <Gas theData={theData} />,
+    // },
+    // {
+    //   name: 'Neighbors',
+    //   location: generatePathWithAddress(DashboardAccountsNeighborsLocation),
+    //   component: <Neighbors theData={theData} />,
+    // },
   ],
-  [generatePathWithAddress, loading, params, theData]);
+  [generatePathWithAddress, loading, params]);
 
-  if (!theData) return <></>;
+  // if (!theData) return <></>;
 
   return (
     <div>
-      <AddressBar params={params} />
+      <AddressBar params={{ ...params, theData: [] }} />
       <div>
-        <ViewOptions params={params} />
+        <ViewOptions params={{ ...params, theData: [] }} />
         <BaseView cookieName='COOKIE_DASHBOARD_ACCOUNTS' tabs={leftSideTabs} position='left' />
       </div>
     </div>

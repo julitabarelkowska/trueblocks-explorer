@@ -92,3 +92,62 @@ export const getPage: GetPage = (getTransactions, { address, page, pageSize }) =
 
   return source.slice(pageStart, pageStart + pageSize);
 };
+
+type GetChartItems = (transactions: Transaction[] | undefined, options: GetChartItemsOptions) => Array<ChartInput>;
+type GetChartItemsOptions = {
+  denom: 'ether' | 'dollars',
+  zeroBalanceStrategy: 'ignore-non-zero' | 'ignore-zero' | 'unset',
+};
+type ChartInput = {
+  assetAddress: string,
+  assetSymbol: string,
+  items: {
+    [key: string]: string | number,
+  }[]
+};
+export const getChartItems: GetChartItems = (transactions, options) => {
+  if (!transactions?.length) return [];
+
+  const result: Record<string, ChartInput> = transactions
+    .flatMap(({ statements }) => statements)
+    .reduce((historyPerAsset, statement) => {
+      if (!statement) return historyPerAsset;
+
+      const factor = options.denom === 'dollars' ? statement.spotPrice : 1;
+      const balance = (parseInt(statement.endBal, 10) || 0) * factor;
+
+      if (balance > 0 && options.zeroBalanceStrategy === 'ignore-non-zero') {
+        return historyPerAsset;
+      }
+
+      if (balance === 0 && options.zeroBalanceStrategy === 'ignore-zero') {
+        return historyPerAsset;
+      }
+
+      const { timestamp } = statement;
+      const currentState: ChartInput['items'] = [{
+        [statement.assetAddr]: balance,
+        date: (new Date(timestamp * 1000)).toISOString().replace(/T.+/, ''),
+      }];
+      const previousState = historyPerAsset[statement.assetAddr] || {
+        assetAddr: statement.assetAddr,
+        assetSymbol: statement.assetSymbol,
+        items: [],
+      };
+
+      return {
+        ...historyPerAsset,
+        [statement.assetAddr]: {
+          ...previousState,
+          items: [
+            ...previousState.items,
+            ...currentState,
+          ],
+        },
+      };
+    }, {} as Record<string, ChartInput>);
+
+  const values = Object.values(result);
+
+  return values;
+};

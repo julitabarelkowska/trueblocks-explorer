@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
+import { Transaction } from '@sdk';
 import { Col, Row } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
@@ -11,6 +12,7 @@ import { BaseView } from '@components/BaseView';
 import { FilterButton } from '@components/FilterButton';
 import { addColumn, BaseTable } from '@components/Table';
 import { usePathWithAddress } from '@hooks/paths';
+import { useDatastore } from '@hooks/useDatastore';
 import { useSearchParams } from '@hooks/useSearchParams';
 import {
   applyFilters,
@@ -38,10 +40,13 @@ const searchParamAsset = 'asset';
 const searchParamEvent = 'event';
 const searchParamFunction = 'function';
 
-export const History = ({ params }: { params: AccountViewParams }) => {
-  const { theData, loading } = params;
+export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
+  const { loading } = params;
+  const [theData, setTheData] = useState<Transaction[]>([]);
   const { showReversed } = params.userPrefs;
-  const { currentAddress, namesMap, chain } = useGlobalState();
+  const {
+    currentAddress, namesMap, transactionsLoaded, totalRecords,
+  } = useGlobalState();
   const history = useHistory();
   const { pathname } = useLocation();
   const [assetToFilterBy, setAssetToFilterBy] = useState('');
@@ -49,6 +54,42 @@ export const History = ({ params }: { params: AccountViewParams }) => {
   const [functionToFilterBy, setFunctionToFilterBy] = useState('');
   const [selectedItem, setSelectedItem] = useState<typeof theData>();
   const searchParams = useSearchParams();
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(7);
+
+  const {
+    onMessage,
+    getPage,
+  } = useDatastore();
+
+  useEffect(() => {
+    if (!currentAddress) return;
+
+    if (!transactionsLoaded) return;
+
+    // Having totalRecords in dependencies triggers this effect to run whenever new transactions
+    // are fetched by the worker. This is needed if the currently displayed page is uncomplete, but
+    // otherwise we should just ignore the change. This is what this line is for.
+    if (totalRecords >= page * pageSize && theData.length === pageSize) return;
+
+    getPage({
+      address: currentAddress,
+      page,
+      pageSize,
+    });
+  }, [currentAddress, getPage, page, pageSize, theData.length, totalRecords, transactionsLoaded]);
+
+  useEffect(() => onMessage<Transaction[]>((message) => {
+    if (message.call !== 'getPage') return;
+
+    setTheData(message.result);
+  }), [currentAddress, onMessage]);
+
+  const onTablePageChange = useCallback(({ page: newPage, pageSize: newPageSize }: { page: number, pageSize: number }) => {
+    setPage(newPage);
+    setPageSize(newPageSize);
+  }, []);
 
   const assetNameToDisplay = useMemo(() => {
     if (!assetToFilterBy) return '';
@@ -89,12 +130,13 @@ export const History = ({ params }: { params: AccountViewParams }) => {
       });
     }
     if (showReversed) {
-      return ret.sort((b: TransactionModel, a: TransactionModel) => {
+      // TODO: we used to use TransactionModel here (with from and to names and some additional info filled in)
+      return ret.sort((b: Transaction, a: Transaction) => {
         if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
         return a.blockNumber - b.blockNumber;
       });
     }
-    return ret.sort((a: TransactionModel, b: TransactionModel) => {
+    return ret.sort((a: Transaction, b: Transaction) => {
       if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
       return a.blockNumber - b.blockNumber;
     });
@@ -133,6 +175,10 @@ export const History = ({ params }: { params: AccountViewParams }) => {
   );
 
   const onSelectionChange = useCallback((item) => setSelectedItem(item), []);
+  const siderParams = useMemo(() => ({
+    ...params,
+    theData,
+  }), [params, theData]);
 
   return (
     <div>
@@ -147,13 +193,16 @@ export const History = ({ params }: { params: AccountViewParams }) => {
             loading={loading}
             extraData={currentAddress}
             name='history'
+            totalRecords={totalRecords}
+            activePage={page}
             onSelectionChange={onSelectionChange}
+            onPageChange={onTablePageChange}
           />
         </Col>
         <Col flex='2'>
           {/* this minWidth: 0 stops children from overflowing flex parent */}
           <div style={{ minWidth: 0 }}>
-            <AccountHistorySider record={selectedItem} params={params} />
+            <AccountHistorySider record={selectedItem as unknown as TransactionModel} params={siderParams} />
           </div>
         </Col>
       </Row>

@@ -19,8 +19,11 @@ export const BaseTable = ({
   extraData,
   expandRender = undefined,
   defPageSize = 7,
+  totalRecords,
+  activePage = 1,
   name = '',
   onSelectionChange = () => { },
+  onPageChange = () => { },
 }: {
   dataSource: JsonResponse;
   columns: ColumnsType<any>;
@@ -28,8 +31,11 @@ export const BaseTable = ({
   extraData?: string;
   expandRender?: (row: any) => JSX.Element;
   defPageSize?: number;
+  totalRecords?: number,
+  activePage?: number,
   name?: string;
   onSelectionChange?: (row: unknown) => void,
+  onPageChange?: ({ page, pageSize }: { page: number, pageSize: number }) => void,
 }) => {
   const [, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
   const [curRow, setCurRow] = useState(Number(sessionStorage.getItem(`curRow${name}`)) || 0);
@@ -40,7 +46,7 @@ export const BaseTable = ({
   const tableRef = useRef<HTMLTableElement>(document.createElement('table'));
 
   const setRowNumber = useCallback((n: number) => {
-    const num = Math.max(0, Math.min(dataSource.length - 1, n));
+    const num = Math.max(0, Math.min((totalRecords || dataSource.length - 1), n));
     setCurRow(num);
     const page = Math.floor(num / pageSize) + 1;
     setCurPage(page);
@@ -49,14 +55,14 @@ export const BaseTable = ({
       sessionStorage.setItem(`curPage${name}`, page.toString());
     }
     return { row: num, page };
-  }, [dataSource.length, name, pageSize]);
+  }, [dataSource.length, name, pageSize, totalRecords]);
 
   Mousetrap.bind('up', (event) => setRowAndHandleScroll(event, curRow - 1));
   Mousetrap.bind('down', (event) => setRowAndHandleScroll(event, curRow + 1));
   Mousetrap.bind(['left', 'pageup'], (event) => setRowAndHandleScroll(event, curRow - pageSize));
   Mousetrap.bind(['right', 'pagedown'], (event) => setRowAndHandleScroll(event, curRow + pageSize));
   Mousetrap.bind('home', (event) => setRowAndHandleScroll(event, 0));
-  Mousetrap.bind('end', (event) => setRowAndHandleScroll(event, dataSource.length - 1));
+  Mousetrap.bind('end', (event) => setRowAndHandleScroll(event, totalRecords || (dataSource.length - 1)));
   Mousetrap.bind('enter', (event) => {
     event.preventDefault();
     setExpandedRow((currentValue) => {
@@ -65,6 +71,12 @@ export const BaseTable = ({
       return curRow;
     });
   });
+
+  useEffect(() => {
+    if (curPage === activePage) return;
+
+    setCurPage(activePage);
+  }, [activePage, curPage]);
 
   useEffect(() => {
     setKeyedData(
@@ -130,11 +142,13 @@ export const BaseTable = ({
         }}
         pagination={{
           onChange: (page, newPageSize) => {
+            onPageChange({ page, pageSize: newPageSize || defPageSize });
             if (newPageSize && newPageSize !== pageSize) {
               setPageSize(newPageSize);
               setRowNumber(0);
             }
           },
+          total: totalRecords,
           pageSize,
           current: curPage,
           pageSizeOptions: ['5', '10', '20', '50', '100'],

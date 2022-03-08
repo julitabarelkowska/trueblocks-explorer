@@ -39,6 +39,7 @@ type State = {
   transactions: Transaction[],
   meta: Meta
   totalRecords: number,
+  transactionsLoaded: boolean,
 }
 
 const getDefaultNamesEditModalValue = () => ({
@@ -60,6 +61,7 @@ const initialState: State = {
   transactions: [],
   meta: createEmptyMeta(),
   totalRecords: 0,
+  transactionsLoaded: false,
 };
 
 type SetTheme = {
@@ -117,6 +119,11 @@ type SetTotalRecords = {
   records: State['totalRecords'],
 };
 
+type SetTransactionsLoaded = {
+  type: 'SET_TRANSACTIONS_LOADED',
+  loaded: State['transactionsLoaded'],
+};
+
 type GlobalAction =
   | SetTheme
   | SetChain
@@ -128,7 +135,8 @@ type GlobalAction =
   | SetTransactions
   | AddTransactions
   | SetMeta
-  | SetTotalRecords;
+  | SetTotalRecords
+  | SetTransactionsLoaded;
 
 const GlobalStateContext = createContext<[
   typeof initialState,
@@ -206,6 +214,11 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         ...state,
         totalRecords: action.records,
       };
+    case 'SET_TRANSACTIONS_LOADED':
+      return {
+        ...state,
+        transactionsLoaded: action.loaded,
+      };
     default:
       return state;
   }
@@ -276,6 +289,10 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_TOTAL_RECORDS', records });
   }, [dispatch]);
 
+  const setTransactionsLoaded = useCallback((loaded: SetTransactionsLoaded['loaded']) => {
+    dispatch({ type: 'SET_TRANSACTIONS_LOADED', loaded });
+  }, [dispatch]);
+
   return {
     theme: state.theme,
     setTheme,
@@ -298,6 +315,8 @@ export const useGlobalState = () => {
     setMeta,
     totalRecords: state.totalRecords,
     setTotalRecords,
+    transactionsLoaded: state.transactionsLoaded,
+    setTransactionsLoaded,
   };
 };
 
