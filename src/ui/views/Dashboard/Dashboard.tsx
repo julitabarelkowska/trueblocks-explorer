@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { generatePath, useParams } from 'react-router-dom';
 
+import { ListStats } from '@sdk';
 import Mousetrap from 'mousetrap';
 
 import { BaseView } from '@components/BaseView';
@@ -45,13 +46,17 @@ export const DashboardView = () => {
 
   const { chain } = useGlobalState();
   const { currentAddress, setCurrentAddress, setTransactionsLoaded } = useGlobalState();
-  const { totalRecords, setTotalRecords } = useGlobalState();
+  const {
+    totalRecords, setTotalRecords,
+    setTransactionsFetchedByWorker,
+  } = useGlobalState();
   const {
     meta: transactionsMeta, setTransactions,
   } = useGlobalState();
   const {
     onMessage,
     loadTransactions,
+    getTransactionsTotal,
   } = useDatastore();
 
   const routeParams = useParams<{ address: string }>();
@@ -59,15 +64,22 @@ export const DashboardView = () => {
   useEffect(() => onMessage<{ new: number, total: number }>((message) => {
     if (message.call !== 'loadTransactions') return;
 
-    setTotalRecords(message.result.total);
+    setTransactionsFetchedByWorker(message.result.total);
     setTransactionsLoaded(true);
-  }), [onMessage, setTotalRecords, setTransactionsLoaded]);
+  }), [onMessage, setTransactionsFetchedByWorker, setTransactionsLoaded]);
+
+  useEffect(() => onMessage<ListStats[]>((message) => {
+    if (message.call !== 'getTransactionsTotal') return;
+
+    setTotalRecords(message.result[0].nRecords);
+  }), [onMessage, setTotalRecords]);
 
   useEffect(() => {
     if (!currentAddress) return;
 
+    getTransactionsTotal({ chain, addresses: [currentAddress] });
     loadTransactions({ address: currentAddress });
-  }, [currentAddress, loadTransactions]);
+  }, [chain, currentAddress, getTransactionsTotal, loadTransactions]);
 
   //----------------------
   // This adds (and cleans up) the escape key to allow quiting the transfer mid-way

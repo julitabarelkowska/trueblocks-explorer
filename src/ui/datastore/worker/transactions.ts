@@ -37,6 +37,22 @@ async function fetchTransactions(chain: string, addresses: Address[], loaded: nu
   return transactions;
 }
 
+type GetTransactionsTotal = (chain: string, addresses: Address[]) => Promise<ListStats[]>;
+export const getTransactionsTotal: GetTransactionsTotal = async (chain, addresses) => {
+  const listCall = wrapResponse((await getList({
+    chain,
+    count: true,
+    appearances: true,
+    addrs: addresses,
+  }) as AnyResponse<ListStats[]>));
+
+  if (isFailedCall(listCall)) {
+    throw new Error(listCall.errors.join());
+  }
+
+  return listCall.data;
+};
+
 export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Transaction[]> {
   let total = 0;
 
@@ -49,18 +65,7 @@ export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Tr
     async start() {
       loaded = 0;
 
-      const listCall = wrapResponse((await getList({
-        chain,
-        count: true,
-        appearances: true,
-        addrs: addresses,
-      }) as AnyResponse<ListStats[]>));
-
-      if (isFailedCall(listCall)) {
-        throw new Error(listCall.errors.join());
-      }
-
-      total = listCall.data[0].nRecords;
+      total = (await getTransactionsTotal(chain, addresses))[0].nRecords;
     },
     async pull(controller) {
       const transactions = await fetchTransactions(chain, addresses, loaded);

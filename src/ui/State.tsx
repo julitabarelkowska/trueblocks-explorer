@@ -40,6 +40,7 @@ type State = {
   meta: Meta
   totalRecords: number,
   transactionsLoaded: boolean,
+  transactionsFetchedByWorker: number,
 }
 
 const getDefaultNamesEditModalValue = () => ({
@@ -62,6 +63,7 @@ const initialState: State = {
   meta: createEmptyMeta(),
   totalRecords: 0,
   transactionsLoaded: false,
+  transactionsFetchedByWorker: 0,
 };
 
 type SetTheme = {
@@ -124,6 +126,11 @@ type SetTransactionsLoaded = {
   loaded: State['transactionsLoaded'],
 };
 
+type SetTransactionsFetchedByWorker = {
+  type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER',
+  fetched: State['transactionsFetchedByWorker'],
+};
+
 type GlobalAction =
   | SetTheme
   | SetChain
@@ -136,7 +143,8 @@ type GlobalAction =
   | AddTransactions
   | SetMeta
   | SetTotalRecords
-  | SetTransactionsLoaded;
+  | SetTransactionsLoaded
+  | SetTransactionsFetchedByWorker;
 
 const GlobalStateContext = createContext<[
   typeof initialState,
@@ -219,6 +227,11 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         ...state,
         transactionsLoaded: action.loaded,
       };
+    case 'SET_TRANSACTIONS_FETCHED_BY_WORKER':
+      return {
+        ...state,
+        transactionsFetchedByWorker: action.fetched,
+      };
     default:
       return state;
   }
@@ -293,6 +306,10 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_TRANSACTIONS_LOADED', loaded });
   }, [dispatch]);
 
+  const setTransactionsFetchedByWorker = useCallback((fetched: SetTransactionsFetchedByWorker['fetched']) => {
+    dispatch({ type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER', fetched });
+  }, [dispatch]);
+
   return {
     theme: state.theme,
     setTheme,
@@ -317,6 +334,8 @@ export const useGlobalState = () => {
     setTotalRecords,
     transactionsLoaded: state.transactionsLoaded,
     setTransactionsLoaded,
+    transactionsFetchedByWorker: state.transactionsFetchedByWorker,
+    setTransactionsFetchedByWorker,
   };
 };
 

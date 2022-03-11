@@ -45,7 +45,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const [theData, setTheData] = useState<Transaction[]>([]);
   const { showReversed } = params.userPrefs;
   const {
-    currentAddress, namesMap, transactionsLoaded, totalRecords,
+    currentAddress, namesMap, totalRecords, transactionsFetchedByWorker,
   } = useGlobalState();
   const history = useHistory();
   const { pathname } = useLocation();
@@ -63,22 +63,21 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     getPage,
   } = useDatastore();
 
-  useEffect(() => {
+  const getPageItems = useCallback((newPage: number, newPageSize: number) => {
     if (!currentAddress) return;
-
-    if (!transactionsLoaded) return;
-
-    // Having totalRecords in dependencies triggers this effect to run whenever new transactions
-    // are fetched by the worker. This is needed if the currently displayed page is uncomplete, but
-    // otherwise we should just ignore the change. This is what this line is for.
-    if (totalRecords >= page * pageSize && theData.length === pageSize) return;
 
     getPage({
       address: currentAddress,
-      page,
-      pageSize,
+      page: newPage,
+      pageSize: newPageSize,
     });
-  }, [currentAddress, getPage, page, pageSize, theData.length, totalRecords, transactionsLoaded]);
+  }, [currentAddress, getPage]);
+
+  useEffect(() => {
+    if (transactionsFetchedByWorker >= page * pageSize && theData.length === pageSize) return;
+
+    getPageItems(page, pageSize);
+  }, [getPageItems, page, pageSize, theData.length, transactionsFetchedByWorker]);
 
   useEffect(() => onMessage<Transaction[]>((message) => {
     if (message.call !== 'getPage') return;
@@ -86,10 +85,13 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     setTheData(message.result);
   }), [currentAddress, onMessage]);
 
-  const onTablePageChange = useCallback(({ page: newPage, pageSize: newPageSize }: { page: number, pageSize: number }) => {
+  const onTablePageChange = useCallback((
+    { page: newPage, pageSize: newPageSize }: { page: number, pageSize: number },
+  ) => {
     setPage(newPage);
     setPageSize(newPageSize);
-  }, []);
+    getPageItems(newPage, newPageSize);
+  }, [getPageItems]);
 
   const assetNameToDisplay = useMemo(() => {
     if (!assetToFilterBy) return '';
@@ -195,6 +197,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
             name='history'
             totalRecords={totalRecords}
             activePage={page}
+            showRowPlaceholder
             onSelectionChange={onSelectionChange}
             onPageChange={onTablePageChange}
           />

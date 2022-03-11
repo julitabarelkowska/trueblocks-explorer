@@ -1,8 +1,9 @@
 /* eslint-disable react/require-default-props */
 import React, {
-  useCallback, useEffect, useRef, useState,
+  useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
 
+import { Skeleton } from 'antd';
 import Table, { ColumnsType } from 'antd/lib/table';
 import Mousetrap from 'mousetrap';
 
@@ -22,6 +23,7 @@ export const BaseTable = ({
   totalRecords,
   activePage = 1,
   name = '',
+  showRowPlaceholder = false,
   onSelectionChange = () => { },
   onPageChange = () => { },
 }: {
@@ -33,7 +35,8 @@ export const BaseTable = ({
   defPageSize?: number;
   totalRecords?: number,
   activePage?: number,
-  name?: string;
+  name?: string,
+  showRowPlaceholder?: boolean,
   onSelectionChange?: (row: unknown) => void,
   onPageChange?: ({ page, pageSize }: { page: number, pageSize: number }) => void,
 }) => {
@@ -119,6 +122,36 @@ export const BaseTable = ({
     ? expandRender
     : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
 
+  const dataWithSkeletons = useMemo(() => {
+    const missingItems = pageSize - keyedData.length;
+
+    if (missingItems === 0) return keyedData;
+
+    return Array.from({ length: pageSize }, (v, index) => {
+      if (keyedData[index] !== undefined) return keyedData[index];
+
+      return {
+        key: `skeleton-${index}`,
+      };
+    });
+  }, [keyedData, pageSize]);
+
+  const columnsWithSkeletons = useMemo(() => {
+    if (keyedData.length >= pageSize) return columns;
+
+    const skeletonRegexp = /skeleton-/;
+
+    return columns.map((column) => ({
+      ...column,
+      // TODO: replace `any`when we fix typing for `columns`
+      render(text: string, record: any, index: number) {
+        if (!skeletonRegexp.test(record.key)) return column.render?.(text, record, index);
+
+        return <Skeleton paragraph={{ rows: 3 }} title={false} active key={column.key} />;
+      },
+    }));
+  }, [columns, keyedData.length, pageSize]);
+
   return (
     <div ref={tableRef}>
       <Table
@@ -130,8 +163,8 @@ export const BaseTable = ({
         })}
         size='small'
         loading={loading}
-        columns={columns}
-        dataSource={keyedData}
+        columns={showRowPlaceholder ? columnsWithSkeletons : columns}
+        dataSource={showRowPlaceholder ? dataWithSkeletons : keyedData}
         expandable={{
           expandedRowRender,
           expandedRowKeys: [expandedRow],

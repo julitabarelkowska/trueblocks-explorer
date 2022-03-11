@@ -59,6 +59,10 @@ async function dispatch(message: DataStoreMessage, port: MessagePort) {
     );
   }
 
+  if (message.call === 'getTransactionsTotal') {
+    return Transactions.getTransactionsTotal(message.args.chain, message.args.addresses);
+  }
+
   if (message.call === 'getPage') {
     const {
       address,

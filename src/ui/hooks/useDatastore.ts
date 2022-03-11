@@ -7,6 +7,7 @@ import {
   DataStoreResult,
   GetChartItems,
   GetPage,
+  GetTransactionsTotal,
   LoadNames,
   LoadTransactions,
 } from '../datastore/messages';
@@ -39,6 +40,11 @@ export function useDatastore() {
     throw new Error(e.data);
   });
 
+  // TODO: temporary
+  context.datastore.port.addEventListener('message', (e) => {
+    // console.log('[ App ] got message', e.data);
+  });
+
   context.datastore.addEventListener('error', (e) => { throw new Error(e.error); });
 
   type OnMessage = <ResultType>(callback: (message: DataStoreResult<ResultType>) => void) => void
@@ -53,6 +59,10 @@ export function useDatastore() {
 
     loadTransactions: useCallback((args: LoadTransactions['args']) => sendMessage({
       call: 'loadTransactions',
+      args,
+    }), [sendMessage]),
+    getTransactionsTotal: useCallback((args: GetTransactionsTotal['args']) => sendMessage({
+      call: 'getTransactionsTotal',
       args,
     }), [sendMessage]),
     getPage: useCallback((args: GetPage['args']) => sendMessage({
