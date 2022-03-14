@@ -1,12 +1,13 @@
 /* eslint-disable react/require-default-props */
 import React, {
-  useCallback, useEffect, useMemo, useRef, useState,
+  useEffect, useMemo, useRef, useState,
 } from 'react';
 
 import { Skeleton } from 'antd';
 import Table, { ColumnsType } from 'antd/lib/table';
 import Mousetrap from 'mousetrap';
 
+import { useKeyNav } from '@hooks/useKeyNav';
 import { handleSelectionScroll } from '@modules/scroll';
 
 import 'antd/dist/antd.css';
@@ -21,8 +22,6 @@ export const BaseTable = ({
   expandRender = undefined,
   defPageSize = 7,
   totalRecords,
-  activePage = 1,
-  name = '',
   showRowPlaceholder = false,
   onSelectionChange = () => { },
   onPageChange = () => { },
@@ -41,45 +40,32 @@ export const BaseTable = ({
   onPageChange?: ({ page, pageSize }: { page: number, pageSize: number }) => void,
 }) => {
   const [, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
-  const [curRow, setCurRow] = useState(Number(sessionStorage.getItem(`curRow${name}`)) || 0);
-  const [curPage, setCurPage] = useState(Number(sessionStorage.getItem(`curPage${name}`)) || 1);
-  const [pageSize, setPageSize] = useState(defPageSize);
+  const [pageSize] = useState(defPageSize);
+  const tableRef = useRef<HTMLTableElement>(document.createElement('table'));
+  const {
+    page,
+    row,
+    selectRow,
+    setPosition,
+  } = useKeyNav({
+    pageSize,
+    maxItems: totalRecords || dataSource.length,
+    handleScroll: (event: KeyboardEvent, rowNumber: number, size: number) => handleSelectionScroll({
+      event, tableRef, rowNumber, pageSize: size,
+    }),
+  });
   const [expandedRow, setExpandedRow] = useState(-1);
   const [keyedData, setKeyedData] = useState([{ key: 0 }]);
-  const tableRef = useRef<HTMLTableElement>(document.createElement('table'));
 
-  const setRowNumber = useCallback((n: number) => {
-    const num = Math.max(0, Math.min((totalRecords || dataSource.length - 1), n));
-    setCurRow(num);
-    const page = Math.floor(num / pageSize) + 1;
-    setCurPage(page);
-    if (name !== '') {
-      sessionStorage.setItem(`curRow${name}`, num.toString());
-      sessionStorage.setItem(`curPage${name}`, page.toString());
-    }
-    return { row: num, page };
-  }, [dataSource.length, name, pageSize, totalRecords]);
+  useEffect(() => onPageChange({ page, pageSize }), [onPageChange, page, pageSize]);
 
-  Mousetrap.bind('up', (event) => setRowAndHandleScroll(event, curRow - 1));
-  Mousetrap.bind('down', (event) => setRowAndHandleScroll(event, curRow + 1));
-  Mousetrap.bind(['left', 'pageup'], (event) => setRowAndHandleScroll(event, curRow - pageSize));
-  Mousetrap.bind(['right', 'pagedown'], (event) => setRowAndHandleScroll(event, curRow + pageSize));
-  Mousetrap.bind('home', (event) => setRowAndHandleScroll(event, 0));
-  Mousetrap.bind('end', (event) => setRowAndHandleScroll(event, totalRecords || (dataSource.length - 1)));
-  Mousetrap.bind('enter', (event) => {
-    event.preventDefault();
+  Mousetrap.bind('enter', () => {
     setExpandedRow((currentValue) => {
-      if (currentValue === curRow) return -1; // disable
+      if (currentValue === row) return -1; // disable
 
-      return curRow;
+      return row;
     });
   });
-
-  useEffect(() => {
-    if (curPage === activePage) return;
-
-    setCurPage(activePage);
-  }, [activePage, curPage]);
 
   useEffect(() => {
     setKeyedData(
@@ -97,30 +83,18 @@ export const BaseTable = ({
   }, [dataSource, extraData]);
 
   useEffect(() => {
-    setDisplayedRow(keyedData[curRow]);
-    onSelectionChange(keyedData[curRow]);
-  }, [curRow, keyedData, onSelectionChange]);
-
-  const setRowAndHandleScroll = useCallback((event: KeyboardEvent, rowNumber: number) => {
-    const { row } = setRowNumber(rowNumber);
-    handleSelectionScroll({
-      event,
-      tableRef,
-      rowNumber: row,
-      pageSize,
-    });
-  }, [pageSize, setRowNumber]);
+    setDisplayedRow(keyedData[row]);
+    onSelectionChange(keyedData[row]);
+  }, [row, keyedData, onSelectionChange]);
 
   // clean up mouse control when we unmount
   useEffect(() => () => {
-    // setCurRow(0);
-    // setCurPage(1);
-    Mousetrap.unbind(['up', 'down', 'pageup', 'pagedown', 'home', 'end', 'enter']);
+    Mousetrap.unbind(['enter']);
   }, []);
 
   const expandedRowRender = expandRender !== undefined
     ? expandRender
-    : (row: any) => <pre>{JSON.stringify(row, null, 2)}</pre>;
+    : (rowContent: any) => <pre>{JSON.stringify(rowContent, null, 2)}</pre>;
 
   const dataWithSkeletons = useMemo(() => {
     const missingItems = pageSize - keyedData.length;
@@ -155,11 +129,11 @@ export const BaseTable = ({
   return (
     <div ref={tableRef}>
       <Table
-        onRow={(record) => ({
+        onRow={(record, index) => ({
           onClick: () => {
-            setRowNumber(record.key);
+            selectRow(index);
           },
-          style: record.key === curRow ? { color: 'darkblue', backgroundColor: 'rgb(236, 235, 235)' } : {},
+          style: record.key === row ? { color: 'darkblue', backgroundColor: 'rgb(236, 235, 235)' } : {},
         })}
         size='small'
         loading={loading}
@@ -174,16 +148,13 @@ export const BaseTable = ({
           },
         }}
         pagination={{
-          onChange: (page, newPageSize) => {
-            onPageChange({ page, pageSize: newPageSize || defPageSize });
-            if (newPageSize && newPageSize !== pageSize) {
-              setPageSize(newPageSize);
-              setRowNumber(0);
-            }
+          onChange: (newPage, newPageSize) => {
+            onPageChange({ page: newPage, pageSize: newPageSize || defPageSize });
+            setPosition((newPage - 1) * pageSize);
           },
           total: totalRecords,
           pageSize,
-          current: curPage,
+          current: page,
           pageSizeOptions: ['5', '10', '20', '50', '100'],
         }}
       />
