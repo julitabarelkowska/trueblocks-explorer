@@ -68,10 +68,14 @@ export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Tr
       total = (await getTransactionsTotal(chain, addresses))[0].nRecords;
     },
     async pull(controller) {
+      if (cancelled || loaded >= total) {
+        controller.close();
+      }
+
       const transactions = await fetchTransactions(chain, addresses, loaded);
       const count = transactions.length;
 
-      if (cancelled || count === 0 || loaded + count >= total) {
+      if (count === 0) {
         controller.close();
       }
 
@@ -89,7 +93,7 @@ type GetPage = (
   { address, page, pageSize }: { address: Address, page: number, pageSize: number }
 ) => Transaction[];
 export const getPage: GetPage = (getTransactions, { address, page, pageSize }) => {
-  const pageStart = ((page - 1) * pageSize) + 1; // end is not included by slice
+  const pageStart = ((page - 1) * pageSize);
   const source = getTransactions(address);
   if (!source) {
     throw new Error(`store is empty for address ${address}`);
