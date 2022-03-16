@@ -2,7 +2,9 @@
 
 import { address as Address } from '@sdk';
 
-import { DataStoreMessage } from '../messages';
+import {
+  CancelLoadTransactions, DataStoreMessage, GetChartItems, GetChartItemsResult, GetPage, GetPageResult, GetTransactionsTotal, GetTransactionsTotalResult, LoadNames, LoadNamesResult, LoadTransactions,
+} from '../messages';
 import * as Names from './names';
 import * as Store from './store';
 import * as Transactions from './transactions';
@@ -39,20 +41,19 @@ self.onconnect = async function connectionHandler({ ports }: MessageEvent) {
   port.start();
 };
 
-async function dispatch(message: DataStoreMessage, port: MessagePort) {
-  // Names
+type MessageHandler<MessageType, ReturnValue> = (message: MessageType, port: MessagePort) => Promise<ReturnValue>;
 
-  if (message.call === 'loadNames') {
-    const names = await Names.fetchAll(message.args);
-    const total = Store.replaceNames(names);
+const loadNames: MessageHandler<LoadNames, LoadNamesResult> = async (message) => {
+  const names = await Names.fetchAll(message.args);
+  const total = Store.replaceNames(names);
 
-    return { total };
-  }
+  return { total };
+};
 
-  // Transactions
-  if (message.call === 'loadTransactions') {
-    const stream = Transactions.fetchAll('mainnet', [message.args.address]);
+const loadTransactions: MessageHandler<LoadTransactions, void> = async (message, port) => {
+  const stream = Transactions.fetchAll('mainnet', [message.args.address]);
 
+  try {
     await readWholeStream(
       stream,
       (transactions) => {
@@ -62,39 +63,52 @@ async function dispatch(message: DataStoreMessage, port: MessagePort) {
       () => { },
       () => streamsToCancel.has(message.args.address),
     );
-    // TODO: await should be wrapped in try/catch and deleting stream from streamsToCancel should
-    // be in finally (so it's always deleted).
+  } finally {
     streamsToCancel.delete(message.args.address);
   }
+};
 
-  if (message.call === 'cancelLoadTransactions') {
-    streamsToCancel.add(message.args.address);
-  }
+const cancelLoadTransactions: MessageHandler<CancelLoadTransactions, void> = async (message) => {
+  streamsToCancel.add(message.args.address);
+};
 
-  if (message.call === 'getTransactionsTotal') {
-    return Transactions.getTransactionsTotal(message.args.chain, message.args.addresses);
-  }
+const getTransactionsTotal: MessageHandler<GetTransactionsTotal, GetTransactionsTotalResult> = async (message) => Transactions.getTransactionsTotal(
+  message.args.chain,
+  message.args.addresses,
+);
 
-  if (message.call === 'getPage') {
-    const {
-      address,
-      page,
-      pageSize,
-    } = message.args;
+const getPage: MessageHandler<GetPage, GetPageResult> = async (message) => {
+  const {
+    address,
+    page,
+    pageSize,
+  } = message.args;
 
-    return Transactions.getPage(Store.getTransactionsFor, {
-      address,
-      page,
-      pageSize,
-    });
-  }
+  return Transactions.getPage(Store.getTransactionsFor, {
+    address,
+    page,
+    pageSize,
+  });
+};
 
-  if (message.call === 'getChartItems') {
-    const { address, ...options } = message.args;
-    const transactions = Store.getTransactionsFor(address);
+const getChartItems: MessageHandler<GetChartItems, GetChartItemsResult> = async (message) => {
+  const { address, ...options } = message.args;
+  const transactions = Store.getTransactionsFor(address);
 
-    return Transactions.getChartItems(transactions, options);
-  }
+  return Transactions.getChartItems(transactions, options);
+};
 
-  return undefined;
+async function dispatch(message: DataStoreMessage, port: MessagePort) {
+  const result = await (async () => {
+    if (message.call === 'loadNames') return loadNames(message, port);
+    if (message.call === 'loadTransactions') return loadTransactions(message, port);
+    if (message.call === 'getTransactionsTotal') return getTransactionsTotal(message, port);
+    if (message.call === 'cancelLoadTransactions') return cancelLoadTransactions(message, port);
+    if (message.call === 'getPage') return getPage(message, port);
+    if (message.call === 'getChartItems') return getChartItems(message, port);
+
+    throw new Error('Unrecognized message');
+  })();
+
+  return result;
 }

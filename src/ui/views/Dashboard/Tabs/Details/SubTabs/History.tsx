@@ -7,6 +7,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { Transaction } from '@sdk';
 import { Col, Row } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
+import { GetPageResult } from 'src/ui/datastore/messages';
 
 import { BaseView } from '@components/BaseView';
 import { FilterButton } from '@components/FilterButton';
@@ -79,9 +80,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     getPageItems(page, pageSize);
   }, [getPageItems, page, pageSize, theData.length, transactionsFetchedByWorker]);
 
-  useEffect(() => onMessage<Transaction[]>((message) => {
-    if (message.call !== 'getPage') return;
-
+  useEffect(() => onMessage<GetPageResult>('getPage', (message) => {
     setTheData(message.result);
   }), [currentAddress, onMessage]);
 

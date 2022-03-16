@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { GetChartItemsResult } from 'src/ui/datastore/messages';
+
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
 import { usePathWithAddress } from '@hooks/paths';
@@ -12,9 +14,6 @@ import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 import { useGlobalNames, useGlobalState, useGlobalState2 } from '../../../../../State';
 import { chartColors } from '../../../../../Utilities';
 import { AccountViewParams } from '../../../Dashboard';
-
-// TODO: this should be in messages.ts
-type ChartData = { assetAddr: string, assetSymbol: string, items: { [key: string]: string | number }[] }[];
 
 export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const {
@@ -34,7 +33,7 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
     getChartItems,
   } = useDatastore();
 
-  const [items, setItems] = useState<ChartData>([]);
+  const [items, setItems] = useState<GetChartItemsResult>([]);
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -54,14 +53,7 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
     });
   }, [currentAddress, denom, getChartItems, hideZero, transactionsLoaded]);
 
-  useEffect(() => onMessage<ChartData>((message) => {
-    // if (message.call === 'loadTransactions') {
-
-    //   return;
-    // }
-
-    if (message.call !== 'getChartItems') return;
-
+  useEffect(() => onMessage<GetChartItemsResult>('getChartItems', (message) => {
     console.log('Got', message);
     setItems(message.result);
   }), [onMessage]);
@@ -124,15 +116,15 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
       {items.map((asset, index: number) => {
         const color = asset.assetSymbol === 'ETH'
           ? '#63b598'
-          : chartColors[Number(`0x${asset.assetAddr.substr(4, 3)}`) % chartColors.length];
+          : chartColors[Number(`0x${asset.assetAddress.substr(4, 3)}`) % chartColors.length];
         const columns: any[] = [
           addColumn({
             title: 'Date',
             dataIndex: 'date',
           }),
           addColumn({
-            title: asset.assetAddr,
-            dataIndex: asset.assetAddr,
+            title: asset.assetAddress,
+            dataIndex: asset.assetAddress,
           }),
         ];
 
@@ -145,8 +137,8 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
           <MyAreaChart
             items={asset.items}
             columns={columns}
-            key={asset.assetAddr}
-            index={asset.assetAddr}
+            key={asset.assetAddress}
+            index={asset.assetAddress}
             title={<ChartTitle asset={asset} index={index} />}
             table={false}
             color={color}
@@ -179,7 +171,7 @@ export function getLink(chain: string, type: string, addr1: string, addr2?: stri
   return '';
 }
 
-const ChartTitle = ({ index, asset }: { asset: ChartData[0]; index: number }) => {
+const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult[0]; index: number }) => {
   const { namesMap } = useGlobalNames();
   const { currentAddress, chain } = useGlobalState();
   const { apiProvider } = useGlobalState2();
@@ -190,34 +182,34 @@ const ChartTitle = ({ index, asset }: { asset: ChartData[0]; index: number }) =>
     <Link to={
       ({ search }) => {
         const path = generatePathWithAddress(DashboardAccountsHistoryLocation);
-        return `${path}?${createWrapper(search).set('asset', asset.assetAddr)}`;
+        return `${path}?${createWrapper(search).set('asset', asset.assetAddress)}`;
       }
     }
     >
       History
     </Link>,
   );
-  if (!namesMap.get(asset.assetAddr)) {
+  if (!namesMap.get(asset.assetAddress)) {
     links.push(
-      <a target='_blank' href={`${apiProvider}/names?chain=${chain}&autoname=${asset.assetAddr}`} rel='noreferrer'>
+      <a target='_blank' href={`${apiProvider}/names?chain=${chain}&autoname=${asset.assetAddress}`} rel='noreferrer'>
         Name
       </a>,
     );
   }
   if (asset.assetSymbol !== 'ETH') {
     links.push(
-      <a target='_blank' href={getLink(chain, 'holding', asset.assetAddr, currentAddress)} rel='noreferrer'>
+      <a target='_blank' href={getLink(chain, 'holding', asset.assetAddress, currentAddress)} rel='noreferrer'>
         Holdings
       </a>,
     );
   }
   links.push(
-    <a target='_blank' href={getLink(chain, 'token', asset.assetAddr, '')} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'token', asset.assetAddress, '')} rel='noreferrer'>
       Token
     </a>,
   );
   links.push(
-    <a target='_blank' href={getLink(chain, 'uni', asset.assetAddr, '')} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'uni', asset.assetAddress, '')} rel='noreferrer'>
       Uniswap
     </a>,
   );
@@ -228,8 +220,8 @@ const ChartTitle = ({ index, asset }: { asset: ChartData[0]; index: number }) =>
   // TODO: const tokenSymbol = useMemo(() => /* lookupHere */, [deps]);
   // TODO: You could then cache namesMap.get(asset.assetAddrs) and
   // TODO: asset.assetSymbol.substr(0, 15) in variables
-  const tokenSymbol = namesMap.get(asset.assetAddr)
-    ? namesMap.get(asset.assetAddr)?.name?.substr(0, 15) + (asset.assetSymbol
+  const tokenSymbol = namesMap.get(asset.assetAddress)
+    ? namesMap.get(asset.assetAddress)?.name?.substr(0, 15) + (asset.assetSymbol
       ? ` (${asset.assetSymbol.substr(0, 15)})`
       : '')
     : asset.assetSymbol.substr(0, 15);

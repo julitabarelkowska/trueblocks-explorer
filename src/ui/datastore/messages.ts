@@ -1,4 +1,8 @@
-import { address, getNames, Transaction } from '@sdk';
+import {
+  address, getNames, ListStats, Transaction,
+} from '@sdk';
+
+import { getChartItems } from './worker/transactions';
 
 export type DataStoreMessage =
   | LoadTransactions
@@ -21,6 +25,11 @@ export type LoadTransactions = {
   }
 };
 
+export type LoadTransactionsStatus = {
+  new: number,
+  total: number
+}
+
 export type CancelLoadTransactions = {
   call: 'cancelLoadTransactions',
   args: {
@@ -36,6 +45,8 @@ export type GetTransactionsTotal = {
   }
 }
 
+export type GetTransactionsTotalResult = ListStats[];
+
 export type GetPage = {
   call: 'getPage',
   args: {
@@ -44,6 +55,8 @@ export type GetPage = {
     pageSize: number,
   },
 };
+
+export type GetPageResult = Transaction[];
 
 export type GetChartItems = {
   call: 'getChartItems',
@@ -55,12 +68,11 @@ export type GetChartItems = {
   }
 };
 
-export type LoadTransactionsResult = DataStoreResult<{ new: number, total: number }>;
-export type GetPageResult = DataStoreResult<Transaction[]>;
+export type GetChartItemsResult = ReturnType<typeof getChartItems>;
 
 export type LoadNames = {
   call: 'loadNames',
   args: Parameters<typeof getNames>[0],
 }
 
-export type LoadNamesResult = DataStoreResult<{ total: number }>;
+export type LoadNamesResult = { total: number };

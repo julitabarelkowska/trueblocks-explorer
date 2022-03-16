@@ -3,8 +3,8 @@ import React, {
 } from 'react';
 import { generatePath, useParams } from 'react-router-dom';
 
-import { ListStats } from '@sdk';
 import Mousetrap from 'mousetrap';
+import { GetTransactionsTotalResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
 
 import { BaseView } from '@components/BaseView';
 import { useDatastore } from '@hooks/useDatastore';
@@ -63,16 +63,12 @@ export const DashboardView = () => {
   const routeParams = useParams<{ address: string }>();
   const addressParam = useMemo(() => routeParams.address, [routeParams.address]);
 
-  useEffect(() => onMessage<{ new: number, total: number }>((message) => {
-    if (message.call !== 'loadTransactions') return;
-
+  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', (message) => {
     setTransactionsFetchedByWorker(message.result.total);
     setTransactionsLoaded(true);
   }), [onMessage, setTransactionsFetchedByWorker, setTransactionsLoaded]);
 
-  useEffect(() => onMessage<ListStats[]>((message) => {
-    if (message.call !== 'getTransactionsTotal') return;
-
+  useEffect(() => onMessage<GetTransactionsTotalResult>('getTransactionsTotal', (message) => {
     setTotalRecords(message.result[0].nRecords);
   }), [onMessage, setTotalRecords]);
 
@@ -99,7 +95,6 @@ export const DashboardView = () => {
     const address = addressParam;
 
     if (currentAddress && currentAddress !== address) {
-      console.log('>>>>> cancelling', currentAddress);
       cancelLoadTransactions({ address: currentAddress });
     }
 

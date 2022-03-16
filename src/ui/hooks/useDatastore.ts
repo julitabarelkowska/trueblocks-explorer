@@ -48,14 +48,25 @@ export function useDatastore() {
 
   context.datastore.addEventListener('error', (e) => { throw new Error(e.error); });
 
-  type OnMessage = <ResultType>(callback: (message: DataStoreResult<ResultType>) => void) => void
-  const onMessage: OnMessage = useCallback((callback) => {
-    const listener = (event: MessageEvent) => callback(event.data);
+  const addListener = useCallback((listener: (event: MessageEvent) => void) => {
     context.datastore?.port.addEventListener('message', listener);
     return () => context.datastore?.port.removeEventListener('message', listener);
   }, [context.datastore?.port]);
 
+  type OnMessages = <ResultType>(callback: (message: DataStoreResult<ResultType>) => void) => void
+  const onMessages: OnMessages = useCallback((callback) => addListener((event) => callback(event.data)), [addListener]);
+
+  type OnMessage = <ResultType>(
+    call: DataStoreMessage['call'],
+    callback: (message: DataStoreResult<ResultType>) => void
+  ) => void
+  const onMessage: OnMessage = useCallback((call, callback) => addListener((event) => {
+    if (event.data.call !== call) return;
+    callback(event.data);
+  }), [addListener]);
+
   return {
+    onMessages,
     onMessage,
 
     loadTransactions: useCallback((args: LoadTransactions['args']) => sendMessage({
