@@ -270,9 +270,9 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_DENOM', denom });
   };
 
-  const setCurrentAddress = (address: SetCurrentAddress['address']) => {
+  const setCurrentAddress = useCallback((address: SetCurrentAddress['address']) => {
     dispatch({ type: 'SET_CURRENT_ADDRESS', address });
-  };
+  }, [dispatch]);
 
   const setNamesMap = useCallback((namesMap: SetNamesMap['namesMap']) => {
     dispatch({ type: 'SET_NAMES_MAP', namesMap });

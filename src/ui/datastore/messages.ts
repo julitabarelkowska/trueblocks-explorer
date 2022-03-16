@@ -2,6 +2,7 @@ import { address, getNames, Transaction } from '@sdk';
 
 export type DataStoreMessage =
   | LoadTransactions
+  | CancelLoadTransactions
   | GetTransactionsTotal
   | GetPage
   | GetChartItems
@@ -18,6 +19,13 @@ export type LoadTransactions = {
   args: {
     address: address,
   }
+};
+
+export type CancelLoadTransactions = {
+  call: 'cancelLoadTransactions',
+  args: {
+    address: address,
+  },
 };
 
 export type GetTransactionsTotal = {

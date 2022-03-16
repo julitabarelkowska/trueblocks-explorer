@@ -3,6 +3,7 @@ import {
 } from 'react';
 
 import {
+  CancelLoadTransactions,
   DataStoreMessage,
   DataStoreResult,
   GetChartItems,
@@ -41,9 +42,9 @@ export function useDatastore() {
   });
 
   // TODO: temporary
-  context.datastore.port.addEventListener('message', (e) => {
-    // console.log('[ App ] got message', e.data);
-  });
+  // context.datastore.port.addEventListener('message', (e) => {
+  //   console.log('[ App ] got message', e.data);
+  // });
 
   context.datastore.addEventListener('error', (e) => { throw new Error(e.error); });
 
@@ -59,6 +60,10 @@ export function useDatastore() {
 
     loadTransactions: useCallback((args: LoadTransactions['args']) => sendMessage({
       call: 'loadTransactions',
+      args,
+    }), [sendMessage]),
+    cancelLoadTransactions: useCallback((args: CancelLoadTransactions['args']) => sendMessage({
+      call: 'cancelLoadTransactions',
       args,
     }), [sendMessage]),
     getTransactionsTotal: useCallback((args: GetTransactionsTotal['args']) => sendMessage({

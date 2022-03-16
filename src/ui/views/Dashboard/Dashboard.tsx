@@ -57,9 +57,11 @@ export const DashboardView = () => {
     onMessage,
     loadTransactions,
     getTransactionsTotal,
+    cancelLoadTransactions,
   } = useDatastore();
 
   const routeParams = useParams<{ address: string }>();
+  const addressParam = useMemo(() => routeParams.address, [routeParams.address]);
 
   useEffect(() => onMessage<{ new: number, total: number }>((message) => {
     if (message.call !== 'loadTransactions') return;
@@ -93,11 +95,18 @@ export const DashboardView = () => {
   //----------------------
   // Fires when the address switches and kicks off the whole process of re-building the data
   useEffect(() => {
-    const { address } = routeParams;
+    // const { address } = routeParams;
+    const address = addressParam;
+
+    if (currentAddress && currentAddress !== address) {
+      console.log('>>>>> cancelling', currentAddress);
+      cancelLoadTransactions({ address: currentAddress });
+    }
+
     if (address) {
       setCurrentAddress(address);
     }
-  }, [routeParams, setCurrentAddress]);
+  }, [cancelLoadTransactions, currentAddress, addressParam, setCurrentAddress]);
 
   //----------------------
   // Fires when the address changes and builds the request transaction count
@@ -192,7 +201,7 @@ export const DashboardView = () => {
   //   setLoading(stateToSet);
   // }, [transactions.length, transactionsRequest.loading]);
 
-  const params: Omit<AccountViewParams, 'theData'> = {
+  const params: Omit<AccountViewParams, 'theData'> = useMemo(() => ({
     loading,
     setLoading,
     totalRecords,
@@ -216,7 +225,7 @@ export const DashboardView = () => {
       period,
       setPeriod,
     },
-  };
+  }), [hideNamed, hideReconciled, hideZero, loading, period, showDetails, showReversed, showStaging, showUnripe, totalRecords, transactionsMeta]);
 
   const detailsPaths = useMemo(() => [
     DashboardAccountsAddressLocation,

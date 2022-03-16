@@ -2,11 +2,22 @@ type ReadWholeStream = <StreamItem>(
   stream: ReadableStream<StreamItem>,
   onData: (item: StreamItem) => void,
   onDone?: () => void,
+  isCancelled?: () => boolean,
 ) => void;
-export const readWholeStream: ReadWholeStream = async (stream, onData, onDone = () => { }) => {
+export const readWholeStream: ReadWholeStream = async (
+  stream,
+  onData,
+  onDone = () => { },
+  isCancelled = () => false,
+) => {
   const reader = stream.getReader();
 
   await (async function readFromStream(): Promise<void> {
+    if (isCancelled()) {
+      reader.cancel();
+      return Promise.resolve();
+    }
+
     const { done, value } = await reader.read();
 
     if (!value) {

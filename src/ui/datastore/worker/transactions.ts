@@ -70,6 +70,7 @@ export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Tr
     async pull(controller) {
       if (cancelled || loaded >= total) {
         controller.close();
+        return;
       }
 
       const transactions = await fetchTransactions(chain, addresses, loaded);
@@ -77,6 +78,7 @@ export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Tr
 
       if (count === 0) {
         controller.close();
+        return;
       }
 
       loaded += count;
@@ -84,6 +86,7 @@ export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Tr
     },
     cancel() {
       cancelled = true;
+      return Promise.resolve();
     },
   });
 }

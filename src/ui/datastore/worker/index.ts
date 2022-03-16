@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars, no-restricted-globals */
 
+import { address as Address } from '@sdk';
+
 import { DataStoreMessage } from '../messages';
 import * as Names from './names';
 import * as Store from './store';
@@ -12,6 +14,8 @@ export { };
 declare global {
   function onconnect(e: MessageEvent): void
 }
+
+const streamsToCancel: Set<Address> = new Set();
 
 self.onconnect = async function connectionHandler({ ports }: MessageEvent) {
   const port = ports[0];
@@ -46,17 +50,25 @@ async function dispatch(message: DataStoreMessage, port: MessagePort) {
   }
 
   // Transactions
-
   if (message.call === 'loadTransactions') {
     const stream = Transactions.fetchAll('mainnet', [message.args.address]);
 
-    readWholeStream(
+    await readWholeStream(
       stream,
       (transactions) => {
         const total = Store.appendTransactions(message.args.address, transactions);
         port.postMessage({ call: message.call, result: { new: transactions.length, total } });
       },
+      () => { },
+      () => streamsToCancel.has(message.args.address),
     );
+    // TODO: await should be wrapped in try/catch and deleting stream from streamsToCancel should
+    // be in finally (so it's always deleted).
+    streamsToCancel.delete(message.args.address);
+  }
+
+  if (message.call === 'cancelLoadTransactions') {
+    streamsToCancel.add(message.args.address);
   }
 
   if (message.call === 'getTransactionsTotal') {
