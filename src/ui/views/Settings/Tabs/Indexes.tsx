@@ -14,6 +14,7 @@ import { IndexCacheItem } from '../../../../sdk/generated_ts/types/indexCacheIte
 import {
   SettingsIndexesChartsLocation,
   SettingsIndexesGridLocation,
+  SettingsIndexesLocation,
   SettingsIndexesManifestLocation,
   SettingsIndexesTableLocation,
 } from '../../../Routes';
@@ -53,7 +54,7 @@ export const IndexesView = () => {
   const tabs = [
     {
       name: 'Grid',
-      location: SettingsIndexesGridLocation,
+      location: [SettingsIndexesLocation, SettingsIndexesGridLocation],
       component: <IndexGrid key='grid' theData={theGridData} title={title} loading={statusCall.loading} />,
     },
     {
