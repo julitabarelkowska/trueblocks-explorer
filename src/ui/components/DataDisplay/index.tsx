@@ -33,7 +33,7 @@ export function DataDisplay(
   };
 
   return (
-    <div className='json-display'>
+    <div className='data-display'>
       {treeModelToComponents(treeModel, [], combinedOnValue)}
       { showCopy
         ? <CopyAsJson content={data} />
