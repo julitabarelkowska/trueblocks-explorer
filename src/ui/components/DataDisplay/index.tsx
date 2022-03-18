@@ -7,11 +7,8 @@ import { createMakeTreeFromObject, OnValue, treeModelToComponents } from '@modul
 
 import './DataDisplay.css';
 
-const tooDeep = 'TOO_DEEP';
 const makeTreeFromObject = createMakeTreeFromObject({
   maxDeep: 3,
-  onTooDeep: () => tooDeep,
-  onEmpty: () => [],
 });
 
 const defaultOnTooDeep = () => (
@@ -25,7 +22,7 @@ export function DataDisplay(
 ) {
   const treeModel = useMemo(() => makeTreeFromObject(data), [data]);
   const combinedOnValue: OnValue = (path, value) => {
-    if (value === tooDeep) {
+    if (value.kind === 'tooDeep') {
       return onTooDeep();
     }
 
@@ -34,10 +31,10 @@ export function DataDisplay(
 
   return (
     <div className='data-display'>
-      {treeModelToComponents(treeModel, [], combinedOnValue)}
       { showCopy
         ? <CopyAsJson content={data} />
         : null}
+      {treeModelToComponents(treeModel, [], combinedOnValue)}
     </div>
   );
 }

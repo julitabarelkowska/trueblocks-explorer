@@ -8,6 +8,14 @@
     --border-color: #f0f0f0;
     --border: var(--border-width) var(--border-style) var(--border-color);
     --term-background: #fafafa;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space);
+}
+
+.data-display > button {
+  align-self: end;
 }
 
 .data-display dl {
@@ -43,8 +51,13 @@
     border-bottom: var(--border);
 }
 
+.data-display ol {
+  padding: 0;
+  list-style: none;
+}
+
 @media screen and (min-width: 1800px) {
-  .data-display dl:not(dl dl) {
+  .data-display div.treeRoot {
     display: table;
     border-collapse: collapse;
   }

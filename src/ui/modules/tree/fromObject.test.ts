@@ -3,8 +3,6 @@ import { createMakeTreeFromObject } from './fromObject';
 let makeTreeFromObject: ReturnType<typeof createMakeTreeFromObject>;
 const config = {
   maxDeep: 4,
-  onTooDeep: () => 'too deep',
-  onEmpty: () => 'empty',
 };
 
 describe('makeTreeFromObject', () => {
@@ -14,7 +12,11 @@ describe('makeTreeFromObject', () => {
 
   test('simple primitive value', () => {
     const result = makeTreeFromObject('hello');
-    expect(result).toBe('hello');
+    expect(result).toEqual({
+      kind: 'value',
+      key: '',
+      value: 'hello',
+    });
   });
 
   test('empty value', () => {
@@ -28,14 +30,24 @@ describe('makeTreeFromObject', () => {
       key2: 2,
     });
     expect(result).toEqual([
-      [
-        'key1',
-        1,
-      ],
-      [
-        'key2',
-        2,
-      ],
+      {
+        kind: 'property',
+        key: 'key1',
+        value: {
+          kind: 'value',
+          key: '',
+          value: 1,
+        },
+      },
+      {
+        kind: 'property',
+        key: 'key2',
+        value: {
+          kind: 'value',
+          key: '',
+          value: 2,
+        },
+      },
     ]);
   });
 
@@ -43,20 +55,27 @@ describe('makeTreeFromObject', () => {
     const result = makeTreeFromObject([
       'a', 'b', 'c',
     ]);
-    expect(result).toEqual([
-      [
-        '0',
-        'a',
+    expect(result).toEqual({
+      kind: 'array',
+      key: '',
+      value: [
+        {
+          kind: 'value',
+          key: '',
+          value: 'a',
+        },
+        {
+          kind: 'value',
+          key: '',
+          value: 'b',
+        },
+        {
+          kind: 'value',
+          key: '',
+          value: 'c',
+        },
       ],
-      [
-        '1',
-        'b',
-      ],
-      [
-        '2',
-        'c',
-      ],
-    ]);
+    });
   });
 
   test('simple nested object', () => {
@@ -71,32 +90,50 @@ describe('makeTreeFromObject', () => {
       ],
     });
     expect(result).toEqual([
-      [
-        'key1',
-        [
-          [
-            'nested',
-            'nested value',
-          ],
-          [
-            'another',
-            'another value',
-          ],
+      {
+        kind: 'property',
+        key: 'key1',
+        value: [
+          {
+            kind: 'property',
+            key: 'nested',
+            value: {
+              kind: 'value',
+              key: '',
+              value: 'nested value',
+            },
+          },
+          {
+            kind: 'property',
+            key: 'another',
+            value: {
+              kind: 'value',
+              key: '',
+              value: 'another value',
+            },
+          },
         ],
-      ],
-      [
-        'key2',
-        [
-          [
-            '0',
-            'nested item 1',
+      },
+      {
+        kind: 'property',
+        key: 'key2',
+        value: {
+          kind: 'array',
+          key: '',
+          value: [
+            {
+              kind: 'value',
+              key: '',
+              value: 'nested item 1',
+            },
+            {
+              kind: 'value',
+              key: '',
+              value: 'nested item 2',
+            },
           ],
-          [
-            '1',
-            'nested item 2',
-          ],
-        ],
-      ],
+        },
+      },
     ]);
   });
 
@@ -112,16 +149,14 @@ describe('makeTreeFromObject', () => {
         },
       },
     });
-    expect(result).toEqual([
-      [
-        'level1',
-        [
-          [
-            'level2',
-            config.onTooDeep(),
-          ],
-        ],
-      ],
-    ]);
+    expect(result).toEqual([{
+      kind: 'property',
+      key: 'level1',
+      value: [{
+        kind: 'property',
+        key: 'level2',
+        value: { kind: 'tooDeep' },
+      }],
+    }]);
   });
 });
