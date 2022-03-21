@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import {
+  PageHeader,
   Progress,
 } from 'antd';
 
@@ -14,19 +15,28 @@ export const AddressBar = ({ params }: { params: AccountViewParams }) => {
   const { namesMap } = useGlobalNames();
   const { totalRecords } = params;
 
+  const title = useMemo(() => {
+    const name = currentAddress ? namesMap.get(currentAddress)?.name : '';
+
+    if (!name) {
+      return <PageHeader title={currentAddress} />;
+    }
+
+    return <PageHeader title={name} subTitle={currentAddress} />;
+  }, [currentAddress, namesMap]);
+
   if (!namesMap || !currentAddress) return <></>;
-  if (namesMap.get(currentAddress)?.name === undefined) return <></>;
 
   return (
-    <div className='address_bar'>
-      <h3>
-        {`${namesMap.get(currentAddress)?.name} (${currentAddress})`}
-      </h3>
-      <div>
-        <ProgressBar params={params} />
+    <div className='addressBar'>
+      <div className='topRow'>
+        {title}
+        <div>
+          <ProgressBar params={params} />
+        </div>
       </div>
       <div />
-      <div style={{ marginTop: '0px' }}>{`${totalRecords} records on ${chain}`}</div>
+      <div>{`${totalRecords} records on ${chain}`}</div>
     </div>
   );
 };

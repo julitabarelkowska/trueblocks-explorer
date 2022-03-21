@@ -1,0 +1,19 @@
+.viewOptions {
+  margin-left: 140px;
+  padding-bottom: 16px;
+}
+
+.viewOptions form {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0 0px 16px;
+}
+
+.viewOptions form .ant-form-item-label label {
+  font-weight: bold;
+}
+
+.viewOptions .ant-form-item-control-input,
+.viewOptions form label {
+  align-items: start;
+}
