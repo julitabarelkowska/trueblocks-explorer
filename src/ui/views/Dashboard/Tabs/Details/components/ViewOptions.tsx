@@ -1,8 +1,9 @@
-import React from 'react';
-import { createUseStyles } from 'react-jss';
+import React, { useMemo, useState } from 'react';
 
+import { DownOutlined, SettingOutlined } from '@ant-design/icons';
 import {
-  Button, Checkbox, Select,
+  Badge,
+  Button, Checkbox, Dropdown, Form, Menu, Select, Space,
 } from 'antd';
 
 import { useGlobalState } from '../../../../../State';
@@ -11,11 +12,38 @@ import {
   exportToCsv, exportToJson, exportToOfx, exportToTxt,
 } from './Export';
 
+import './ViewOptions.css';
+
 export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   const { denom, setDenom } = useGlobalState();
+  const [optionsVisible, setOptionsVisible] = useState(false);
 
-  const styles = useStyles();
   const { userPrefs } = params;
+
+  const repOptions = useMemo(() => ['by tx', 'by hour', 'by day', 'by week', 'by month', 'by quarter', 'by year'], []);
+
+  const someOptionsActive = useMemo(() => [
+    userPrefs.hideZero !== 'all',
+    userPrefs.period !== repOptions[0],
+    userPrefs.hideNamed,
+    userPrefs.hideReconciled,
+    userPrefs.showDetails,
+    userPrefs.showReversed,
+    userPrefs.showStaging,
+    userPrefs.showUnripe,
+    denom !== 'ether',
+  ].some(Boolean), [
+    denom,
+    repOptions,
+    userPrefs.hideNamed,
+    userPrefs.hideReconciled,
+    userPrefs.hideZero,
+    userPrefs.period,
+    userPrefs.showUnripe,
+    userPrefs.showDetails,
+    userPrefs.showReversed,
+    userPrefs.showStaging,
+  ]);
 
   const onEther = () => {
     setDenom('ether');
@@ -48,106 +76,143 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
     exportToJson(params.theData);
   };
 
-  const repOptions = ['by tx', 'by hour', 'by day', 'by week', 'by month', 'by quarter', 'by year'];
-  return (
-    <div style={{ marginLeft: '2px' }}>
-      <h3 className={styles.smallHeader}>options: </h3>
-      <div className={styles.smallHeader}>order: </div>
-      <Checkbox checked={userPrefs.showReversed} onChange={() => userPrefs.setShowReversed(!userPrefs.showReversed)}>
-        reversed
-      </Checkbox>
-      <p />
-      <div className={styles.smallHeader}>head: </div>
-      <Checkbox checked={userPrefs.showStaging} onChange={() => userPrefs.setShowStaging(!userPrefs.showStaging)}>
-        staging
-      </Checkbox>
-      <br />
-      {/* TODO(tjayrush): should be unripe... */}
-      <Checkbox checked={userPrefs.showUnripe} onChange={() => userPrefs.setShowUnripe(!userPrefs.showUnripe)}>
-        unripe
-      </Checkbox>
-      <p />
-      <div className={styles.smallHeader}>display: </div>
-      <Select
-        placeholder='display by'
-        value={userPrefs.period}
-        onChange={(newValue) => userPrefs.setPeriod(newValue)}
-        style={{ width: '100%' }}
-      >
-        {repOptions.map((item) => (
-          <Select.Option key={item} value={item}>
-            {item}
-          </Select.Option>
-        ))}
-      </Select>
-      <Checkbox checked={userPrefs.hideNamed} onChange={() => userPrefs.setHideNamed(!userPrefs.hideNamed)}>
-        unnamed
-      </Checkbox>
-      <br />
-      <Checkbox
-        checked={
-          userPrefs.hideReconciled
-        }
-        onChange={() => userPrefs.setHideReconciled(!userPrefs.hideReconciled)}
-      >
-        unreconciled
-      </Checkbox>
-      <br />
-      <Checkbox checked={userPrefs.showDetails} onChange={() => userPrefs.setShowDetails(!userPrefs.showDetails)}>
-        details
-      </Checkbox>
-      <p />
-      <div className={styles.smallHeader}>zero balance: </div>
-      <Checkbox checked={userPrefs.hideZero === 'hide'} onChange={() => onHideZero()}>
-        hide
-      </Checkbox>
-      <br />
-      <Checkbox checked={userPrefs.hideZero === 'show'} onChange={() => onShowZero()}>
-        show
-      </Checkbox>
-      <br />
-      <Checkbox checked={userPrefs.hideZero === 'all'} onChange={() => onShowAll()}>
-        show all
-      </Checkbox>
-      <p />
-      <div className={styles.smallHeader}>denomination: </div>
-      <Checkbox checked={denom === 'ether'} onChange={() => onEther()}>
-        ether
-      </Checkbox>
-      <br />
-      <Checkbox checked={denom === 'dollars'} onChange={() => onDollars()}>
-        dollars
-      </Checkbox>
-      <p />
-      <div className={styles.smallHeader}>export: </div>
-      <Button onClick={onExportCSV} className={styles.exportBtn}>
+  const exportOverlay = (
+    <Menu>
+      <Menu.Item key='csv' onClick={onExportCSV}>
         CSV...
-      </Button>
-      <Button onClick={onExportTXT} className={styles.exportBtn}>
+      </Menu.Item>
+      <Menu.Item key='txt' onClick={onExportTXT}>
         TXT...
-      </Button>
-      <Button onClick={onExportJson} className={styles.exportBtn}>
+      </Menu.Item>
+      <Menu.Item key='json' onClick={onExportJson}>
         JSON...
-      </Button>
-      <Button onClick={onExportOFX} className={styles.exportBtn}>
+      </Menu.Item>
+      <Menu.Item key='qb' onClick={onExportOFX}>
         QB...
-      </Button>
+      </Menu.Item>
+    </Menu>
+  );
+
+  return (
+    <div className='viewOptions'>
+      <Space>
+        <Button onClick={() => setOptionsVisible((value) => !value)}>
+          <SettingOutlined />
+          {optionsVisible ? 'Hide' : 'Show'}
+          {' '}
+          View Options
+          {someOptionsActive ? <Badge dot /> : null}
+        </Button>
+        <Dropdown overlay={exportOverlay} trigger={['click']}>
+          <Button>
+            Export
+            {' '}
+            <DownOutlined />
+          </Button>
+        </Dropdown>
+      </Space>
+
+      { optionsVisible
+        ? (
+          <div>
+            <Form colon={false}>
+              <Form.Item
+                label='Order'
+              >
+                <Checkbox checked={userPrefs.showReversed} onChange={() => userPrefs.setShowReversed(!userPrefs.showReversed)}>
+                  reversed
+                </Checkbox>
+              </Form.Item>
+              <Form.Item
+                label='Head'
+              >
+                <div>
+                  <Checkbox checked={userPrefs.showStaging} onChange={() => userPrefs.setShowStaging(!userPrefs.showStaging)}>
+                    staging
+                  </Checkbox>
+                </div>
+                <div>
+                  {/* TODO(tjayrush): should be unripe... */}
+                  <Checkbox checked={userPrefs.showUnripe} onChange={() => userPrefs.setShowUnripe(!userPrefs.showUnripe)}>
+                    unripe
+                  </Checkbox>
+                </div>
+              </Form.Item>
+              <Form.Item
+                label='Display'
+              >
+                <Select
+                  placeholder='display by'
+                  value={userPrefs.period}
+                  onChange={(newValue) => userPrefs.setPeriod(newValue)}
+                  style={{ width: '100%' }}
+                >
+                  {repOptions.map((item) => (
+                    <Select.Option key={item} value={item}>
+                      {item}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <div>
+                  <div>
+                    <Checkbox checked={userPrefs.hideNamed} onChange={() => userPrefs.setHideNamed(!userPrefs.hideNamed)}>
+                      unnamed
+                    </Checkbox>
+                  </div>
+                  <div>
+                    <Checkbox
+                      checked={
+                        userPrefs.hideReconciled
+                      }
+                      onChange={() => userPrefs.setHideReconciled(!userPrefs.hideReconciled)}
+                    >
+                      unreconciled
+                    </Checkbox>
+                  </div>
+                  <div>
+                    <Checkbox checked={userPrefs.showDetails} onChange={() => userPrefs.setShowDetails(!userPrefs.showDetails)}>
+                      details
+                    </Checkbox>
+                  </div>
+                </div>
+              </Form.Item>
+              <Form.Item
+                label='Zero balance'
+              >
+                <div>
+                  <Checkbox checked={userPrefs.hideZero === 'hide'} onChange={() => onHideZero()}>
+                    hide
+                  </Checkbox>
+                </div>
+                <div>
+                  <Checkbox checked={userPrefs.hideZero === 'show'} onChange={() => onShowZero()}>
+                    show
+                  </Checkbox>
+                </div>
+                <div>
+                  <Checkbox checked={userPrefs.hideZero === 'all'} onChange={() => onShowAll()}>
+                    show all
+                  </Checkbox>
+                </div>
+              </Form.Item>
+              <Form.Item
+                label='Denomination'
+              >
+                <div>
+                  <Checkbox checked={denom === 'ether'} onChange={() => onEther()}>
+                    ether
+                  </Checkbox>
+                </div>
+                <div>
+                  <Checkbox checked={denom === 'dollars'} onChange={() => onDollars()}>
+                    dollars
+                  </Checkbox>
+                </div>
+              </Form.Item>
+            </Form>
+          </div>
+        )
+        : null}
     </div>
   );
 };
-
-const useStyles = createUseStyles({
-  smallHeader: {
-    fontWeight: 800,
-    textDecoration: 'underline',
-  },
-  exportBtn: {
-    margin: '0',
-    padding: '1',
-    paddingLeft: '8px',
-    height: '30px',
-    width: '70px',
-    fontSize: '10pt',
-    textAlign: 'left',
-  },
-});

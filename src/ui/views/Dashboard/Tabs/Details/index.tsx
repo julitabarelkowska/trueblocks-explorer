@@ -77,9 +77,9 @@ export const DetailsView = ({ params }: { params: AccountViewParams }) => {
   return (
     <div>
       <AddressBar params={params} />
-      <div style={{ display: 'grid', gridTemplateColumns: '20fr 1fr' }}>
-        <BaseView cookieName='COOKIE_DASHBOARD_ACCOUNTS' tabs={leftSideTabs} position='left' />
+      <div>
         <ViewOptions params={params} />
+        <BaseView cookieName='COOKIE_DASHBOARD_ACCOUNTS' tabs={leftSideTabs} position='left' />
       </div>
     </div>
   );
