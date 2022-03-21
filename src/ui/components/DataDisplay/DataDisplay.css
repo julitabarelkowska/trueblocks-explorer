@@ -60,6 +60,8 @@
   .data-display div.treeRoot {
     display: table;
     border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
   }
 
   .data-display dl {
@@ -69,6 +71,7 @@
 
   .data-display dl dt {
     display: table-cell;
+    width: 25%;
 
     text-overflow: ellipsis;
     overflow: hidden;

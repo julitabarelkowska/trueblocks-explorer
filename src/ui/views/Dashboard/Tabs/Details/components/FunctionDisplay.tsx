@@ -9,6 +9,8 @@ import { OnValue } from '@modules/tree';
 
 import { isAddress } from '../../../../../Utilities';
 
+import './FunctionDisplay.css';
+
 //-----------------------------------------------------------------
 export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: string }) => {
   const bytes = useMemo(() => ({
@@ -37,6 +39,14 @@ export const FunctionDisplay = ({ func, rawBytes }: { func: Function, rawBytes: 
     if (node.kind === 'tooDeep') return <></>;
 
     const { value } = node;
+
+    if (path.includes('Bytes')) {
+      return (
+        <div className='bytes'>
+          {value}
+        </div>
+      );
+    }
 
     if (isAddress(value)) {
       return <Address address={String(value)} />;
