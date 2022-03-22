@@ -1,33 +1,92 @@
-.json-display {
+.data-display {
     /* These variables are here to make sure that we match
      * antd layout and styles
      */
     --space: 8px;
-    --border: 1px solid #f0f0f0;
+    --border-width: 1px;
+    --border-style: solid;
+    --border-color: #f0f0f0;
+    --border: var(--border-width) var(--border-style) var(--border-color);
     --term-background: #fafafa;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space);
 }
 
-.json-display dl {
+.data-display > button {
+  align-self: end;
+}
+
+.data-display dl {
     margin: 0;
-    border: var(--border)
 }
 
-.json-display dl:not(:last-child) {
+.data-display dl:not(:last-child) {
     margin-bottom: var(--space);
 }
 
-.json-display dl dt {
-    background-color: var(--term-background);
+.data-display dl dt {
+  background-color: var(--term-background);
+
+  border: var(--border);
 }
 
-.json-display dl dt,
-.json-display dl dd {
+.data-display dl dd {
+  word-wrap: anywhere;
+
+  border-color: var(--border-color);
+  border-style: var(--border-style);
+  border-width: 0 var(--border-width) var(--border-width) var(--border-width);
+}
+
+.data-display dl dt,
+.data-display dl dd {
     margin: 0;
     padding: var(--space) calc(2 * var(--space));
-    word-wrap: anywhere;
 }
 
-.json-display dl dt,
-.json-display dl dd:not(:last-child) {
+.data-display dl dt,
+.data-display dl dd:not(:last-child) {
     border-bottom: var(--border);
+}
+
+.data-display ol {
+  padding: 0;
+  list-style: none;
+}
+
+@media screen and (min-width: 1800px) {
+  .data-display div.treeRoot {
+    display: table;
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .data-display dl {
+    display: table-row;
+    border: none;
+  }
+
+  .data-display dl dt {
+    display: table-cell;
+    width: 25%;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+
+    border: var(--border);
+  }
+
+  .data-display dl dd:empty {
+    display: none;
+  }
+
+  .data-display dl dd {
+    display: table-cell;
+
+    border: var(--border);
+  }
 }

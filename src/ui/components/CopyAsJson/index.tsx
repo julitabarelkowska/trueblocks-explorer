@@ -8,6 +8,6 @@ export const CopyAsJson = ({ content }: { content: {} }) => (
     onClick={() => navigator.clipboard.writeText(JSON.stringify(content))}
     icon={<CopyTwoTone />}
   >
-    Copy as JSON
+    Copy
   </Button>
 );

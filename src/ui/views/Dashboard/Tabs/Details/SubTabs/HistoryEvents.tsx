@@ -13,6 +13,8 @@ import { isAddress } from '../../../../../Utilities';
 import { headerStyle, useAcctStyles } from '..';
 // import { FunctionDisplay } from '../components/FunctionDisplay';
 
+type LogOutput = { emitter: Log['address'] } & Omit<Log, 'address'>;
+
 //-----------------------------------------------------------------
 export const HistoryEvents = ({ record }: { record: Transaction }) => {
   const styles = useAcctStyles();
@@ -45,7 +47,13 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
   const relevants = record.receipt?.logs?.map((log) => {
     const hasAddress = Boolean(log.address);
     if (!hasAddress) return null;
-    return <RelevantLog key={log.logIndex} log={log} />;
+
+    const output = Object.fromEntries([
+      ['emitter', log.address],
+      ...Object.entries(log).filter(([property]) => property !== 'address'),
+    ]) as LogOutput;
+
+    return <RelevantLog key={log.logIndex} log={output} />;
   });
 
   const irrelevants = record.receipt?.logs?.map((log, index) => {
@@ -77,8 +85,12 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
 };
 
 //-----------------------------------------------------------------
-const onValue: OnValue = (path, value) => {
-  if (isAddress(value)) {
+const onValue: OnValue = (path, node) => {
+  if (node.kind === 'tooDeep') return <></>;
+
+  const { value } = node;
+
+  if (isAddress(value) && !path.includes('topics')) {
     return <Address address={String(value)} />;
   }
 
@@ -99,7 +111,7 @@ const onValue: OnValue = (path, value) => {
   return <>{value}</>;
 };
 
-const RelevantLog = ({ log }: { log: Log }) => (
+const RelevantLog = ({ log }: { log: LogOutput }) => (
   <DataDisplay data={log} onValue={onValue} />
 );
 

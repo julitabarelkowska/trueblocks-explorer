@@ -24,12 +24,12 @@ export const BaseView = ({
 }: ViewParams) => {
   const titleComponent = title.length === 0 ? <></> : <PageHeader style={{ padding: '0px' }} title={title} />;
   return (
-    <>
+    <div>
       {titleComponent}
       <RouteTabs
         tabs={tabs}
         tabPosition={position}
       />
-    </>
+    </div>
   );
 };

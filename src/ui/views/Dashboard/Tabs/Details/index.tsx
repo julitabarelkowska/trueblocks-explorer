@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 import { createUseStyles } from 'react-jss';
 
-import { Divider } from 'antd';
-
 import { BaseView, ViewTab } from '@components/BaseView';
 import { usePathWithAddress } from '@hooks/paths';
 
@@ -79,10 +77,9 @@ export const DetailsView = ({ params }: { params: AccountViewParams }) => {
   return (
     <div>
       <AddressBar params={params} />
-      <Divider style={{ height: '1px' }} />
-      <div style={{ display: 'grid', gridTemplateColumns: '20fr 1fr' }}>
-        <BaseView cookieName='COOKIE_DASHBOARD_ACCOUNTS' tabs={leftSideTabs} position='left' />
+      <div>
         <ViewOptions params={params} />
+        <BaseView cookieName='COOKIE_DASHBOARD_ACCOUNTS' tabs={leftSideTabs} position='left' />
       </div>
     </div>
   );

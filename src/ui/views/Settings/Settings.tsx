@@ -5,7 +5,12 @@ import { BaseView } from '@components/BaseView';
 import {
   SettingsCachesLocation,
   SettingsDataModelLocation,
+  SettingsIndexesChartsLocation,
+  SettingsIndexesGridLocation,
   SettingsIndexesLocation,
+  SettingsIndexesManifestLocation,
+  SettingsIndexesTableLocation,
+  SettingsLocation,
   SettingsScrapersLocation,
   SettingsSkinsLocation,
 } from '../../Routes';
@@ -17,8 +22,18 @@ import { Skins } from './Tabs/Skins';
 
 export const SettingsView = () => {
   const tabs = [
-    { name: 'Scrapers', location: SettingsScrapersLocation, component: <Scrapers /> },
-    { name: 'Indexes', location: SettingsIndexesLocation, component: <IndexesView /> },
+    { name: 'Scrapers', location: [SettingsLocation, SettingsScrapersLocation], component: <Scrapers /> },
+    {
+      name: 'Indexes',
+      location: [
+        SettingsIndexesLocation,
+        SettingsIndexesGridLocation,
+        SettingsIndexesTableLocation,
+        SettingsIndexesChartsLocation,
+        SettingsIndexesManifestLocation,
+      ],
+      component: <IndexesView />,
+    },
     { name: 'Caches', location: SettingsCachesLocation, component: <Caches /> },
     { name: 'Skins', location: SettingsSkinsLocation, component: <Skins /> },
     { name: 'Data Model', location: SettingsDataModelLocation, component: <DataModel /> },

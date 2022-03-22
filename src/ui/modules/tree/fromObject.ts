@@ -2,12 +2,36 @@ const isObject = (value: unknown): value is object => typeof value === 'object';
 
 type CreateMakeTreeFromObject = (configuration: {
   maxDeep: number,
-  onTooDeep: () => Tree
-  onEmpty: () => Tree
 }) => MakeTreeFromObject;
 
-type Tree = [] | Primitive | Branch[]
-type Branch = [string, Tree]
+type Tree = [] | Node | Node[] | TooDeep;
+export type Node =
+  | PropertyNode
+  | ArrayNode
+  | ValueNode
+
+type PropertyNode = {
+  kind: 'property',
+  key: string,
+  value: Tree
+}
+
+export type ArrayNode = {
+  kind: 'array',
+  key: '',
+  value: Tree[]
+}
+
+type ValueNode = {
+  kind: 'value',
+  key: '',
+  value: Primitive,
+}
+
+export type TooDeep = {
+  kind: 'tooDeep',
+};
+
 export type MakeTreeFromObject = (value: InputValue, count?: number) => Tree
 
 type InputValue = Record<string, Primitive | NonPrimitive> | Primitive | Primitive[] | []
@@ -17,20 +41,33 @@ type NonPrimitive = {} | []
 export const createMakeTreeFromObject: CreateMakeTreeFromObject = (configuration) => {
   const makeTreeFromObject: MakeTreeFromObject = (value, count = 0) => {
     if (count > configuration.maxDeep) {
-      return configuration.onTooDeep();
+      return { kind: 'tooDeep' };
     }
 
     if (!isObject(value)) {
-      return value;
+      const r: Node = {
+        kind: 'value',
+        key: '',
+        value,
+      };
+      return r;
     }
 
-    const objectTarget = Array.isArray(value) ? Object.fromEntries(Object.entries(value)) : value;
+    if (Array.isArray(value)) {
+      const r: Node = {
+        kind: 'array',
+        key: '',
+        // @ts-ignore
+        value: value.map((itemValue) => makeTreeFromObject(itemValue, count + 1)),
+      };
+      return r;
+    }
 
-    const entries = Object.entries(objectTarget);
-    return entries.map(([key, itemValue]) => [
+    return Object.entries(value).map(([key, itemValue]) => ({
+      kind: 'property',
       key,
-      makeTreeFromObject(itemValue, count + 1),
-    ]);
+      value: makeTreeFromObject(itemValue, count + 1),
+    }));
   };
   return makeTreeFromObject;
 };
