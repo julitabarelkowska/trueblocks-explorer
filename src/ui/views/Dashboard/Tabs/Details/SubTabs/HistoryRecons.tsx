@@ -158,7 +158,8 @@ const statementBody = (statement: Reconciliation, details: boolean, styles: any)
 //-----------------------------------------------------------------
 const clip2 = (num: double) => {
   if (!num) return <div style={{ color: 'lightgrey' }}>-</div>;
-  return <div>{Number(num).toFixed(5)}</div>;
+  // parseFloat removes padding zeroes from the result of toFixed
+  return <div>{parseFloat(Number(num).toFixed(5))}</div>;
 };
 
 //-----------------------------------------------------------------
@@ -212,21 +213,31 @@ const BodyRow = (
 //-----------------------------------------------------------------
 const DetailRow = (style: string, name: string, value: double | string) => {
   const isErr: boolean = name?.includes('Diff') && value !== 0;
-  const disp = (
+  const valueToDisplay = (() => {
+    if (typeof value === 'number') return clip2(value);
+
+    const parsed = parseFloat(value);
+
+    if (Number.isNaN(parsed)) return value;
+
+    return clip2(parsed);
+  })();
+
+  return (
     <tr>
-      <td className={style} colSpan={2}>
+      <td className={style}>
         {name}
       </td>
+      <td />
+      <td />
       <td
         className={style}
         style={isErr ? { color: 'red', textAlign: 'right' } : { textAlign: 'right' }}
-        colSpan={3}
       >
-        {typeof value === 'string' ? value : clip2(value)}
+        {valueToDisplay}
       </td>
     </tr>
   );
-  return disp;
 };
 
 //-----------------------------------------------------------------

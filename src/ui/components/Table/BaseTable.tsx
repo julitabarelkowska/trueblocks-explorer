@@ -57,7 +57,8 @@ export const BaseTable = ({
   Mousetrap.bind(['right', 'pagedown'], (event) => setRowAndHandleScroll(event, curRow + pageSize));
   Mousetrap.bind('home', (event) => setRowAndHandleScroll(event, 0));
   Mousetrap.bind('end', (event) => setRowAndHandleScroll(event, dataSource.length - 1));
-  Mousetrap.bind('enter', () => {
+  Mousetrap.bind('enter', (event) => {
+    event.preventDefault();
     setExpandedRow((currentValue) => {
       if (currentValue === curRow) return -1; // disable
 
@@ -122,6 +123,10 @@ export const BaseTable = ({
         expandable={{
           expandedRowRender,
           expandedRowKeys: [expandedRow],
+          onExpand(expanded, record) {
+            setExpandedRow(expanded ? record.key : -1);
+            setCurRow(record.key);
+          },
         }}
         pagination={{
           onChange: (page, newPageSize) => {
