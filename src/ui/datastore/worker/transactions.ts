@@ -105,10 +105,16 @@ export const getPage: GetPage = (getTransactions, { address, page, pageSize }) =
   return source.slice(pageStart, pageStart + pageSize);
 };
 
-type GetChartItems = (transactions: Transaction[] | undefined, options: GetChartItemsOptions) => Array<ChartInput>;
-type GetChartItemsOptions = {
+type GetChartItems = (transactions: Transaction[] | undefined, options: GetChartItemsOptions) => GetChartItemsResult;
+export type GetChartItemsOptions = {
+  startIndex?: number,
   denom: 'ether' | 'dollars',
   zeroBalanceStrategy: 'ignore-non-zero' | 'ignore-zero' | 'unset',
+};
+type GetChartItemsResult = {
+  startIndex: number,
+  lastIndex: number,
+  items: Record<string, ChartInput>,
 };
 type ChartInput = {
   assetAddress: string,
@@ -118,9 +124,20 @@ type ChartInput = {
   }[]
 };
 export const getChartItems: GetChartItems = (transactions, options) => {
-  if (!transactions?.length) return [];
+  const startIndex = options.startIndex || 0;
+  const lastIndex = transactions ? (transactions.length - 1) : 0;
+
+  if (!transactions?.length) {
+    // TODO: make SequencedData<T> with this props and also EMPTY state
+    return {
+      startIndex,
+      lastIndex,
+      items: {},
+    };
+  }
 
   const result: Record<string, ChartInput> = transactions
+    .slice(startIndex)
     .flatMap(({ statements }) => statements)
     .reduce((historyPerAsset, statement) => {
       if (!statement) return historyPerAsset;
@@ -141,8 +158,8 @@ export const getChartItems: GetChartItems = (transactions, options) => {
         [statement.assetAddr]: balance,
         date: (new Date(timestamp * 1000)).toISOString().replace(/T.+/, ''),
       }];
-      const previousState = historyPerAsset[statement.assetAddr] || {
-        assetAddr: statement.assetAddr,
+      const previousState = (historyPerAsset as Record<string, ChartInput>)[statement.assetAddr] || {
+        assetAddress: statement.assetAddr,
         assetSymbol: statement.assetSymbol,
         items: [],
       };
@@ -157,9 +174,15 @@ export const getChartItems: GetChartItems = (transactions, options) => {
           ],
         },
       };
-    }, {} as Record<string, ChartInput>);
+    }, {});
 
-  const values = Object.values(result);
+  // const values = Object.values(result);
 
-  return values;
+  // return values;
+
+  return {
+    startIndex,
+    lastIndex,
+    items: result,
+  };
 };

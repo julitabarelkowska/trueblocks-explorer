@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { GetChartItemsResult } from 'src/ui/datastore/messages';
+import { GetChartItemsResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
@@ -33,15 +33,16 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
     getChartItems,
   } = useDatastore();
 
-  const [items, setItems] = useState<GetChartItemsResult>([]);
-  const [count, setCount] = useState(0);
+  const [items, setItems] = useState<GetChartItemsResult['items']>({});
+  const [lastIndex, setLastIndex] = useState(0);
 
-  useEffect(() => {
+  const getCurrentChartItems = useCallback((startIndex = 0) => {
     if (!currentAddress) return;
 
     if (!transactionsLoaded) return;
 
     getChartItems({
+      startIndex,
       address: currentAddress,
       // TODO: typecast
       denom: denom as 'ether' | 'dollars',
@@ -53,10 +54,38 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
     });
   }, [currentAddress, denom, getChartItems, hideZero, transactionsLoaded]);
 
+  useEffect(() => getCurrentChartItems(), [getCurrentChartItems]);
+
   useEffect(() => onMessage<GetChartItemsResult>('getChartItems', (message) => {
     console.log('Got', message);
-    setItems(message.result);
-  }), [onMessage]);
+    // setItems(message.result);
+
+    setLastIndex(message.result.lastIndex);
+    console.log({ lastIndex });
+    // FIXME: this will add to old transactions when switching accounts
+    const newItems = Object.entries(message.result.items);
+
+    setItems((currentItems) => {
+      if (!newItems.length) return currentItems;
+
+      const result = { ...currentItems };
+      newItems.forEach(([key, assetData]) => {
+        if (!result[key]) {
+          result[key] = assetData;
+          return;
+        }
+
+        result[key].items = result[key].items.concat(assetData.items);
+      });
+
+      return result;
+    });
+  }), [lastIndex, onMessage]);
+
+  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', ({ result }) => {
+    console.log('==-== loadTransactions', result.total);
+    getCurrentChartItems(lastIndex);
+  }), [getCurrentChartItems, lastIndex, onMessage]);
 
   // const uniqAssets = useMemo(() => {
   //   if (!theData.length) return [];
@@ -113,7 +142,7 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
-      {items.map((asset, index: number) => {
+      {Object.values(items).map((asset, index: number) => {
         const color = asset.assetSymbol === 'ETH'
           ? '#63b598'
           : chartColors[Number(`0x${asset.assetAddress.substr(4, 3)}`) % chartColors.length];
@@ -171,7 +200,7 @@ export function getLink(chain: string, type: string, addr1: string, addr2?: stri
   return '';
 }
 
-const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult[0]; index: number }) => {
+const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult['items'][0]; index: number }) => {
   const { namesMap } = useGlobalNames();
   const { currentAddress, chain } = useGlobalState();
   const { apiProvider } = useGlobalState2();

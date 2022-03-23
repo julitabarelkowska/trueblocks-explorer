@@ -2,7 +2,7 @@ import {
   address, getNames, ListStats, Transaction,
 } from '@sdk';
 
-import { getChartItems } from './worker/transactions';
+import { getChartItems, GetChartItemsOptions } from './worker/transactions';
 
 export type DataStoreMessage =
   | LoadTransactions
@@ -62,10 +62,7 @@ export type GetChartItems = {
   call: 'getChartItems',
   args: {
     address: address,
-    // TODO: below is copy-pase, import type here
-    denom: 'ether' | 'dollars',
-    zeroBalanceStrategy: 'ignore-non-zero' | 'ignore-zero' | 'unset',
-  }
+  } & GetChartItemsOptions,
 };
 
 export type GetChartItemsResult = ReturnType<typeof getChartItems>;
