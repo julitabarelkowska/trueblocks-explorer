@@ -120,7 +120,8 @@ type ChartInput = {
   assetAddress: string,
   assetSymbol: string,
   items: {
-    [key: string]: string | number,
+    date: string,
+    balance: number
   }[]
 };
 export const getChartItems: GetChartItems = (transactions, options) => {
@@ -155,8 +156,8 @@ export const getChartItems: GetChartItems = (transactions, options) => {
 
       const { timestamp } = statement;
       const currentState: ChartInput['items'] = [{
-        [statement.assetAddr]: balance,
         date: (new Date(timestamp * 1000)).toISOString().replace(/T.+/, ''),
+        balance,
       }];
       const previousState = (historyPerAsset as Record<string, ChartInput>)[statement.assetAddr] || {
         assetAddress: statement.assetAddr,

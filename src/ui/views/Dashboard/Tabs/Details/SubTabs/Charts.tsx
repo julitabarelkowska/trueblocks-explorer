@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 
 import { GetChartItemsResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
@@ -57,11 +59,7 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
   useEffect(() => getCurrentChartItems(), [getCurrentChartItems]);
 
   useEffect(() => onMessage<GetChartItemsResult>('getChartItems', (message) => {
-    console.log('Got', message);
-    // setItems(message.result);
-
     setLastIndex(message.result.lastIndex);
-    console.log({ lastIndex });
     // FIXME: this will add to old transactions when switching accounts
     const newItems = Object.entries(message.result.items);
 
@@ -82,8 +80,7 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
     });
   }), [lastIndex, onMessage]);
 
-  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', ({ result }) => {
-    console.log('==-== loadTransactions', result.total);
+  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', () => {
     getCurrentChartItems(lastIndex);
   }), [getCurrentChartItems, lastIndex, onMessage]);
 
@@ -140,9 +137,20 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
   //   });
   // }, [hideNamed, hideZero, namesMap, theData, denom]);
 
+  const sortedItems = useMemo(() => Object.values(items).sort((a, b) => {
+    if (b.items.length === a.items.length) {
+      if (b.items.length === 0) {
+        return Number(BigInt(b.assetAddress) - BigInt(a.assetAddress));
+      }
+      return b.items[b.items.length - 1].balance - a.items[a.items.length - 1].balance;
+    }
+    return b.items.length - a.items.length;
+  }), [items]);
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
-      {Object.values(items).map((asset, index: number) => {
+      {/* Object.values(items) */}
+      {sortedItems.map((asset, index: number) => {
         const color = asset.assetSymbol === 'ETH'
           ? '#63b598'
           : chartColors[Number(`0x${asset.assetAddress.substr(4, 3)}`) % chartColors.length];
@@ -164,7 +172,7 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
 
         return (
           <MyAreaChart
-            items={asset.items}
+            items={asset.items.map((v) => ({ date: v.date, [asset.assetAddress]: v.balance }))}
             columns={columns}
             key={asset.assetAddress}
             index={asset.assetAddress}
