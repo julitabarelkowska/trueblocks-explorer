@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useEffect, useMemo, useState,
+  useCallback, useEffect, useState,
 } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -35,16 +35,14 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
     getChartItems,
   } = useDatastore();
 
-  const [items, setItems] = useState<GetChartItemsResult['items']>({});
-  const [lastIndex, setLastIndex] = useState(0);
+  const [items, setItems] = useState<GetChartItemsResult>([]);
 
-  const getCurrentChartItems = useCallback((startIndex = 0) => {
+  const getCurrentChartItems = useCallback(() => {
     if (!currentAddress) return;
 
     if (!transactionsLoaded) return;
 
     getChartItems({
-      startIndex,
       address: currentAddress,
       // TODO: typecast
       denom: denom as 'ether' | 'dollars',
@@ -59,98 +57,16 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
   useEffect(() => getCurrentChartItems(), [getCurrentChartItems]);
 
   useEffect(() => onMessage<GetChartItemsResult>('getChartItems', (message) => {
-    setLastIndex(message.result.lastIndex);
-    // FIXME: this will add to old transactions when switching accounts
-    const newItems = Object.entries(message.result.items);
-
-    setItems((currentItems) => {
-      if (!newItems.length) return currentItems;
-
-      const result = { ...currentItems };
-      newItems.forEach(([key, assetData]) => {
-        if (!result[key]) {
-          result[key] = assetData;
-          return;
-        }
-
-        result[key].items = result[key].items.concat(assetData.items);
-      });
-
-      return result;
-    });
-  }), [lastIndex, onMessage]);
+    setItems(message.result);
+  }), [onMessage]);
 
   useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', () => {
-    getCurrentChartItems(lastIndex);
-  }), [getCurrentChartItems, lastIndex, onMessage]);
-
-  // const uniqAssets = useMemo(() => {
-  //   if (!theData.length) return [];
-
-  //   const unique: Array<AssetHistory> = [];
-
-  //   theData.forEach((tx: Transaction) => {
-  //     tx.statements?.forEach((statement: Reconciliation) => {
-  //       if (unique.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
-  //         unique.push({
-  //           assetAddr: statement.assetAddr,
-  //           assetSymbol: statement.assetSymbol,
-  //           balHistory: [],
-  //         });
-  //       }
-  //     });
-
-  //     unique.forEach((asset: AssetHistory, index: number) => {
-  //       const found = tx.statements?.find((statement: Reconciliation) => asset.assetAddr === statement.assetAddr);
-  //       // TODO: do not convert the below to strings
-  //       if (found) {
-  //         unique[index].balHistory = [
-  //           ...unique[index].balHistory,
-  //           {
-  //             balance: (denom === 'dollars'
-  //               ? parseInt(found.endBal.toString() || '0', 10) * Number(found.spotPrice)
-  //               : parseInt(found.endBal.toString() || '0', 10)),
-  //             date: new Date(found.timestamp * 1000),
-  //             reconciled: found.reconciled,
-  //           },
-  //         ];
-  //       }
-  //     });
-  //   });
-
-  //   unique.sort((a: any, b: any) => {
-  //     if (b.balHistory.length === a.balHistory.length) {
-  //       if (b.balHistory.length === 0) {
-  //         return b.assetAddr - a.assetAddr;
-  //       }
-  //       return b.balHistory[b.balHistory.length - 1].balance - a.balHistory[a.balHistory.length - 1].balance;
-  //     }
-  //     return b.balHistory.length - a.balHistory.length;
-  //   });
-
-  //   return unique.filter((asset: AssetHistory) => {
-  //     if (asset.balHistory.length === 0) return false;
-  //     const show = hideZero === 'all'
-  //       || (hideZero === 'show' && asset.balHistory[asset.balHistory.length - 1].balance === 0)
-  //       || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
-  //     return show && (!hideNamed || !namesMap.get(asset.assetAddr));
-  //   });
-  // }, [hideNamed, hideZero, namesMap, theData, denom]);
-
-  const sortedItems = useMemo(() => Object.values(items).sort((a, b) => {
-    if (b.items.length === a.items.length) {
-      if (b.items.length === 0) {
-        return Number(BigInt(b.assetAddress) - BigInt(a.assetAddress));
-      }
-      return b.items[b.items.length - 1].balance - a.items[a.items.length - 1].balance;
-    }
-    return b.items.length - a.items.length;
-  }), [items]);
+    getCurrentChartItems();
+  }), [getCurrentChartItems, onMessage]);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
-      {/* Object.values(items) */}
-      {sortedItems.map((asset, index: number) => {
+      {items.map((asset, index: number) => {
         const color = asset.assetSymbol === 'ETH'
           ? '#63b598'
           : chartColors[Number(`0x${asset.assetAddress.substr(4, 3)}`) % chartColors.length];
@@ -165,14 +81,9 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
           }),
         ];
 
-        // const items = asset.balHistory.map((item: Balance) => ({
-        //   date: dayjs(item.date).format('YYYY-MM-DD'),
-        //   [asset.assetAddr]: item.balance,
-        // }));
-
         return (
           <MyAreaChart
-            items={asset.items.map((v) => ({ date: v.date, [asset.assetAddress]: v.balance }))}
+            items={asset.items}
             columns={columns}
             key={asset.assetAddress}
             index={asset.assetAddress}
@@ -208,7 +119,7 @@ export function getLink(chain: string, type: string, addr1: string, addr2?: stri
   return '';
 }
 
-const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult['items'][0]; index: number }) => {
+const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult[0]; index: number }) => {
   const { namesMap } = useGlobalNames();
   const { currentAddress, chain } = useGlobalState();
   const { apiProvider } = useGlobalState2();

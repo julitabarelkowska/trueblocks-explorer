@@ -105,40 +105,24 @@ export const getPage: GetPage = (getTransactions, { address, page, pageSize }) =
   return source.slice(pageStart, pageStart + pageSize);
 };
 
-type GetChartItems = (transactions: Transaction[] | undefined, options: GetChartItemsOptions) => GetChartItemsResult;
+type GetChartItems = (transactions: Transaction[] | undefined, options: GetChartItemsOptions) => ChartInput[];
 export type GetChartItemsOptions = {
-  startIndex?: number,
   denom: 'ether' | 'dollars',
   zeroBalanceStrategy: 'ignore-non-zero' | 'ignore-zero' | 'unset',
-};
-type GetChartItemsResult = {
-  startIndex: number,
-  lastIndex: number,
-  items: Record<string, ChartInput>,
 };
 type ChartInput = {
   assetAddress: string,
   assetSymbol: string,
-  items: {
+  items: ({
     date: string,
-    balance: number
-  }[]
+  } & { [key: string]: number })[]
 };
 export const getChartItems: GetChartItems = (transactions, options) => {
-  const startIndex = options.startIndex || 0;
-  const lastIndex = transactions ? (transactions.length - 1) : 0;
-
   if (!transactions?.length) {
-    // TODO: make SequencedData<T> with this props and also EMPTY state
-    return {
-      startIndex,
-      lastIndex,
-      items: {},
-    };
+    return [];
   }
 
   const result: Record<string, ChartInput> = transactions
-    .slice(startIndex)
     .flatMap(({ statements }) => statements)
     .reduce((historyPerAsset, statement) => {
       if (!statement) return historyPerAsset;
@@ -155,9 +139,13 @@ export const getChartItems: GetChartItems = (transactions, options) => {
       }
 
       const { timestamp } = statement;
+
+      // TS doesn't like the fact that we can have two kinds of properties in a single
+      // object: fixed `date` with string value and dynamic `[assetAddr]` with a number
+      // @ts-ignore
       const currentState: ChartInput['items'] = [{
         date: (new Date(timestamp * 1000)).toISOString().replace(/T.+/, ''),
-        balance,
+        [statement.assetAddr]: balance,
       }];
       const previousState = (historyPerAsset as Record<string, ChartInput>)[statement.assetAddr] || {
         assetAddress: statement.assetAddr,
@@ -177,13 +165,17 @@ export const getChartItems: GetChartItems = (transactions, options) => {
       };
     }, {});
 
-  // const values = Object.values(result);
+  const values = Object.values(result);
 
-  // return values;
+  const sorted = values.sort((a, b) => {
+    if (b.items.length === a.items.length) {
+      if (b.items.length === 0) {
+        return Number(BigInt(b.assetAddress) - BigInt(a.assetAddress));
+      }
+      return b.items[b.items.length - 1].balance - a.items[a.items.length - 1].balance;
+    }
+    return b.items.length - a.items.length;
+  });
 
-  return {
-    startIndex,
-    lastIndex,
-    items: result,
-  };
+  return sorted;
 };
