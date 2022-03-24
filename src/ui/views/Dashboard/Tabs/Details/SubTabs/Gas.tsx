@@ -1,37 +1,40 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { TransactionModel } from '@modules/types/models/Transaction';
+import { useGlobalState } from '@state';
+import { GetGasResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
 
-export const Gas = ({ theData }: { theData: TransactionModel[] }) => {
-  if (!theData) return <></>;
-  const usesGas = theData.filter((tx: TransactionModel) => {
-    if (!tx.statements) return false;
-    const stmts = tx.statements.filter((st) => st.gasCostOut);
-    return stmts.length > 0;
-  });
+import { useDatastore } from '@hooks/useDatastore';
 
-  // TODO(data): fix this if you can
-  const stmts = usesGas.map((tx: TransactionModel) => (tx.statements || []).map((st) => ({
-    blockNumber: tx.blockNumber,
-    transactionIndex: tx.transactionIndex,
-    hash: tx.hash,
-    from: tx.from,
-    fromName: tx.fromName?.name,
-    to: tx.to,
-    toName: tx.toName?.name,
-    isError: tx.isError,
-    asset: st.assetSymbol,
-    gasCostOut: st.gasCostOut,
-  })));
+export const Gas = () => {
+  const [items, setItems] = useState<GetGasResult>([]);
+  const { currentAddress } = useGlobalState();
+  const {
+    onMessage,
+    getGas,
+  } = useDatastore();
+
+  const sendMessage = useCallback(() => {
+    if (!currentAddress) return;
+
+    getGas({ address: currentAddress });
+  }, [currentAddress, getGas]);
+
+  useEffect(() => onMessage<GetGasResult>('getGas', (message) => {
+    setItems(message.result);
+  }), [onMessage]);
+
+  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', sendMessage), [onMessage, sendMessage]);
+
+  useEffect(() => sendMessage(), [sendMessage]);
 
   return (
     <div>
       <div style={{ width: '30%', backgroundColor: 'orange', color: 'black' }}>This module is not completed.</div>
       <pre>
         len:
-        {usesGas.length}
+        {items.length}
       </pre>
-      <pre>{JSON.stringify(stmts, null, 2)}</pre>
+      <pre>{JSON.stringify(items, null, 2)}</pre>
     </div>
   );
 };

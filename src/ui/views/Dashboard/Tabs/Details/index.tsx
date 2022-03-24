@@ -6,18 +6,26 @@ import { usePathWithAddress } from '@hooks/paths';
 
 import {
   DashboardAccountsAddressLocation,
+  DashboardAccountsEventsLocation,
+  DashboardAccountsFunctionsLocation,
+  DashboardAccountsGasLocation,
   DashboardAccountsHistoryCustomLocation,
   DashboardAccountsHistoryEventsLocation,
   DashboardAccountsHistoryFunctionsLocation,
   DashboardAccountsHistoryLocation,
   DashboardAccountsHistoryReconsLocation,
+  DashboardAccountsNeighborsLocation,
 } from '../../../../Routes';
 import { AccountViewParams } from '../../Dashboard';
 import { AddressBar } from './components/AddressBar';
 import { ViewOptions } from './components/ViewOptions';
 import {
   Charts,
+  Events,
+  Functions,
+  Gas,
   History,
+  Neighbors,
 } from './SubTabs';
 
 export const DetailsView = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
@@ -46,29 +54,28 @@ export const DetailsView = ({ params }: { params: Omit<AccountViewParams, 'theDa
       location: historyPaths.map((path) => generatePathWithAddress(path)),
       component: <History params={params} />,
     },
-    // TODO: following tabs are similar: they use aggregated data
-    // {
-    //   name: 'Events',
-    //   location: generatePathWithAddress(DashboardAccountsEventsLocation),
-    //   component: <Events theData={theData} />,
-    // },
-    // {
-    //   name: 'Functions',
-    //   location: generatePathWithAddress(DashboardAccountsFunctionsLocation),
-    //   component: <Functions theData={theData} loading={loading} />,
-    // },
-    // {
-    //   name: 'Gas',
-    //   location: generatePathWithAddress(DashboardAccountsGasLocation),
-    //   component: <Gas theData={theData} />,
-    // },
-    // {
-    //   name: 'Neighbors',
-    //   location: generatePathWithAddress(DashboardAccountsNeighborsLocation),
-    //   component: <Neighbors theData={theData} />,
-    // },
+    {
+      name: 'Events',
+      location: generatePathWithAddress(DashboardAccountsEventsLocation),
+      component: <Events />,
+    },
+    {
+      name: 'Functions',
+      location: generatePathWithAddress(DashboardAccountsFunctionsLocation),
+      component: <Functions loading={loading} />,
+    },
+    {
+      name: 'Gas',
+      location: generatePathWithAddress(DashboardAccountsGasLocation),
+      component: <Gas />,
+    },
+    {
+      name: 'Neighbors',
+      location: generatePathWithAddress(DashboardAccountsNeighborsLocation),
+      component: <Neighbors />,
+    },
   ],
-  [generatePathWithAddress, loading, params]);
+  [generatePathWithAddress, historyPaths, loading, params]);
 
   // if (!theData) return <></>;
 

@@ -3,7 +3,7 @@
 import { address as Address } from '@sdk';
 
 import {
-  CancelLoadTransactions, DataStoreMessage, GetChartItems, GetChartItemsResult, GetPage, GetPageResult, GetTransactionsTotal, GetTransactionsTotalResult, LoadNames, LoadNamesResult, LoadTransactions,
+  CancelLoadTransactions, DataStoreMessage, GetChartItems, GetChartItemsResult, GetEventsItems, GetEventsItemsResult, GetFunctionsItems, GetFunctionsItemsResult, GetGas, GetGasResult, GetNeighbors, GetNeighborsResult, GetPage, GetPageResult, GetTransactionsTotal, GetTransactionsTotalResult, LoadNames, LoadNamesResult, LoadTransactions,
 } from '../messages';
 import * as Names from './names';
 import * as Store from './store';
@@ -98,6 +98,35 @@ const getChartItems: MessageHandler<GetChartItems, GetChartItemsResult> = async 
   return Transactions.getChartItems(transactions, options);
 };
 
+const getEventsItems: MessageHandler<GetEventsItems, GetEventsItemsResult> = async (message) => {
+  const { address } = message.args;
+  const transactions = Store.getTransactionsFor(address);
+
+  return Transactions.getEventsItems(transactions);
+};
+
+const getFunctionsItems: MessageHandler<GetFunctionsItems, GetFunctionsItemsResult> = async (message) => {
+  const { address } = message.args;
+  const transactions = Store.getTransactionsFor(address);
+
+  return Transactions.getFunctionsItems(transactions);
+};
+
+const getGas: MessageHandler<GetGas, GetGasResult> = async (message) => {
+  const { address } = message.args;
+  const transactions = Store.getTransactionsFor(address);
+
+  // TODO: FIXME!
+  return Transactions.getGas(transactions, new Map([]));
+};
+
+const getNeighbors: MessageHandler<GetNeighbors, GetNeighborsResult> = async (message) => {
+  const { address } = message.args;
+  const transactions = Store.getTransactionsFor(address);
+
+  return Transactions.getNeighbors(transactions);
+};
+
 async function dispatch(message: DataStoreMessage, port: MessagePort) {
   const result = await (async () => {
     if (message.call === 'loadNames') return loadNames(message, port);
@@ -106,6 +135,10 @@ async function dispatch(message: DataStoreMessage, port: MessagePort) {
     if (message.call === 'cancelLoadTransactions') return cancelLoadTransactions(message, port);
     if (message.call === 'getPage') return getPage(message, port);
     if (message.call === 'getChartItems') return getChartItems(message, port);
+    if (message.call === 'getEventsItems') return getEventsItems(message, port);
+    if (message.call === 'getFunctionsItems') return getFunctionsItems(message, port);
+    if (message.call === 'getGas') return getGas(message, port);
+    if (message.call === 'getNeighbors') return getNeighbors(message, port);
 
     throw new Error('Unrecognized message');
   })();

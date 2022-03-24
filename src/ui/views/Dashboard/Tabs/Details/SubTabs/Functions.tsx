@@ -1,12 +1,16 @@
-import React, { useMemo } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 
-import { Transaction } from '@sdk';
+import { useGlobalState } from '@state';
+import { GetFunctionsItemsResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
 
 import { Loading } from '@components/Loading';
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
 import { usePathWithAddress } from '@hooks/paths';
+import { useDatastore } from '@hooks/useDatastore';
 import { createWrapper } from '@hooks/useSearchParams';
 import {
   ItemCounter, ItemCounterArray,
@@ -14,38 +18,34 @@ import {
 
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 
-export const Functions = ({ theData, loading }: { theData: Transaction[]; loading: boolean }) => {
+export const Functions = ({ loading }: { loading: boolean }) => {
   const generatePathWithAddress = usePathWithAddress();
   const historyUrl = generatePathWithAddress(DashboardAccountsHistoryLocation);
   const schema = useMemo(() => getSchema(historyUrl), [historyUrl]);
 
-  if (!theData) return <></>;
+  const [items, setItems] = useState<ItemCounterArray>([]);
+  const { currentAddress } = useGlobalState();
+  const {
+    onMessage,
+    getFunctionsItems,
+  } = useDatastore();
 
-  const counts: Record<string, number> = {};
-  theData.forEach((item: Transaction) => {
-    if (item.articulatedTx) {
-      const k = item.articulatedTx.name + (item.isError ? ' (errored)' : '');
-      if (!counts[k]) counts[k] = 1;
-      else counts[k] = Number(counts[k]) + 1;
-    }
-  });
+  const sendMessage = useCallback(() => {
+    if (!currentAddress) return;
 
-  const uniqItems: ItemCounterArray = [];
-  Object.keys(counts).map((key: any) => {
-    uniqItems.push({
-      evt: key,
-      count: counts[key],
-    });
-    return null;
-  });
+    getFunctionsItems({ address: currentAddress });
+  }, [currentAddress, getFunctionsItems]);
 
-  uniqItems.sort((a: ItemCounter, b: ItemCounter) => {
-    if (b.count === a.count) return a.evt.localeCompare(b.evt);
-    return b.count - a.count;
-  });
+  useEffect(() => onMessage<GetFunctionsItemsResult>('getFunctionsItems', (message) => {
+    setItems(message.result);
+  }), [onMessage]);
 
-  const top = uniqItems.filter((item: ItemCounter, i: number) => i < 10);
-  const remains = uniqItems.filter((item: ItemCounter, i: number) => i >= 10);
+  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', sendMessage), [onMessage, sendMessage]);
+
+  useEffect(() => sendMessage(), [sendMessage]);
+
+  const top = items.slice(0, 10);
+  const remains = items.slice(10);
 
   return (
     <Loading loading={loading}>

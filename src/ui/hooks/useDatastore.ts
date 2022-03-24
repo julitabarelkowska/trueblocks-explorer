@@ -7,6 +7,10 @@ import {
   DataStoreMessage,
   DataStoreResult,
   GetChartItems,
+  GetEventsItems,
+  GetFunctionsItems,
+  GetGas,
+  GetNeighbors,
   GetPage,
   GetTransactionsTotal,
   LoadNames,
@@ -87,6 +91,22 @@ export function useDatastore() {
     }), [sendMessage]),
     getChartItems: useCallback((args: GetChartItems['args']) => sendMessage({
       call: 'getChartItems',
+      args,
+    }), [sendMessage]),
+    getEventsItems: useCallback((args: GetEventsItems['args']) => sendMessage({
+      call: 'getEventsItems',
+      args,
+    }), [sendMessage]),
+    getFunctionsItems: useCallback((args: GetFunctionsItems['args']) => sendMessage({
+      call: 'getFunctionsItems',
+      args,
+    }), [sendMessage]),
+    getGas: useCallback((args: GetGas['args']) => sendMessage({
+      call: 'getGas',
+      args,
+    }), [sendMessage]),
+    getNeighbors: useCallback((args: GetNeighbors['args']) => sendMessage({
+      call: 'getNeighbors',
       args,
     }), [sendMessage]),
 

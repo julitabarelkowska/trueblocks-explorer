@@ -1,11 +1,15 @@
-import React, { useMemo } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 
-import { Transaction } from '@sdk';
+import { useGlobalState } from '@state';
+import { GetEventsItemsResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
 import { usePathWithAddress } from '@hooks/paths';
+import { useDatastore } from '@hooks/useDatastore';
 import { createWrapper } from '@hooks/useSearchParams';
 import {
   ItemCounter, ItemCounterArray,
@@ -13,52 +17,34 @@ import {
 
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 
-export const Events = ({ theData }: { theData: Transaction[] }) => {
+export const Events = () => {
   const generatePathWithAddress = usePathWithAddress();
   const historyUrl = generatePathWithAddress(DashboardAccountsHistoryLocation);
   const schema = useMemo(() => getSchema(historyUrl), [historyUrl]);
 
-  if (!theData) return <></>;
+  const [items, setItems] = useState<ItemCounterArray>([]);
+  const { currentAddress } = useGlobalState();
+  const {
+    onMessage,
+    getEventsItems,
+  } = useDatastore();
 
-  const counts: Record<string, number> = {};
-  // TODO: Comment by @dszlachta
-  // TODO: Would you say that it's worth it to move the inner loop (map) outside?
-  // TODO: I find it easier to understand the code when loops are outside, but
-  // TODO: this is a personal preference.
-  // TODO: note that you don't need type annotations here, TS can infer them.
-  // TODO: flatMap is like map, but it flattens the resulting array of arrays
-  // TODO:  theData.flatMap((item) => item.receipt.logs)
-  // TODO:     .forEach((log) => {
-  // TODO:       if (!log.articulatedLog) return; // BTW, type definition says it's always present
-  // TODO:       const countKey = log.articulatedLog.name;
-  // TODO:       counts[countKey] = (counts[countKey] || 0) + 1;
-  // TODO:     });
-  theData.forEach((item: Transaction) => {
-    item.receipt?.logs?.map((log: any) => {
-      if (log.articulatedLog) {
-        if (!counts[log.articulatedLog?.name]) counts[log.articulatedLog?.name] = 1;
-        else counts[log.articulatedLog?.name] = Number(counts[log.articulatedLog?.name]) + 1;
-      }
-      return null;
-    });
-  });
+  const sendMessage = useCallback(() => {
+    if (!currentAddress) return;
 
-  const uniqItems: ItemCounterArray = [];
-  Object.keys(counts).map((key: any) => {
-    uniqItems.push({
-      evt: key,
-      count: counts[key],
-    });
-    return null;
-  });
+    getEventsItems({ address: currentAddress });
+  }, [currentAddress, getEventsItems]);
 
-  uniqItems.sort((a: ItemCounter, b: ItemCounter) => {
-    if (b.count === a.count) return a.evt.localeCompare(b.evt);
-    return b.count - a.count;
-  });
+  useEffect(() => onMessage<GetEventsItemsResult>('getEventsItems', (message) => {
+    setItems(message.result);
+  }), [onMessage]);
 
-  const top = uniqItems.filter((item: ItemCounter, i: number) => i < 10);
-  const remains = uniqItems.filter((item: ItemCounter, i: number) => i >= 10);
+  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', sendMessage), [onMessage, sendMessage]);
+
+  useEffect(() => sendMessage(), [sendMessage]);
+
+  const top = items.slice(0, 10);
+  const remains = items.slice(10);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>

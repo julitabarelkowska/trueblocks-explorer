@@ -1,5 +1,5 @@
 import {
-  address as Address, AnyResponse, getExport, getList, ListStats, Transaction,
+  address as Address, AnyResponse, getExport, getList, ListStats, Name, Transaction,
 } from '@sdk';
 
 import { isFailedCall, wrapResponse } from '@modules/api/call_status';
@@ -178,4 +178,110 @@ export const getChartItems: GetChartItems = (transactions, options) => {
   });
 
   return sorted;
+};
+
+type GetEventsItems = (transactions: Transaction[] | undefined) => EventsItems;
+type EventsItems = {
+  evt: string,
+  count: number,
+}[];
+
+export const getEventsItems: GetEventsItems = (transactions) => {
+  const counts: Record<string, number> = {};
+
+  if (!transactions) return [];
+
+  transactions.forEach((item) => {
+    item.receipt?.logs?.forEach((log) => {
+      if (!log.articulatedLog) return;
+
+      const key = log.articulatedLog.name;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+  });
+
+  return Object.entries(counts).map(([key, count]) => ({
+    evt: key,
+    count,
+  }))
+    .sort((a, b) => {
+      if (b.count === a.count) return a.evt.localeCompare(b.evt);
+      return b.count - a.count;
+    });
+};
+
+type GetFunctionsItems = (transactions: Transaction[] | undefined) => FunctionsItems;
+type FunctionsItems = {
+  evt: string,
+  count: number,
+}[];
+
+export const getFunctionsItems: GetFunctionsItems = (transactions) => {
+  const counts: Record<string, number> = {};
+
+  if (!transactions) return [];
+
+  transactions.forEach((item) => {
+    if (!item.articulatedTx) return;
+
+    const key = item.articulatedTx.name;
+    counts[key] = (counts[key] || 0) + 1;
+  });
+
+  return Object.entries(counts).map(([key, count]) => ({
+    evt: key,
+    count,
+  }))
+    .sort((a, b) => {
+      if (b.count === a.count) return a.evt.localeCompare(b.evt);
+      return b.count - a.count;
+    });
+};
+
+// type GetGas = (transactions: Transaction[] | undefined, names: Map<string, Name>) => GetGasResult;
+// type GetGasResult = TransactionModel
+
+export const getGas = (transactions: Transaction[] | undefined, names: Map<string, Name>) => {
+  if (!transactions) return [];
+
+  const usesGas = transactions.filter((tx) => {
+    if (!tx.statements) return false;
+    const stmts = tx.statements.filter((st) => st.gasCostOut);
+    return stmts.length > 0;
+  });
+
+  // TODO(data): fix this if you can
+  return usesGas.map((tx) => (tx.statements || []).map((st) => ({
+    blockNumber: tx.blockNumber,
+    transactionIndex: tx.transactionIndex,
+    hash: tx.hash,
+    from: tx.from,
+    fromName: names.get(tx.from),
+    to: tx.to,
+    toName: names.get(tx.to),
+    isError: tx.isError,
+    asset: st.assetSymbol,
+    gasCostOut: st.gasCostOut,
+  })));
+};
+
+type GetNeighbors = (transactions: Transaction[] | undefined) => NeighborsResult;
+type NeighborsResult = {
+  key: string,
+  count: number,
+}[];
+
+export const getNeighbors: GetNeighbors = (transactions) => {
+  if (!transactions) return [];
+
+  return transactions.flatMap((item) => [
+    {
+      key: `${item.from}-from`,
+      count: 1,
+    },
+    {
+      key: `${item.to}-to`,
+      count: 1,
+    },
+  ]);
 };

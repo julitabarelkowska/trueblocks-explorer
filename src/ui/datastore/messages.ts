@@ -2,7 +2,9 @@ import {
   address, getNames, ListStats, Transaction,
 } from '@sdk';
 
-import { getChartItems, GetChartItemsOptions } from './worker/transactions';
+import {
+  getChartItems, GetChartItemsOptions, getEventsItems, getFunctionsItems, getGas, getNeighbors,
+} from './worker/transactions';
 
 export type DataStoreMessage =
   | LoadTransactions
@@ -10,6 +12,10 @@ export type DataStoreMessage =
   | GetTransactionsTotal
   | GetPage
   | GetChartItems
+  | GetEventsItems
+  | GetFunctionsItems
+  | GetGas
+  | GetNeighbors
   | LoadNames;
 
 // TODO move it or change file name
@@ -66,6 +72,42 @@ export type GetChartItems = {
 };
 
 export type GetChartItemsResult = ReturnType<typeof getChartItems>;
+
+export type GetEventsItems = {
+  call: 'getEventsItems',
+  args: {
+    address: address,
+  },
+};
+
+export type GetEventsItemsResult = ReturnType<typeof getEventsItems>;
+
+export type GetFunctionsItems = {
+  call: 'getFunctionsItems',
+  args: {
+    address: address,
+  },
+};
+
+export type GetFunctionsItemsResult = ReturnType<typeof getFunctionsItems>;
+
+export type GetGas = {
+  call: 'getGas',
+  args: {
+    address: address,
+  },
+};
+
+export type GetGasResult = ReturnType<typeof getGas>;
+
+export type GetNeighbors = {
+  call: 'getNeighbors',
+  args: {
+    address: address,
+  },
+};
+
+export type GetNeighborsResult = ReturnType<typeof getNeighbors>;
 
 export type LoadNames = {
   call: 'loadNames',

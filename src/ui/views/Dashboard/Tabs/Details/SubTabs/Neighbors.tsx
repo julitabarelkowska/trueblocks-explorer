@@ -1,28 +1,37 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { Transaction } from '@sdk';
+import { useGlobalState } from '@state';
+import { GetNeighborsResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
 
-export const Neighbors = ({
-  theData,
-}: {
-  theData: Transaction[],
-}) => {
-  const neighbors = theData.flatMap((item) => [
-    {
-      key: `${item.from}-from`,
-      count: 1,
-    },
-    {
-      key: `${item.to}-to`,
-      count: 1,
-    },
-  ]);
+import { useDatastore } from '@hooks/useDatastore';
+
+export const Neighbors = () => {
+  const [items, setItems] = useState<GetNeighborsResult>([]);
+  const { currentAddress } = useGlobalState();
+  const {
+    onMessage,
+    getNeighbors,
+  } = useDatastore();
+
+  const sendMessage = useCallback(() => {
+    if (!currentAddress) return;
+
+    getNeighbors({ address: currentAddress });
+  }, [currentAddress, getNeighbors]);
+
+  useEffect(() => onMessage<GetNeighborsResult>('getNeighbors', (message) => {
+    setItems(message.result);
+  }), [onMessage]);
+
+  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', sendMessage), [onMessage, sendMessage]);
+
+  useEffect(() => sendMessage(), [sendMessage]);
 
   return (
     <div>
       <div style={{ width: '30%', backgroundColor: 'orange', color: 'black' }}>This module is not completed.</div>
       <div>Neighbors</div>
-      <pre>{JSON.stringify(neighbors, null, 2)}</pre>
+      <pre>{JSON.stringify(items, null, 2)}</pre>
     </div>
   );
 };
