@@ -154,7 +154,7 @@ export const BaseTable = ({
           expandedRowKeys: [expandedRow],
           onExpand(expanded, record) {
             setExpandedRow(expanded ? record.key : -1);
-            setCurRow(record.key);
+            selectRow(record.key);
           },
         }}
         pagination={{
