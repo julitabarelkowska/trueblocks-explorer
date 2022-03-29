@@ -94,7 +94,11 @@ export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Tr
 type GetPage = (
   getTransactions: (address: Address) => Transaction[] | undefined,
   { address, page, pageSize }: { address: Address, page: number, pageSize: number }
-) => Transaction[];
+) => GetPageResult;
+type GetPageResult = {
+  page: number,
+  items: Transaction[],
+};
 export const getPage: GetPage = (getTransactions, { address, page, pageSize }) => {
   const pageStart = ((page - 1) * pageSize);
   const source = getTransactions(address);
@@ -102,7 +106,10 @@ export const getPage: GetPage = (getTransactions, { address, page, pageSize }) =
     throw new Error(`store is empty for address ${address}`);
   }
 
-  return source.slice(pageStart, pageStart + pageSize);
+  return {
+    page,
+    items: source.slice(pageStart, pageStart + pageSize),
+  };
 };
 
 type GetChartItems = (transactions: Transaction[] | undefined, options: GetChartItemsOptions) => ChartInput[];

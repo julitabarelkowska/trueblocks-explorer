@@ -1,9 +1,9 @@
 import {
-  address, getNames, ListStats, Transaction,
+  address, getNames, ListStats,
 } from '@sdk';
 
 import {
-  getChartItems, GetChartItemsOptions, getEventsItems, getFunctionsItems, getGas, getNeighbors,
+  getChartItems, GetChartItemsOptions, getEventsItems, getFunctionsItems, getGas, getNeighbors, getPage,
 } from './worker/transactions';
 
 export type DataStoreMessage =
@@ -62,7 +62,7 @@ export type GetPage = {
   },
 };
 
-export type GetPageResult = Transaction[];
+export type GetPageResult = ReturnType<typeof getPage>;
 
 export type GetChartItems = {
   call: 'getChartItems',

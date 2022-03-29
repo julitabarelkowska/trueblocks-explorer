@@ -67,6 +67,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const getPageItems = useCallback((newPage: number, newPageSize: number) => {
     if (!currentAddress) return;
 
+    setTheData([]);
     getPage({
       address: currentAddress,
       page: newPage,
@@ -81,8 +82,12 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   }, [getPageItems, page, pageSize, theData.length, transactionsFetchedByWorker]);
 
   useEffect(() => onMessage<GetPageResult>('getPage', (message) => {
-    setTheData(message.result);
-  }), [currentAddress, onMessage]);
+    if (message.result.page !== page) {
+      return;
+    }
+
+    setTheData(message.result.items);
+  }), [currentAddress, onMessage, page]);
 
   const onTablePageChange = useCallback((
     { page: newPage, pageSize: newPageSize }: { page: number, pageSize: number },
@@ -141,7 +146,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
       if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
       return a.blockNumber - b.blockNumber;
     });
-  }, [assetToFilterBy, eventToFilterBy, functionToFilterBy, theData, showReversed]);
+  }, [theData, assetToFilterBy, eventToFilterBy, functionToFilterBy, showReversed]);
 
   const makeClearFilter = (searchParamKey: string) => () => {
     const searchString = searchParams.delete(searchParamKey).toString();
