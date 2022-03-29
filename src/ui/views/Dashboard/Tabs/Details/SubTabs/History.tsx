@@ -7,7 +7,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { Transaction } from '@sdk';
 import { Col, Row } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
-import { GetPageResult } from 'src/ui/datastore/messages';
+import { GetPageResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
 
 import { BaseView } from '@components/BaseView';
 import { FilterButton } from '@components/FilterButton';
@@ -43,7 +43,7 @@ const searchParamFunction = 'function';
 
 export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const { loading } = params;
-  const [theData, setTheData] = useState<Transaction[]>([]);
+  // const [theData, setTheData] = useState<Transaction[]>([]);
   const { showReversed } = params.userPrefs;
   const {
     currentAddress, namesMap, totalRecords, transactionsFetchedByWorker,
@@ -59,6 +59,15 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(7);
 
+  const [dataCache, setDataCache] = useState<Transaction[]>([]);
+  const [cacheRange, setCacheRange] = useState([-1, -1]);
+  const cachePages = useMemo(() => cacheRange[1] - cacheRange[0] + 1, [cacheRange]);
+  const theData = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    console.log('==== set theData to', start, start + pageSize);
+    return dataCache.slice(start, start + pageSize);
+  }, [dataCache, page, pageSize]);
+
   const {
     onMessage,
     getPage,
@@ -67,35 +76,55 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const getPageItems = useCallback((newPage: number, newPageSize: number) => {
     if (!currentAddress) return;
 
-    // setTheData([]);
+    const rangeStart = Math.max(1, newPage - 2);
+    const rangeEnd = newPage + 2;
+    setCacheRange([rangeStart, rangeEnd]);
+
+    console.log('=== cache loading range', rangeStart, rangeEnd, cachePages, newPageSize);
+
     getPage({
       address: currentAddress,
-      page: newPage,
-      pageSize: newPageSize,
+      page: Math.floor(newPage / cachePages) + 1,
+      pageSize: cachePages * newPageSize,
     });
-  }, [currentAddress, getPage]);
+  }, [cachePages, currentAddress, getPage]);
 
-  useEffect(() => {
-    if (transactionsFetchedByWorker >= page * pageSize && theData.length === pageSize) return;
+  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', (message) => {
+    const { total } = message.result;
+    // if (transactionsFetchedByWorker >= page * pageSize && theData.length === pageSize) return;
+    console.log('!!!!!!!!!!!!!!!!', (Math.floor(page / cachePages) + 1) * cachePages * pageSize);
+    if (total >= (Math.floor(page / cachePages) + 1) * cachePages * pageSize) return;
+
+    // @ts-ignore
+    window.count += 1;
+
+    // @ts-ignore
+    if (window.count >= 100) return;
 
     getPageItems(page, pageSize);
-  }, [getPageItems, page, pageSize, theData.length, transactionsFetchedByWorker]);
+  }), [cachePages, cacheRange, getPageItems, onMessage, page, pageSize]);
 
   useEffect(() => onMessage<GetPageResult>('getPage', (message) => {
-    if (message.result.page !== page) {
+    if (message.result.page !== Math.floor(page / cachePages) + 1) {
+      console.log('=== Not this page', message.result.page, Math.floor(page / cachePages) + 1, cachePages, pageSize);
       return;
     }
 
-    setTheData(message.result.items);
-  }), [currentAddress, onMessage, page]);
+    console.log('==== Setting cache', message.result.page);
+    setDataCache(message.result.items);
+    // setTheData(message.result.items);
+  }), [cachePages, cacheRange, currentAddress, onMessage, page]);
 
   const onTablePageChange = useCallback((
     { page: newPage, pageSize: newPageSize }: { page: number, pageSize: number },
   ) => {
     setPage(newPage);
     setPageSize(newPageSize);
+
+    if (newPage >= cacheRange[0] && newPage <= cacheRange[1]) return;
+
     getPageItems(newPage, newPageSize);
-  }, [getPageItems]);
+  }, [cacheRange, getPageItems]);
 
   const assetNameToDisplay = useMemo(() => {
     if (!assetToFilterBy) return '';
