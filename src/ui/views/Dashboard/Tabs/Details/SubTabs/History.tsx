@@ -67,7 +67,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const getPageItems = useCallback((newPage: number, newPageSize: number) => {
     if (!currentAddress) return;
 
-    setTheData([]);
+    // setTheData([]);
     getPage({
       address: currentAddress,
       page: newPage,
