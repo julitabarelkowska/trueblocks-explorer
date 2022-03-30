@@ -43,6 +43,12 @@ yarn start
 
 The Explorer application should automatically open your browser to `localhost:1234`.
 
+## NPM Scripts
+
+- `compile | compile:ui | compile:electron` compile TypeScript into JavaScript, usually before packing new Electron bundle
+- `develop | develop:ui | develop:electron` run development server for UI and opens the app in Electron.
+- `test | test:e2e` run unit or E2E tests
+
 ## Requirements
 
 - **Note:** In order for the TrueBlocks to work, you must have access to an Ethereum RPC endpoint that provides both an archive node and trace data. An excellent choice for this is [Erigon](https://github.com/ledgerwatch/erigon). TrueBlocks defaults to an RPC endpoint at http://localhost:8545, but you may use any endpoint (Infura, Quiknodes, for example). Performance will be _greatly reduced_ if you use a remote server. A good solution to this problem is [dAppNode](https://dappnode.io/) or [Ava.do](https://ava.do/) platforms which allow you to install and run both Erigon and (soon) [the TrueBlocks docker version](http://github.com/TrueBlocks/trueblocks-docker).
