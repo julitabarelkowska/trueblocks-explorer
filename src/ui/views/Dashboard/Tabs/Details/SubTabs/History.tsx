@@ -63,10 +63,10 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const [cacheRange, setCacheRange] = useState([-1, -1]);
   const cachePages = useMemo(() => cacheRange[1] - cacheRange[0] + 1, [cacheRange]);
   const theData = useMemo(() => {
-    const start = (page - 1) * pageSize;
+    const start = (page - cacheRange[0]) * pageSize; // (page - 1) * pageSize;
     console.log('==== set theData to', start, start + pageSize);
     return dataCache.slice(start, start + pageSize);
-  }, [dataCache, page, pageSize]);
+  }, [cacheRange, dataCache, page, pageSize]);
 
   const {
     onMessage,
@@ -76,15 +76,19 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const getPageItems = useCallback((newPage: number, newPageSize: number) => {
     if (!currentAddress) return;
 
+    // TODO: DOESN'T WORK: let's just load constant number. If newPage < page, then load n before,
+    // otherwise n after
+    // We have to have margins to not see this "page switch" behaviour
     const rangeStart = Math.max(1, newPage - 2);
     const rangeEnd = newPage + 2;
+    const newCachePages = rangeEnd - rangeStart + 1;
     setCacheRange([rangeStart, rangeEnd]);
 
-    console.log('=== cache loading range', rangeStart, rangeEnd, cachePages, newPageSize);
+    console.log('=== cache loading range', rangeStart, rangeEnd, newCachePages, newPageSize);
 
     getPage({
       address: currentAddress,
-      page: Math.floor(newPage / cachePages) + 1,
+      page: Math.floor(newPage / newCachePages) + 1,
       pageSize: cachePages * newPageSize,
     });
   }, [cachePages, currentAddress, getPage]);
@@ -113,7 +117,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     console.log('==== Setting cache', message.result.page);
     setDataCache(message.result.items);
     // setTheData(message.result.items);
-  }), [cachePages, cacheRange, currentAddress, onMessage, page]);
+  }), [cachePages, cacheRange, currentAddress, onMessage, page, pageSize]);
 
   const onTablePageChange = useCallback((
     { page: newPage, pageSize: newPageSize }: { page: number, pageSize: number },
