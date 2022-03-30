@@ -79,4 +79,4 @@ For information on all aspects of the TrueBlocks project, please see the website
 - **Ed Mazurek** - [wildmolasses](https://github.com/wildmolasses)
 - **Dawid Szlachta** - [dszlachta](https://github.com/dszlachta)
 
-See also the list of [contributors](https://github.com/TrueBlocks/trueblocks-core/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/TrueBlocks/trueblocks-explorer/contributors) who participated in this project.
