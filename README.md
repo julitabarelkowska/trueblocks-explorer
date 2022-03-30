@@ -11,7 +11,7 @@ TrueBlocks lets you explore the Ethereum blockchain in a fully-local and therefo
 
 ## Prerequisites
 
-Prior to proceeding, you must [install the TrueBlocks Core](http://docs.trueblocks.io) on your local machine.
+Prior to proceeding, you must [install the TrueBlocks Core](http://github.com/TrueBlocks/trueblocks-core) on your local machine.
 
 ## Installing
 
@@ -79,4 +79,4 @@ For information on all aspects of the TrueBlocks project, please see the website
 - **Ed Mazurek** - [wildmolasses](https://github.com/wildmolasses)
 - **Dawid Szlachta** - [dszlachta](https://github.com/dszlachta)
 
-See also the list of [contributors](https://github.com/TrueBlocks/trueblocks-explorer/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/TrueBlocks/trueblocks-core/contributors) who participated in this project.
