@@ -12,6 +12,7 @@ import {
   GetGas,
   GetNeighbors,
   GetPage,
+  GetSlice,
   GetTransactionsTotal,
   LoadNames,
   LoadTransactions,
@@ -69,9 +70,23 @@ export function useDatastore() {
     callback(event.data);
   }), [addListener]);
 
+  const waitForMessage = useCallback(<ResultType>(call: DataStoreMessage['call']) => new Promise<ResultType>((resolve, reject) => {
+    context.datastore?.port.addEventListener('message', (event: MessageEvent) => {
+      if (event.data.call === 'error') {
+        reject(event.data);
+        return;
+      }
+
+      if (event.data.call !== call) return;
+
+      resolve(event.data);
+    });
+  }), [context.datastore?.port]);
+
   return {
     onMessages,
     onMessage,
+    waitForMessage,
 
     loadTransactions: useCallback((args: LoadTransactions['args']) => sendMessage({
       call: 'loadTransactions',
@@ -87,6 +102,10 @@ export function useDatastore() {
     }), [sendMessage]),
     getPage: useCallback((args: GetPage['args']) => sendMessage({
       call: 'getPage',
+      args,
+    }), [sendMessage]),
+    getSlice: useCallback((args: GetSlice['args']) => sendMessage({
+      call: 'getSlice',
       args,
     }), [sendMessage]),
     getChartItems: useCallback((args: GetChartItems['args']) => sendMessage({

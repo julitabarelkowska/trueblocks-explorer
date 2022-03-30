@@ -7,13 +7,16 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { Transaction } from '@sdk';
 import { Col, Row } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
-import { GetPageResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
+import {
+  DataStoreResult, GetPageResult, GetSliceResult, LoadTransactionsStatus,
+} from 'src/ui/datastore/messages';
 
 import { BaseView } from '@components/BaseView';
 import { FilterButton } from '@components/FilterButton';
 import { addColumn, BaseTable } from '@components/Table';
 import { usePathWithAddress } from '@hooks/paths';
 import { useDatastore } from '@hooks/useDatastore';
+import { usePageBuffer } from '@hooks/usePageBuffer';
 import { useSearchParams } from '@hooks/useSearchParams';
 import {
   applyFilters,
@@ -46,7 +49,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   // const [theData, setTheData] = useState<Transaction[]>([]);
   const { showReversed } = params.userPrefs;
   const {
-    currentAddress, namesMap, totalRecords, transactionsFetchedByWorker,
+    currentAddress, namesMap, totalRecords,
   } = useGlobalState();
   const history = useHistory();
   const { pathname } = useLocation();
@@ -55,80 +58,99 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const [functionToFilterBy, setFunctionToFilterBy] = useState('');
   const [selectedItem, setSelectedItem] = useState<typeof theData>();
   const searchParams = useSearchParams();
-
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(7);
-
-  const [dataCache, setDataCache] = useState<Transaction[]>([]);
-  const [cacheRange, setCacheRange] = useState([-1, -1]);
-  const cachePages = useMemo(() => cacheRange[1] - cacheRange[0] + 1, [cacheRange]);
-  const theData = useMemo(() => {
-    const start = (page - cacheRange[0]) * pageSize; // (page - 1) * pageSize;
-    console.log('==== set theData to', start, start + pageSize);
-    return dataCache.slice(start, start + pageSize);
-  }, [cacheRange, dataCache, page, pageSize]);
-
   const {
     onMessage,
+    waitForMessage,
+    getSlice,
     getPage,
   } = useDatastore();
 
-  const getPageItems = useCallback((newPage: number, newPageSize: number) => {
-    if (!currentAddress) return;
+  // const [transactionsReady, setTransactionsReady] = useState(false);
+  // const [page, setPage] = useState(1);
+  // const [pageSize, setPageSize] = useState(7);
 
-    // TODO: DOESN'T WORK: let's just load constant number. If newPage < page, then load n before,
-    // otherwise n after
-    // We have to have margins to not see this "page switch" behaviour
-    const rangeStart = Math.max(1, newPage - 2);
-    const rangeEnd = newPage + 2;
-    const newCachePages = rangeEnd - rangeStart + 1;
-    setCacheRange([rangeStart, rangeEnd]);
+  // const fetchData = useCallback(async (range: { start: number, length: number }) => {
+  //   if (!currentAddress) return [];
 
-    console.log('=== cache loading range', rangeStart, rangeEnd, newCachePages, newPageSize);
+  //   console.log('FETCHING PAGE', range.start, range.length);
 
-    getPage({
-      address: currentAddress,
-      page: Math.floor(newPage / newCachePages) + 1,
-      pageSize: cachePages * newPageSize,
-    });
-  }, [cachePages, currentAddress, getPage]);
+  //   getSlice({
+  //     address: currentAddress,
+  //     start: range.start,
+  //     end: range.start + range.length,
+  //   });
 
-  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', (message) => {
-    const { total } = message.result;
-    // if (transactionsFetchedByWorker >= page * pageSize && theData.length === pageSize) return;
-    console.log('!!!!!!!!!!!!!!!!', (Math.floor(page / cachePages) + 1) * cachePages * pageSize);
-    if (total >= (Math.floor(page / cachePages) + 1) * cachePages * pageSize) return;
+  //   const reply = await waitForMessage<DataStoreResult<GetSliceResult>>('getSlice');
+  //   // TODO: this doesnt check if this is the page data we want (it should be part of the hook)
+  //   return reply.result.items;
+  // }, [currentAddress, getSlice, waitForMessage]);
 
-    // @ts-ignore
-    window.count += 1;
+  // const {
+  //   getPage,
+  //   getRange,
+  //   refresh,
+  //   getBufferSize,
+  // } = usePageBuffer<GetSliceResult['items'][0]>({ fetchData });
 
-    // @ts-ignore
-    if (window.count >= 100) return;
+  // const [theData, setTheData] = useState<Transaction[]>([]);
 
-    getPageItems(page, pageSize);
-  }), [cachePages, cacheRange, getPageItems, onMessage, page, pageSize]);
+  // useEffect(() => {
+  //   if (!transactionsReady) return;
 
-  useEffect(() => onMessage<GetPageResult>('getPage', (message) => {
-    if (message.result.page !== Math.floor(page / cachePages) + 1) {
-      console.log('=== Not this page', message.result.page, Math.floor(page / cachePages) + 1, cachePages, pageSize);
-      return;
-    }
+  //   (async () => {
+  //     const items = await getPage(page, pageSize);
+  //     console.log({ items });
+  //     setTheData(items);
+  //   })();
+  // }, [getPage, page, pageSize, transactionsReady]);
 
-    console.log('==== Setting cache', message.result.page);
-    setDataCache(message.result.items);
-    // setTheData(message.result.items);
-  }), [cachePages, cacheRange, currentAddress, onMessage, page, pageSize]);
+  // useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', (message) => {
+  //   const bufferRange = getRange();
+
+  //   if (!transactionsReady) {
+  //     (async () => {
+  //       await refresh();
+  //       setTransactionsReady(true);
+  //     })();
+  //     return;
+  //   }
+
+  //   console.log('Got transactions', message.result.total, '>', bufferRange.start + bufferRange.length);
+  //   if (getBufferSize() >= pageSize * 3 && message.result.total > bufferRange.start + bufferRange.length) return;
+
+  //   (async () => {
+  //     await refresh();
+  //     const items = await getPage(page, pageSize);
+  //     setTheData(items);
+  //   })();
+  // }), [getBufferSize, getPage, getRange, onMessage, page, pageSize, refresh, transactionsReady]);
 
   const onTablePageChange = useCallback((
     { page: newPage, pageSize: newPageSize }: { page: number, pageSize: number },
   ) => {
     setPage(newPage);
     setPageSize(newPageSize);
+  }, []);
 
-    if (newPage >= cacheRange[0] && newPage <= cacheRange[1]) return;
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(7);
+  const [theData, setTheData] = useState<Transaction[]>([]);
 
-    getPageItems(newPage, newPageSize);
-  }, [cacheRange, getPageItems]);
+  useEffect(() => {
+    if (!currentAddress) return;
+
+    getPage({
+      address: currentAddress,
+      page,
+      pageSize,
+    });
+  }, [currentAddress, getPage, page, pageSize]);
+
+  useEffect(() => onMessage<GetPageResult>('getPage', (message) => {
+    if (message.result.page !== page) return;
+
+    setTheData(message.result.items);
+  }), [onMessage, page]);
 
   const assetNameToDisplay = useMemo(() => {
     if (!assetToFilterBy) return '';

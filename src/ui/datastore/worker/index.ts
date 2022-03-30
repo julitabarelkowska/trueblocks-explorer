@@ -3,7 +3,7 @@
 import { address as Address } from '@sdk';
 
 import {
-  CancelLoadTransactions, DataStoreMessage, GetChartItems, GetChartItemsResult, GetEventsItems, GetEventsItemsResult, GetFunctionsItems, GetFunctionsItemsResult, GetGas, GetGasResult, GetNeighbors, GetNeighborsResult, GetPage, GetPageResult, GetTransactionsTotal, GetTransactionsTotalResult, LoadNames, LoadNamesResult, LoadTransactions,
+  CancelLoadTransactions, DataStoreMessage, GetChartItems, GetChartItemsResult, GetEventsItems, GetEventsItemsResult, GetFunctionsItems, GetFunctionsItemsResult, GetGas, GetGasResult, GetNeighbors, GetNeighborsResult, GetPage, GetPageResult, GetSlice, GetSliceResult, GetTransactionsTotal, GetTransactionsTotalResult, LoadNames, LoadNamesResult, LoadTransactions,
 } from '../messages';
 import * as Names from './names';
 import * as Store from './store';
@@ -91,6 +91,20 @@ const getPage: MessageHandler<GetPage, GetPageResult> = async (message) => {
   });
 };
 
+const getSlice: MessageHandler<GetSlice, GetSliceResult> = async (message) => {
+  const {
+    address,
+    start,
+    end,
+  } = message.args;
+
+  return Transactions.getSlice(Store.getTransactionsFor, {
+    address,
+    start,
+    end,
+  });
+};
+
 const getChartItems: MessageHandler<GetChartItems, GetChartItemsResult> = async (message) => {
   const { address, ...options } = message.args;
   const transactions = Store.getTransactionsFor(address);
@@ -134,6 +148,7 @@ async function dispatch(message: DataStoreMessage, port: MessagePort) {
     if (message.call === 'getTransactionsTotal') return getTransactionsTotal(message, port);
     if (message.call === 'cancelLoadTransactions') return cancelLoadTransactions(message, port);
     if (message.call === 'getPage') return getPage(message, port);
+    if (message.call === 'getSlice') return getSlice(message, port);
     if (message.call === 'getChartItems') return getChartItems(message, port);
     if (message.call === 'getEventsItems') return getEventsItems(message, port);
     if (message.call === 'getFunctionsItems') return getFunctionsItems(message, port);

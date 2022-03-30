@@ -112,6 +112,28 @@ export const getPage: GetPage = (getTransactions, { address, page, pageSize }) =
   };
 };
 
+type GetSlice = (
+  getTransactions: (address: Address) => Transaction[] | undefined,
+  { address, start, end }: { address: Address, start: number, end: number }
+) => GetSliceResult;
+type GetSliceResult = {
+  start: number,
+  end: number,
+  items: Transaction[],
+};
+export const getSlice: GetSlice = (getTransactions, { address, start, end }) => {
+  const source = getTransactions(address);
+  if (!source) {
+    throw new Error(`store is empty for address ${address}`);
+  }
+
+  return {
+    start,
+    end,
+    items: source.slice(start, end),
+  };
+};
+
 type GetChartItems = (transactions: Transaction[] | undefined, options: GetChartItemsOptions) => ChartInput[];
 export type GetChartItemsOptions = {
   denom: 'ether' | 'dollars',

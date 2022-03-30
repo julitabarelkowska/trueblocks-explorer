@@ -3,7 +3,7 @@ import {
 } from '@sdk';
 
 import {
-  getChartItems, GetChartItemsOptions, getEventsItems, getFunctionsItems, getGas, getNeighbors, getPage,
+  getChartItems, GetChartItemsOptions, getEventsItems, getFunctionsItems, getGas, getNeighbors, getPage, getSlice,
 } from './worker/transactions';
 
 export type DataStoreMessage =
@@ -11,6 +11,7 @@ export type DataStoreMessage =
   | CancelLoadTransactions
   | GetTransactionsTotal
   | GetPage
+  | GetSlice
   | GetChartItems
   | GetEventsItems
   | GetFunctionsItems
@@ -63,6 +64,17 @@ export type GetPage = {
 };
 
 export type GetPageResult = ReturnType<typeof getPage>;
+
+export type GetSlice = {
+  call: 'getSlice',
+  args: {
+    address: address,
+    start: number,
+    end: number,
+  },
+};
+
+export type GetSliceResult = ReturnType<typeof getSlice>;
 
 export type GetChartItems = {
   call: 'getChartItems',
