@@ -212,16 +212,9 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
 };
 
 export const useGlobalState2 = () => {
-  // TODO: Bogus
-  const chain = Cookies.get('chain');
-  let apiProvider = new URL('http://localhost:8080');
-  if (chain === 'rinkeby') {
-    apiProvider = new URL('http://localhost:8080');
-  } else if (chain === 'gnosis') {
-    apiProvider = new URL('http://localhost:8080');
-  }
+  const apiProvider = new URL(process.env.CORE_URL || 'http://localhost:8080');
   const host = apiProvider.hostname;
-  const port = apiProvider.port as unknown as number;
+  const port = parseInt(apiProvider.port, 10);
   return ({
     host,
     port,
