@@ -37,6 +37,7 @@ export function useSdk<ResponseData>(
         } catch (e) {
           // If we are here, a NetworkError has occured. Usually it means that
           // the server or user's connection is down
+          console.error(e);
           return {
             status: 0,
             errors: ['Network error'],
