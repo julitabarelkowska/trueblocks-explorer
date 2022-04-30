@@ -6,6 +6,7 @@ export function getList(
     addrs: address[],
     count?: boolean,
     appearances?: boolean,
+    silent?: boolean,
     chain: string,
     noHeader?: boolean,
     fmt?: string,

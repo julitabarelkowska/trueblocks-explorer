@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getPins, Manifest } from '@sdk';
+import { getChunks, Manifest } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 
 import { ResourceTable } from '@components/ResourceTable';
@@ -12,9 +12,9 @@ import { useGlobalState } from '../../../../State';
 export const IndexManifest = () => {
   const { chain } = useGlobalState();
 
-  const pinsCall = useSdk(() => getPins({
+  const pinsCall = useSdk(() => getChunks({
     chain,
-    list: true,
+    extract: 'pins',
   }));
 
   return (
