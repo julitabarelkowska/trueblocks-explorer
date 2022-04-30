@@ -15,6 +15,5 @@ export * from './status';
 export * from './scrape';
 export * from './chunks';
 export * from './init';
-export * from './pins';
 export * from './quotes';
 export * from './slurp';

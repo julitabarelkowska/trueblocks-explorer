@@ -4,8 +4,6 @@ import { address, Monitor } from "../types";
 export function getMonitors(
   parameters?: {
     addrs: address[],
-    appearances?: boolean,
-    count?: boolean,
     clean?: boolean,
     chain: string,
     noHeader?: boolean,
