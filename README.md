@@ -13,7 +13,6 @@
 
 TrueBlocks lets you explore the Ethereum blockchain in a fully-local and therefore fully-private way. This repo provides an example of a frontend application for the TrueBlocks backend: [TrueBlocks core](https://github.com/TrueBlocks/trueblocks-core).
 
-
 ## Prerequisites
 
 Prior to proceeding, you must [install the TrueBlocks Core](http://github.com/TrueBlocks/trueblocks-core) on your local machine.
