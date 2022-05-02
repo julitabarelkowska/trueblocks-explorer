@@ -1,9 +1,9 @@
 import * as ApiCallers from "../lib/api_callers";
-import { blknum, DatedBlock } from "../types";
+import { DatedBlock } from "../types";
 
 export function getWhen(
   parameters?: {
-    blocks?: blknum[],
+    blocks?: string[],
     list?: boolean,
     timestamps?: boolean,
     chain: string,

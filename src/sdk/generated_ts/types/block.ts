@@ -11,5 +11,5 @@ export type Block = {
   transactions: Transaction[]
   baseFeePerGas: wei
   finalized: boolean
-  unclesCnt: number
+  unclesCnt: uint64
 }
