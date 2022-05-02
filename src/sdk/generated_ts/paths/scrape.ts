@@ -4,10 +4,8 @@ import { PinnedChunk, Manifest } from "../types";
 export function getScrape(
   parameters?: {
     modes: string[],
-    action?: 'toggle' | 'run' | 'restart' | 'pause' | 'quit',
     sleep?: number,
     pin?: boolean,
-    publish?: boolean,
     blockCnt?: number,
     chain: string,
     noHeader?: boolean,

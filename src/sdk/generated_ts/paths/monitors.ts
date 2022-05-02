@@ -5,6 +5,9 @@ export function getMonitors(
   parameters?: {
     addrs: address[],
     clean?: boolean,
+    delete?: boolean,
+    undelete?: boolean,
+    remove?: boolean,
     chain: string,
     noHeader?: boolean,
     fmt?: string,
@@ -21,22 +24,6 @@ export function getMonitors(
   return ApiCallers.fetch<Monitor[]>(
     {
       endpoint: '/monitors', method: 'get', parameters, options,
-    },
-  );
-}
-export function deleteMonitors(
-  parameters?: {
-    addrs: address[],
-    delete?: boolean,
-    undelete?: boolean,
-    remove?: boolean,
-    chain: string,
-  },
-  options?: RequestInit,
-) {
-  return ApiCallers.fetch<never>(
-    {
-      endpoint: '/monitors', method: 'delete', parameters, options,
     },
   );
 }
