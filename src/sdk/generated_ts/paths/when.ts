@@ -4,8 +4,8 @@ import { blknum, DatedBlock } from "../types";
 export function getWhen(
   parameters?: {
     blocks?: blknum[],
-    timestamps?: boolean,
     list?: boolean,
+    timestamps?: boolean,
     chain: string,
     noHeader?: boolean,
     fmt?: string,
