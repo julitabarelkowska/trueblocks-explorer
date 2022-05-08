@@ -75,6 +75,7 @@ export const App = () => {
     const fetchStatus = async () => {
       const statusResponse = wrapResponse(await getStatus({
         chain,
+        fmt: 'api',
       }));
 
       if (isSuccessfulCall(statusResponse)) {
