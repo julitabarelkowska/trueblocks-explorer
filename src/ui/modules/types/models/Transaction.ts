@@ -4,8 +4,8 @@ export type TransactionModel =
   Transaction
   & {
     id: string,
-    fromName: Name,
-    toName: Name,
+    fromName?: Name,
+    toName?: Name,
     staging: boolean,
     chain: string,
   }

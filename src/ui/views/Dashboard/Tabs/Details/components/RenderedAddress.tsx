@@ -1,11 +1,8 @@
 import React from 'react';
 
-import { Transaction } from '@sdk';
-import { useGlobalNames } from '@state';
+import { TransactionModel } from '@modules/types/models/Transaction';
 
-export const RenderedAddress = ({ record, which }: {record: Transaction, which: string}) => {
-  const { namesMap } = useGlobalNames();
-
+export const RenderedAddress = ({ record, which }: {record: TransactionModel, which: string}) => {
   let address = which === 'from' ? record.from : record.to;
   const isCreation = address === '0x0';
   if (isCreation) address = record.receipt.contractAddress; // may be empty
@@ -14,18 +11,20 @@ export const RenderedAddress = ({ record, which }: {record: Transaction, which: 
   const acctFor = record.extraData;
   const isCurrent = address === acctFor;
 
-  let name = namesMap.get(address)?.name;
+  // TODO: Should names be in the worker or UI? Investigate the current use
+  const nameSource = which === 'from' ? 'fromName' : 'toName';
+  let name = record[nameSource]?.name;
   if (!isSpecial && !isCurrent && !name) {
     return <div style={{ color: 'grey' }}>{address}</div>;
   }
 
   let style = isCurrent ? { color: 'blue' } : { color: 'green' };
   if (isSpecial) {
-    name = '';
+    name = undefined;
     style = { color: 'green' };
   }
 
-  const decorated = name === '' || name === undefined
+  const decorated = !name
     ? address
     : `[${address?.substr(0, 6)}...${address?.substr(address.length - 4, address.length)}] `;
   const addr = (isCreation ? '0x0 --> ' : '') + decorated;

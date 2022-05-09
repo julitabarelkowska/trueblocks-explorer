@@ -3,8 +3,8 @@ import React, {
 } from 'react';
 import { generatePath, useParams } from 'react-router-dom';
 
+import { proxy } from 'comlink';
 import Mousetrap from 'mousetrap';
-import { GetTransactionsTotalResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
 
 import { BaseView } from '@components/BaseView';
 import { useDatastore } from '@hooks/useDatastore';
@@ -54,7 +54,6 @@ export const DashboardView = () => {
     meta: transactionsMeta, setTransactions,
   } = useGlobalState();
   const {
-    onMessage,
     loadTransactions,
     getTransactionsTotal,
     cancelLoadTransactions,
@@ -63,21 +62,31 @@ export const DashboardView = () => {
   const routeParams = useParams<{ address: string }>();
   const addressParam = useMemo(() => routeParams.address, [routeParams.address]);
 
-  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', (message) => {
-    setTransactionsFetchedByWorker(message.result.total);
-    setTransactionsLoaded(true);
-  }), [onMessage, setTransactionsFetchedByWorker, setTransactionsLoaded]);
-
-  useEffect(() => onMessage<GetTransactionsTotalResult>('getTransactionsTotal', (message) => {
-    setTotalRecords(message.result[0].nRecords);
-  }), [onMessage, setTotalRecords]);
-
   useEffect(() => {
     if (!currentAddress) return;
 
-    getTransactionsTotal({ chain, addresses: [currentAddress] });
-    loadTransactions({ address: currentAddress });
-  }, [chain, currentAddress, getTransactionsTotal, loadTransactions]);
+    setTransactionsLoaded(false);
+    getTransactionsTotal({ chain, addresses: [currentAddress] })
+      .then((stats) => setTotalRecords(stats[0].nRecords));
+
+    loadTransactions({
+      chain,
+      address: currentAddress,
+    },
+    proxy(({ total }) => {
+      setTransactionsFetchedByWorker(total);
+      setTransactionsLoaded(true);
+      console.log(total);
+    }));
+  }, [
+    chain,
+    currentAddress,
+    getTransactionsTotal,
+    loadTransactions,
+    setTotalRecords,
+    setTransactionsFetchedByWorker,
+    setTransactionsLoaded,
+  ]);
 
   //----------------------
   // This adds (and cleans up) the escape key to allow quiting the transfer mid-way

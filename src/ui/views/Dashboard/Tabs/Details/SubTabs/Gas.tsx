@@ -1,31 +1,32 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { useGlobalState } from '@state';
-import { GetGasResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
+import { GetGasResult } from 'src/ui/datastore/messages';
 
 import { useDatastore } from '@hooks/useDatastore';
 
 export const Gas = () => {
   const [items, setItems] = useState<GetGasResult>([]);
-  const { currentAddress } = useGlobalState();
   const {
-    onMessage,
+    currentAddress,
+    transactionsFetchedByWorker,
+  } = useGlobalState();
+  const {
     getGas,
   } = useDatastore();
 
-  const sendMessage = useCallback(() => {
+  const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    getGas({ address: currentAddress });
+    const results = await getGas({ address: currentAddress });
+    setItems(results);
   }, [currentAddress, getGas]);
 
-  useEffect(() => onMessage<GetGasResult>('getGas', (message) => {
-    setItems(message.result);
-  }), [onMessage]);
-
-  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', sendMessage), [onMessage, sendMessage]);
-
-  useEffect(() => sendMessage(), [sendMessage]);
+  useEffect(() => {
+    if (transactionsFetchedByWorker > 0) {
+      sendMessage();
+    }
+  }, [sendMessage, transactionsFetchedByWorker]);
 
   return (
     <div>

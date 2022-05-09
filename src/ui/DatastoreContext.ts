@@ -1,5 +1,8 @@
 import { createContext } from 'react';
 
-export const DataStoreContext = createContext<{
-  datastore?: SharedWorker
-}>({ datastore: undefined });
+import { Remote } from 'comlink';
+
+export type DatastoreApi = typeof import('./datastore/worker').api;
+type Wrapped = Remote<DatastoreApi>;
+
+export const DataStoreContext = createContext<Wrapped | undefined>(undefined);

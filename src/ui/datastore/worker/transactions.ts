@@ -3,6 +3,7 @@ import {
 } from '@sdk';
 
 import { isFailedCall, wrapResponse } from '@modules/api/call_status';
+import { TransactionModel } from '@modules/types/models/Transaction';
 
 async function fetchTransactions(chain: string, addresses: Address[], loaded: number) {
   const response = wrapResponse((await getExport({
@@ -53,7 +54,7 @@ export const getTransactionsTotal: GetTransactionsTotal = async (chain, addresse
   return listCall.data;
 };
 
-export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Transaction[]> {
+export function fetchAll(chain: string, addresses: Address[], getNameFor: (address: Address) => Name | undefined): ReadableStream<TransactionModel[]> {
   let total = 0;
 
   let loaded = 0;
@@ -82,7 +83,15 @@ export function fetchAll(chain: string, addresses: Address[]): ReadableStream<Tr
       }
 
       loaded += count;
-      controller.enqueue(transactions);
+      const models: TransactionModel[] = transactions.map((transaction, index) => ({
+        ...transaction,
+        fromName: getNameFor(transaction.from),
+        toName: getNameFor(transaction.to),
+        id: String(index), // TODO: remove
+        chain,
+        staging: false, // TODO: should it be here?
+      }));
+      controller.enqueue(models);
     },
     cancel() {
       cancelled = true;

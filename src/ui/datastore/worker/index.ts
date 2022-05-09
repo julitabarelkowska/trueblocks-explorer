@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars, no-restricted-globals */
 
-import { address as Address } from '@sdk';
+import { address as Address, getNames, Name } from '@sdk';
+import { expose } from 'comlink';
 
 import {
-  CancelLoadTransactions, DataStoreMessage, GetChartItems, GetChartItemsResult, GetEventsItems, GetEventsItemsResult, GetFunctionsItems, GetFunctionsItemsResult, GetGas, GetGasResult, GetNeighbors, GetNeighborsResult, GetPage, GetPageResult, GetSlice, GetSliceResult, GetTransactionsTotal, GetTransactionsTotalResult, LoadNames, LoadNamesResult, LoadTransactions,
+  CancelLoadTransactions, DataStoreMessage, GetChartItems, GetChartItemsResult, GetEventsItems, GetEventsItemsResult, GetFunctionsItems, GetFunctionsItemsResult, GetGas, GetGasResult, GetNameFor, GetNameForResult, GetNeighbors, GetNeighborsResult, GetPage, GetPageResult, GetSlice, GetSliceResult, GetTransactionsTotal, GetTransactionsTotalResult, LoadNames, LoadNamesResult, LoadTransactions,
 } from '../messages';
 import * as Names from './names';
 import * as Store from './store';
@@ -19,144 +20,106 @@ declare global {
 
 const streamsToCancel: Set<Address> = new Set();
 
+type WorkerApi = {
+  loadNames: (options: Parameters<typeof getNames>[0]) => Promise<{ total: number }>,
+  getNameFor: (options: GetNameFor['args']) => Name | undefined,
+  loadTransactions: (options: {
+    chain: string, address: string,
+  }, callback: (state: { new: number, total: number }) => void) => Promise<void>,
+  cancelLoadTransactions: (options: CancelLoadTransactions['args']) => void,
+  getTransactionsTotal: (options: GetTransactionsTotal['args']) => ReturnType<typeof Transactions.getTransactionsTotal>,
+  getPage: (options: GetPage['args']) => ReturnType<typeof Transactions.getPage>,
+  getSlice: (options: GetSlice['args']) => ReturnType<typeof Transactions.getSlice>,
+  getChartItems: (options: GetChartItems['args']) => ReturnType<typeof Transactions.getChartItems>,
+  getEventsItems: (options: GetEventsItems['args']) => ReturnType<typeof Transactions.getEventsItems>,
+  getFunctionsItems: (options: GetFunctionsItems['args']) => ReturnType<typeof Transactions.getFunctionsItems>,
+  getGas: (options: GetGas['args']) => ReturnType<typeof Transactions.getGas>,
+  getNeighbors: (options: GetNeighbors['args']) => ReturnType<typeof Transactions.getNeighbors>,
+};
+export const api: WorkerApi = {
+  // Names
+  async loadNames(options) {
+    const names = await Names.fetchAll(options);
+    const total = Store.replaceNames(names);
+
+    return { total };
+  },
+  getNameFor({ address }) {
+    return Store.getNameFor(address);
+  },
+
+  // Transactions
+  async loadTransactions({ chain, address }, callback) {
+    const stream = Transactions.fetchAll(chain, [address], Store.getNameFor);
+
+    try {
+      await readWholeStream(
+        stream,
+        async (transactions) => {
+          const total = Store.appendTransactions(address, transactions);
+          await callback({ new: transactions.length, total });
+        },
+        () => { },
+        () => streamsToCancel.has(address),
+      );
+    } finally {
+      streamsToCancel.delete(address);
+    }
+  },
+  // TODO: support chain
+  cancelLoadTransactions({ address }) {
+    streamsToCancel.add(address);
+  },
+  getTransactionsTotal({ chain, addresses }) {
+    return Transactions.getTransactionsTotal(
+      chain,
+      addresses,
+    );
+  },
+  getPage({ address, page, pageSize }) {
+    return Transactions.getPage(Store.getTransactionsFor, {
+      address,
+      page,
+      pageSize,
+    });
+  },
+  getSlice({ address, start, end }) {
+    return Transactions.getSlice(Store.getTransactionsFor, {
+      address,
+      start,
+      end,
+    });
+  },
+  getChartItems({ address, ...options }) {
+    const transactions = Store.getTransactionsFor(address);
+
+    return Transactions.getChartItems(transactions, options);
+  },
+  getEventsItems({ address }) {
+    const transactions = Store.getTransactionsFor(address);
+
+    return Transactions.getEventsItems(transactions);
+  },
+  getFunctionsItems({ address }) {
+    const transactions = Store.getTransactionsFor(address);
+
+    return Transactions.getFunctionsItems(transactions);
+  },
+  getGas({ address }) {
+    const transactions = Store.getTransactionsFor(address);
+
+    // TODO: FIXME!
+    return Transactions.getGas(transactions, new Map([]));
+  },
+  getNeighbors({ address }) {
+    const transactions = Store.getTransactionsFor(address);
+
+    return Transactions.getNeighbors(transactions);
+  },
+};
+
 self.onconnect = async function connectionHandler({ ports }: MessageEvent) {
   const port = ports[0];
-
-  port.addEventListener('message', async ({ data }) => {
-    try {
-      const message: DataStoreMessage = data;
-
-      console.log('[ worker ]: got message', message);
-      const result = await dispatch(message, port);
-
-      if (result) {
-        port.postMessage({ call: message.call, result });
-      }
-    } catch (err) {
-      port.postMessage({ call: 'error', result: err });
-      throw err;
-    }
-  });
-
+  expose(api, port);
   port.start();
 };
-
-type MessageHandler<MessageType, ReturnValue> = (message: MessageType, port: MessagePort) => Promise<ReturnValue>;
-
-const loadNames: MessageHandler<LoadNames, LoadNamesResult> = async (message) => {
-  const names = await Names.fetchAll(message.args);
-  const total = Store.replaceNames(names);
-
-  return { total };
-};
-
-const loadTransactions: MessageHandler<LoadTransactions, void> = async (message, port) => {
-  const stream = Transactions.fetchAll('mainnet', [message.args.address]);
-
-  try {
-    await readWholeStream(
-      stream,
-      (transactions) => {
-        const total = Store.appendTransactions(message.args.address, transactions);
-        port.postMessage({ call: message.call, result: { new: transactions.length, total } });
-      },
-      () => { },
-      () => streamsToCancel.has(message.args.address),
-    );
-  } finally {
-    streamsToCancel.delete(message.args.address);
-  }
-};
-
-const cancelLoadTransactions: MessageHandler<CancelLoadTransactions, void> = async (message) => {
-  streamsToCancel.add(message.args.address);
-};
-
-const getTransactionsTotal: MessageHandler<GetTransactionsTotal, GetTransactionsTotalResult> = async (message) => Transactions.getTransactionsTotal(
-  message.args.chain,
-  message.args.addresses,
-);
-
-const getPage: MessageHandler<GetPage, GetPageResult> = async (message) => {
-  const {
-    address,
-    page,
-    pageSize,
-  } = message.args;
-
-  return Transactions.getPage(Store.getTransactionsFor, {
-    address,
-    page,
-    pageSize,
-  });
-};
-
-const getSlice: MessageHandler<GetSlice, GetSliceResult> = async (message) => {
-  const {
-    address,
-    start,
-    end,
-  } = message.args;
-
-  return Transactions.getSlice(Store.getTransactionsFor, {
-    address,
-    start,
-    end,
-  });
-};
-
-const getChartItems: MessageHandler<GetChartItems, GetChartItemsResult> = async (message) => {
-  const { address, ...options } = message.args;
-  const transactions = Store.getTransactionsFor(address);
-
-  return Transactions.getChartItems(transactions, options);
-};
-
-const getEventsItems: MessageHandler<GetEventsItems, GetEventsItemsResult> = async (message) => {
-  const { address } = message.args;
-  const transactions = Store.getTransactionsFor(address);
-
-  return Transactions.getEventsItems(transactions);
-};
-
-const getFunctionsItems: MessageHandler<GetFunctionsItems, GetFunctionsItemsResult> = async (message) => {
-  const { address } = message.args;
-  const transactions = Store.getTransactionsFor(address);
-
-  return Transactions.getFunctionsItems(transactions);
-};
-
-const getGas: MessageHandler<GetGas, GetGasResult> = async (message) => {
-  const { address } = message.args;
-  const transactions = Store.getTransactionsFor(address);
-
-  // TODO: FIXME!
-  return Transactions.getGas(transactions, new Map([]));
-};
-
-const getNeighbors: MessageHandler<GetNeighbors, GetNeighborsResult> = async (message) => {
-  const { address } = message.args;
-  const transactions = Store.getTransactionsFor(address);
-
-  return Transactions.getNeighbors(transactions);
-};
-
-async function dispatch(message: DataStoreMessage, port: MessagePort) {
-  const result = await (async () => {
-    if (message.call === 'loadNames') return loadNames(message, port);
-    if (message.call === 'loadTransactions') return loadTransactions(message, port);
-    if (message.call === 'getTransactionsTotal') return getTransactionsTotal(message, port);
-    if (message.call === 'cancelLoadTransactions') return cancelLoadTransactions(message, port);
-    if (message.call === 'getPage') return getPage(message, port);
-    if (message.call === 'getSlice') return getSlice(message, port);
-    if (message.call === 'getChartItems') return getChartItems(message, port);
-    if (message.call === 'getEventsItems') return getEventsItems(message, port);
-    if (message.call === 'getFunctionsItems') return getFunctionsItems(message, port);
-    if (message.call === 'getGas') return getGas(message, port);
-    if (message.call === 'getNeighbors') return getNeighbors(message, port);
-
-    throw new Error('Unrecognized message');
-  })();
-
-  return result;
-}

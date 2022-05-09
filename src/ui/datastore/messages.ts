@@ -1,5 +1,5 @@
 import {
-  address, getNames, ListStats,
+  address, getNames, ListStats, Name,
 } from '@sdk';
 
 import {
@@ -17,7 +17,8 @@ export type DataStoreMessage =
   | GetFunctionsItems
   | GetGas
   | GetNeighbors
-  | LoadNames;
+  | LoadNames
+  | GetNameFor;
 
 // TODO move it or change file name
 export type DataStoreResult<ResultType> = {
@@ -28,6 +29,7 @@ export type DataStoreResult<ResultType> = {
 export type LoadTransactions = {
   call: 'loadTransactions',
   args: {
+    chain: string,
     address: address,
   }
 };
@@ -124,6 +126,15 @@ export type GetNeighborsResult = ReturnType<typeof getNeighbors>;
 export type LoadNames = {
   call: 'loadNames',
   args: Parameters<typeof getNames>[0],
-}
+};
 
 export type LoadNamesResult = { total: number };
+
+export type GetNameFor = {
+  call: 'getNameFor',
+  args: {
+    address: address,
+  },
+};
+
+export type GetNameForResult = Name | undefined;

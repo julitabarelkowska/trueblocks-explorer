@@ -2,6 +2,8 @@ import React from 'react';
 import { render } from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 
+import { wrap } from 'comlink';
+
 import { App } from './App';
 import { DataStoreContext } from './DatastoreContext';
 import { GlobalStateProvider, useGlobalState2 } from './State';
@@ -15,10 +17,10 @@ setupWebsocket(host, port, 'websocket');
 // workers
 // @ts-ignore
 const worker = new SharedWorker(new URL('./datastore/worker', import.meta.url), { type: 'module' });
-worker.port.start();
+const wrapped = wrap<typeof import('./datastore/worker').api>(worker.port);
 
 render(
-  <DataStoreContext.Provider value={{ datastore: worker }}>
+  <DataStoreContext.Provider value={wrapped}>
     <GlobalStateProvider>
       <Router>
         <App />

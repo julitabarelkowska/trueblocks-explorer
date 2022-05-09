@@ -22,6 +22,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { ChainSelect } from '@components/ChainSelect';
 import { Console } from '@components/Console';
+import { Loading } from '@components/Loading';
 import { MainMenu, MenuItems } from '@components/MainMenu';
 import { HelpPanel } from '@components/SidePanels/HelpPanel';
 import { PanelDirection, SidePanel } from '@components/SidePanels/SidePanel';
@@ -59,18 +60,24 @@ export const App = () => {
   });
   const [statusError, setStatusError] = useState(false);
   const [loadingStatus] = useState(false);
+  const [namesLoading, setNamesLoading] = useState(true);
   const [lastLocation, setLastLocation] = useState('');
   const styles = useStyles();
   const {
     loadNames,
   } = useDatastore();
 
-  useEffect(() => loadNames({
-    chain,
-    terms: [''],
-    expand: true,
-    all: true,
-  }), [chain, loadNames]);
+  useEffect(() => {
+    (async () => {
+      await loadNames({
+        chain,
+        terms: [''],
+        expand: true,
+        all: true,
+      });
+      setNamesLoading(false);
+    })();
+  }, [chain, loadNames]);
 
   useEffect(() => setLastLocation(localStorage.getItem('lastLocation') || ''), []);
   useEffect(() => {
@@ -182,7 +189,15 @@ export const App = () => {
                 overflowY: 'scroll',
               }}
             >
-              <Routes />
+              <Loading
+                loading={namesLoading}
+              >
+                {namesLoading
+                  ? null
+                  : (
+                    <Routes />
+                  )}
+              </Loading>
             </Content>
             <SidePanel header='Status' cookieName='STATUS_EXPANDED' dir={PanelDirection.Right}>
               <StatusPanel chain={chain} status={status} loading={loadingStatus} error={statusError} />

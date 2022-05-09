@@ -7,16 +7,12 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { Transaction } from '@sdk';
 import { Col, Row } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
-import {
-  DataStoreResult, GetPageResult, GetSliceResult, LoadTransactionsStatus,
-} from 'src/ui/datastore/messages';
 
 import { BaseView } from '@components/BaseView';
 import { FilterButton } from '@components/FilterButton';
 import { addColumn, BaseTable } from '@components/Table';
 import { usePathWithAddress } from '@hooks/paths';
 import { useDatastore } from '@hooks/useDatastore';
-import { usePageBuffer } from '@hooks/usePageBuffer';
 import { useSearchParams } from '@hooks/useSearchParams';
 import {
   applyFilters,
@@ -49,7 +45,10 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   // const [theData, setTheData] = useState<Transaction[]>([]);
   const { showReversed } = params.userPrefs;
   const {
-    currentAddress, namesMap, totalRecords,
+    currentAddress,
+    namesMap,
+    totalRecords,
+    transactionsLoaded,
   } = useGlobalState();
   const history = useHistory();
   const { pathname } = useLocation();
@@ -59,9 +58,6 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const [selectedItem, setSelectedItem] = useState<typeof theData>();
   const searchParams = useSearchParams();
   const {
-    onMessage,
-    waitForMessage,
-    getSlice,
     getPage,
   } = useDatastore();
 
@@ -139,18 +135,19 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   useEffect(() => {
     if (!currentAddress) return;
 
+    if (!transactionsLoaded) return;
+
     getPage({
       address: currentAddress,
       page,
       pageSize,
-    });
-  }, [currentAddress, getPage, page, pageSize]);
+    })
+      .then((result) => {
+        if (result.page !== page) return;
 
-  useEffect(() => onMessage<GetPageResult>('getPage', (message) => {
-    if (message.result.page !== page) return;
-
-    setTheData(message.result.items);
-  }), [onMessage, page]);
+        setTheData(result.items);
+      });
+  }, [currentAddress, getPage, page, pageSize, transactionsLoaded]);
 
   const assetNameToDisplay = useMemo(() => {
     if (!assetToFilterBy) return '';

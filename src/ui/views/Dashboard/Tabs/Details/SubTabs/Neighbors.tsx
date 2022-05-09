@@ -1,31 +1,32 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { useGlobalState } from '@state';
-import { GetNeighborsResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
+import { GetNeighborsResult } from 'src/ui/datastore/messages';
 
 import { useDatastore } from '@hooks/useDatastore';
 
 export const Neighbors = () => {
   const [items, setItems] = useState<GetNeighborsResult>([]);
-  const { currentAddress } = useGlobalState();
   const {
-    onMessage,
+    currentAddress,
+    transactionsFetchedByWorker,
+  } = useGlobalState();
+  const {
     getNeighbors,
   } = useDatastore();
 
-  const sendMessage = useCallback(() => {
+  const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    getNeighbors({ address: currentAddress });
+    const results = await getNeighbors({ address: currentAddress });
+    setItems(results);
   }, [currentAddress, getNeighbors]);
 
-  useEffect(() => onMessage<GetNeighborsResult>('getNeighbors', (message) => {
-    setItems(message.result);
-  }), [onMessage]);
-
-  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', sendMessage), [onMessage, sendMessage]);
-
-  useEffect(() => sendMessage(), [sendMessage]);
+  useEffect(() => {
+    if (transactionsFetchedByWorker > 0) {
+      sendMessage();
+    }
+  }, [sendMessage, transactionsFetchedByWorker]);
 
   return (
     <div>

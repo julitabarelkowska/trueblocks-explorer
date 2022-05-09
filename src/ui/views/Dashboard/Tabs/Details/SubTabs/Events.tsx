@@ -4,7 +4,6 @@ import React, {
 import { Link } from 'react-router-dom';
 
 import { useGlobalState } from '@state';
-import { GetEventsItemsResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
@@ -23,25 +22,26 @@ export const Events = () => {
   const schema = useMemo(() => getSchema(historyUrl), [historyUrl]);
 
   const [items, setItems] = useState<ItemCounterArray>([]);
-  const { currentAddress } = useGlobalState();
   const {
-    onMessage,
+    currentAddress,
+    transactionsFetchedByWorker,
+  } = useGlobalState();
+  const {
     getEventsItems,
   } = useDatastore();
 
-  const sendMessage = useCallback(() => {
+  const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    getEventsItems({ address: currentAddress });
+    const result = await getEventsItems({ address: currentAddress });
+    setItems(result);
   }, [currentAddress, getEventsItems]);
 
-  useEffect(() => onMessage<GetEventsItemsResult>('getEventsItems', (message) => {
-    setItems(message.result);
-  }), [onMessage]);
-
-  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', sendMessage), [onMessage, sendMessage]);
-
-  useEffect(() => sendMessage(), [sendMessage]);
+  useEffect(() => {
+    if (transactionsFetchedByWorker > 0) {
+      sendMessage();
+    }
+  }, [sendMessage, transactionsFetchedByWorker]);
 
   const top = items.slice(0, 10);
   const remains = items.slice(10);

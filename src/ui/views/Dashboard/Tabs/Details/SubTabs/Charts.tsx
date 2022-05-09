@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { Link } from 'react-router-dom';
 
-import { GetChartItemsResult, LoadTransactionsStatus } from 'src/ui/datastore/messages';
+import { GetChartItemsResult } from 'src/ui/datastore/messages';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
@@ -28,21 +28,21 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
     denom,
     currentAddress,
     transactionsLoaded,
+    transactionsFetchedByWorker,
   } = useGlobalState();
 
   const {
-    onMessage,
     getChartItems,
   } = useDatastore();
 
   const [items, setItems] = useState<GetChartItemsResult>([]);
 
-  const getCurrentChartItems = useCallback(() => {
+  const getCurrentChartItems = useCallback(async () => {
     if (!currentAddress) return;
 
     if (!transactionsLoaded) return;
 
-    getChartItems({
+    const result = await getChartItems({
       address: currentAddress,
       // TODO: typecast
       denom: denom as 'ether' | 'dollars',
@@ -52,17 +52,16 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
         return 'ignore-zero';
       })(),
     });
+    setItems(result);
   }, [currentAddress, denom, getChartItems, hideZero, transactionsLoaded]);
 
-  useEffect(() => getCurrentChartItems(), [getCurrentChartItems]);
+  useEffect(() => { getCurrentChartItems(); }, [getCurrentChartItems]);
 
-  useEffect(() => onMessage<GetChartItemsResult>('getChartItems', (message) => {
-    setItems(message.result);
-  }), [onMessage]);
-
-  useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', () => {
-    getCurrentChartItems();
-  }), [getCurrentChartItems, onMessage]);
+  useEffect(() => {
+    if (transactionsFetchedByWorker > 0) {
+      getCurrentChartItems();
+    }
+  }, [getCurrentChartItems, transactionsFetchedByWorker]);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
