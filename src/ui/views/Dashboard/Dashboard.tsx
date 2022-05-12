@@ -83,7 +83,7 @@ export const DashboardView = () => {
   //----------------------
   // Fires when the address changes and builds the request transaction count
   const listRequest = useSdk(() => getList({
-    chain,
+    chain: chain.chain,
     count: true,
     appearances: true,
     addrs: [currentAddress as string],
@@ -107,7 +107,7 @@ export const DashboardView = () => {
   //----------------------
   // Fires when the number of records or the address changes, repeats until all transactions are fetched
   const transactionsRequest = useSdk(() => getExport({
-    chain,
+    chain: chain.chain,
     addrs: [currentAddress as string],
     fmt: 'json',
     cache: true,

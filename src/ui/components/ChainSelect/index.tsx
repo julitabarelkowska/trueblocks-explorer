@@ -1,31 +1,38 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
+import { Status } from '@sdk';
 import { useGlobalState } from '@state';
 import { Select } from 'antd';
 
-// TODO: BOGUS - list of configured chains
-const chainList = ['mainnet', 'gnosis', 'rinkeby', 'sepolia'];
-export function ChainSelect() {
+export function ChainSelect({ status }: { status: Status }) {
   const history = useHistory();
   const { chain, setChain } = useGlobalState();
 
-  const onChainChange = useCallback((newValue) => {
+  const onChainChange = useCallback((newValue: string) => {
     // Clear transactions filters (if any)
     history.push(history.location.pathname);
-    setChain(newValue);
-  }, [history, setChain]);
+
+    const newChain = status.chains.find(({ chain: chainName }) => chainName === newValue);
+    if (!newChain) {
+      throw new Error(`Chain configuration not found for: "${newValue}"`);
+    }
+
+    setChain(newChain);
+  }, [history, setChain, status.chains]);
+
+  const chains = useMemo(() => status.chains.map(({ chain: chainName }) => chainName), [status.chains]);
 
   return (
     <Select
       placeholder='chain'
-      value={chain}
+      value={chain.chain}
       onChange={onChainChange}
       style={{ width: '10vw' }}
     >
-      {chainList.map((item) => (
-        <Select.Option key={item} value={item}>
-          {item}
+      {chains.map((chainName) => (
+        <Select.Option key={chainName} value={chainName}>
+          {chainName}
         </Select.Option>
       ))}
     </Select>
