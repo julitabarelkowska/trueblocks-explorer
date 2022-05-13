@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { ReactNode } from 'react-markdown';
 
-import { address as Address, Name, Transaction } from '@sdk';
+import { Transaction } from '@sdk';
 import Cookies from 'js-cookie';
 
 import {
@@ -33,7 +33,6 @@ type State = {
   chain: string,
   denom: string,
   currentAddress?: string,
-  namesMap: Map<Address, Name>
   namesEditModalVisible: boolean,
   namesEditModal: NamesEditModalState,
   transactions: Transaction[],
@@ -56,7 +55,6 @@ const initialState: State = {
   chain: CHAIN,
   denom: DENOM,
   currentAddress: ADDRESS,
-  namesMap: new Map(),
   namesEditModalVisible: false,
   namesEditModal: getDefaultNamesEditModalValue(),
   transactions: [],
@@ -84,11 +82,6 @@ type SetDenom = {
 type SetCurrentAddress = {
   type: 'SET_CURRENT_ADDRESS',
   address: State['currentAddress'],
-};
-
-type SetNamesMap = {
-  type: 'SET_NAMES_MAP',
-  namesMap: State['namesMap'],
 };
 
 type SetNamesEditModal = {
@@ -136,7 +129,6 @@ type GlobalAction =
   | SetChain
   | SetDenom
   | SetCurrentAddress
-  | SetNamesMap
   | SetNamesEditModal
   | SetNamesEditModalVisible
   | SetTransactions
@@ -183,11 +175,6 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         };
       }
       return state;
-    case 'SET_NAMES_MAP':
-      return {
-        ...state,
-        namesMap: action.namesMap,
-      };
     case 'SET_NAMES_EDIT_MODAL':
       return {
         ...state,
@@ -267,10 +254,6 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_CURRENT_ADDRESS', address });
   }, [dispatch]);
 
-  const setNamesMap = useCallback((namesMap: SetNamesMap['namesMap']) => {
-    dispatch({ type: 'SET_NAMES_MAP', namesMap });
-  }, [dispatch]);
-
   const setNamesEditModal = (val: SetNamesEditModal['val']) => {
     dispatch({ type: 'SET_NAMES_EDIT_MODAL', val });
   };
@@ -312,8 +295,6 @@ export const useGlobalState = () => {
     setDenom,
     currentAddress: state.currentAddress,
     setCurrentAddress,
-    namesMap: state.namesMap,
-    setNamesMap,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
     namesEditModalVisible: state.namesEditModalVisible,
@@ -337,13 +318,4 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo((): [State, React.Dispatch<GlobalAction>] => [state, dispatch], [state]);
 
   return <GlobalStateContext.Provider value={value}>{children}</GlobalStateContext.Provider>;
-};
-
-export const useGlobalNames = () => {
-  const {
-    namesMap, setNamesMap,
-  } = useGlobalState();
-  return {
-    namesMap, setNamesMap,
-  };
 };

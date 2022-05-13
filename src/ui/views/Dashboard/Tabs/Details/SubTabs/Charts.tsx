@@ -1,8 +1,10 @@
 import React, {
-  useCallback, useEffect, useState,
+  useCallback, useEffect, useMemo, useState,
 } from 'react';
 import { Link } from 'react-router-dom';
 
+import { Name } from '@sdk';
+import { useGlobalState, useGlobalState2 } from '@state';
 import { GetChartItemsResult } from 'src/ui/datastore/messages';
 
 import { MyAreaChart } from '@components/MyAreaChart';
@@ -13,7 +15,6 @@ import { createWrapper } from '@hooks/useSearchParams';
 
 // FIXME: these look like UI-related types
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
-import { useGlobalNames, useGlobalState, useGlobalState2 } from '../../../../../State';
 import { chartColors } from '../../../../../Utilities';
 import { AccountViewParams } from '../../../Dashboard';
 
@@ -119,10 +120,18 @@ export function getLink(chain: string, type: string, addr1: string, addr2?: stri
 }
 
 const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult[0]; index: number }) => {
-  const { namesMap } = useGlobalNames();
   const { currentAddress, chain } = useGlobalState();
+  const {
+    getNameFor,
+  } = useDatastore();
   const { apiProvider } = useGlobalState2();
   const generatePathWithAddress = usePathWithAddress();
+  const [assetName, setAssetName] = useState<Name>();
+
+  useEffect(() => {
+    (getNameFor({ address: asset.assetAddress }) as Promise<Name | undefined>)
+      .then((nameDetails) => setAssetName(nameDetails));
+  }, [asset.assetAddress, getNameFor]);
 
   const links = [];
   links.push(
@@ -136,7 +145,7 @@ const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult[0]; index: nu
       History
     </Link>,
   );
-  if (!namesMap.get(asset.assetAddress)) {
+  if (!assetName) {
     links.push(
       <a target='_blank' href={`${apiProvider}/names?chain=${chain}&autoname=${asset.assetAddress}`} rel='noreferrer'>
         Name
@@ -161,17 +170,12 @@ const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult[0]; index: nu
     </a>,
   );
 
-  // TODO: Comment from @dszlachta
-  // TODO: I think that it would be good to use useMemo here, so we don't have
-  // TODO: to perform the lookup when the component re-renders:
-  // TODO: const tokenSymbol = useMemo(() => /* lookupHere */, [deps]);
-  // TODO: You could then cache namesMap.get(asset.assetAddrs) and
-  // TODO: asset.assetSymbol.substr(0, 15) in variables
-  const tokenSymbol = namesMap.get(asset.assetAddress)
-    ? namesMap.get(asset.assetAddress)?.name?.substr(0, 15) + (asset.assetSymbol
+  const tokenSymbol = useMemo(() => (assetName
+    ? assetName.name?.substr(0, 15) + (asset.assetSymbol
       ? ` (${asset.assetSymbol.substr(0, 15)})`
       : '')
-    : asset.assetSymbol.substr(0, 15);
+    : asset.assetSymbol.substr(0, 15)),
+  [asset.assetSymbol, assetName]);
 
   return (
     <div key={`${index}d1`} style={{ overflowX: 'hidden' }}>

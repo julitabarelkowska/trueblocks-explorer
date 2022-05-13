@@ -76,7 +76,6 @@ export const DashboardView = () => {
     proxy(({ total }) => {
       setTransactionsFetchedByWorker(total);
       setTransactionsLoaded(true);
-      console.log(total);
     }));
   }, [
     chain,

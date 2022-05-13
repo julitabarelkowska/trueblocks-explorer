@@ -1,31 +1,42 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
+import { Name } from '@sdk';
+import { useGlobalState } from '@state';
 import {
   PageHeader,
   Progress,
 } from 'antd';
 
-import { useGlobalNames, useGlobalState } from '../../../../../State';
+import { useDatastore } from '@hooks/useDatastore';
+
 import { AccountViewParams } from '../../../Dashboard';
 
 import './AddressBar.css';
 
 export const AddressBar = ({ params }: { params: AccountViewParams }) => {
   const { currentAddress, chain } = useGlobalState();
-  const { namesMap } = useGlobalNames();
+  const {
+    getNameFor,
+  } = useDatastore();
+  const [name, setName] = useState('');
   const { totalRecords } = params;
 
-  const title = useMemo(() => {
-    const name = currentAddress ? namesMap.get(currentAddress)?.name : '';
+  useEffect(() => {
+    if (!currentAddress) return;
 
+    (getNameFor({ address: currentAddress }) as Promise<Name | undefined>)
+      .then((nameDetails) => setName(nameDetails?.name || ''));
+  }, [currentAddress, getNameFor]);
+
+  const title = useMemo(() => {
     if (!name) {
       return <PageHeader title={currentAddress} />;
     }
 
     return <PageHeader title={name} subTitle={currentAddress} />;
-  }, [currentAddress, namesMap]);
+  }, [currentAddress, name]);
 
-  if (!namesMap || !currentAddress) return <></>;
+  if (!currentAddress) return <></>;
 
   return (
     <div className='addressBar'>
