@@ -15,7 +15,7 @@ import { useGlobalState } from '../../../State';
 export const Tags = () => {
   const { chain } = useGlobalState();
   const dataCall = useSdk(() => getNames({
-    chain,
+    chain: chain.chain,
     terms: [],
     tags: true,
   }));

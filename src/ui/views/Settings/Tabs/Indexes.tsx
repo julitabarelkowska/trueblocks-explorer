@@ -27,7 +27,7 @@ import { IndexTable } from './SubTabs/IndexTable';
 export const IndexesView = () => {
   const { chain } = useGlobalState();
   const statusCall = useSdk(() => getStatus({
-    chain,
+    chain: chain.chain,
     modes: ['index'],
     details: true,
   }));

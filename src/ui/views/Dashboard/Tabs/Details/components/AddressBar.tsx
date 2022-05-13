@@ -36,7 +36,7 @@ export const AddressBar = ({ params }: { params: AccountViewParams }) => {
         </div>
       </div>
       <div />
-      <div>{`${totalRecords} records on ${chain}`}</div>
+      <div>{`${totalRecords} records on ${chain.chain}`}</div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Reconciliation, Transaction } from '@sdk';
+import { Chain, Reconciliation, Transaction } from '@sdk';
 import dayjs from 'dayjs';
 
 import { MyAreaChart } from '@components/MyAreaChart';
@@ -120,25 +120,28 @@ export const Charts = ({ params }: { params: AccountViewParams }) => {
 };
 
 // TODO: BOGUS -- per chain data
-export function getLink(chain: string, type: string, addr1: string, addr2?: string) {
+export function getLink(chain: Chain, type: string, addr1: string, addr2?: string) {
   if (type === 'uni') {
     return `https://info.uniswap.org/#/tokens/${addr1}`;
   }
 
-  if (chain === 'gnosis') {
-    if (type === 'token') {
-      return `https://blockscout.com/xdai/mainnet/address/${addr1}`;
-    } if (type === 'holding') {
-      return `https://blockscout.com/xdai/mainnet/address/${addr1}`;
-    }
-  } else {
-    if (type === 'token') {
-      return `https://etherscan.io/address/${addr1}`;
-    } if (type === 'holding') {
-      return `https://etherscan.io/token/${addr1}?a=${addr2}`;
-    }
+  let url;
+
+  if (type === 'token') {
+    url = new URL(
+      `/address/${addr1}`,
+      chain.remoteExplorer,
+    );
   }
-  return '';
+
+  if (type === 'holding' && chain.chain === 'mainnet') {
+    url = new URL(
+      `/token/${addr1}?a=${addr2}`,
+      chain.remoteExplorer,
+    );
+  }
+
+  return url?.toString() || '';
 }
 
 const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
