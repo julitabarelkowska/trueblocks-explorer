@@ -1,28 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { CopyTwoTone } from '@ant-design/icons';
-import { Name } from '@sdk';
 import { Button } from 'antd';
 
-import { useDatastore } from '@hooks/useDatastore';
+import { useName } from '@hooks/useName';
 
 import { DashboardAccountsLocation } from '../../Routes';
 
 export const Address = (
   { address, showCopy = true, link = false }: { address: string, showCopy?: boolean, link?: boolean },
 ) => {
-  const {
-    getNameFor,
-  } = useDatastore();
-
   const [name, setName] = useState('');
 
-  useEffect(() => {
-    (getNameFor({ address }) as Promise<Name | undefined>).then(
-      (nameFound) => setName(nameFound?.name || ''),
-    );
-  }, [address, getNameFor]);
+  useName(
+    [address],
+    ([nameFound]) => setName(nameFound?.name || ''),
+  );
 
   let addr = address;
   if (addr && addr.length === 66) {

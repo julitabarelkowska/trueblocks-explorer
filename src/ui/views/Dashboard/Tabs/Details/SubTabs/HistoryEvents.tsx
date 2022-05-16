@@ -32,7 +32,8 @@ export const HistoryEvents = ({ record }: { record: Transaction }) => {
       .map(async (log) => {
         if (!log.address) return '';
 
-        const name = await (getNameFor({ address: log.address }) as Promise<Name | undefined>);
+        const nameFound = await (getNameFor({ address: log.address }) as Promise<Name | undefined>);
+        const name = nameFound ? ` from ${nameFound.name}` : ` from ${log.address.slice(0, 6)}`;
 
         if (!log.articulatedLog) return `[unknown]${name}`;
 

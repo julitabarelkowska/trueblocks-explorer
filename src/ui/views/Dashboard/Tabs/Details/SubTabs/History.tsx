@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { Name, Transaction } from '@sdk';
+import { Transaction } from '@sdk';
 import { Col, Row } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
@@ -13,6 +13,7 @@ import { FilterButton } from '@components/FilterButton';
 import { addColumn, BaseTable } from '@components/Table';
 import { usePathWithAddress } from '@hooks/paths';
 import { useDatastore } from '@hooks/useDatastore';
+import { useName } from '@hooks/useName';
 import { useSearchParams } from '@hooks/useSearchParams';
 import {
   applyFilters,
@@ -58,7 +59,6 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const searchParams = useSearchParams();
   const {
     getPage,
-    getNameFor,
   } = useDatastore();
 
   // const [transactionsReady, setTransactionsReady] = useState(false);
@@ -151,17 +151,10 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
 
   const [assetNameToDisplay, setAssetNameToDisplay] = useState('');
 
-  // TODO: this and similar places: we need to return a destructor for
-  // useEffect, so that we won't try to modify unmounted component state
-  // accidentally. We should have useNames hook and replace these useEffects
-  useEffect(() => {
-    if (!assetToFilterBy) {
-      setAssetNameToDisplay('');
-    }
-
-    (getNameFor({ address: assetToFilterBy }) as Promise<Name | undefined>)
-      .then((nameDetails) => setAssetNameToDisplay(nameDetails?.name || ''));
-  }, [assetToFilterBy, getNameFor]);
+  useName(
+    [assetToFilterBy],
+    ([name]) => setAssetNameToDisplay(name?.name || ''),
+  );
 
   useEffect(
     () => {
