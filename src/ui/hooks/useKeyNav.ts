@@ -1,5 +1,5 @@
 import {
-  useCallback, useEffect, useMemo, useState,
+  useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
 
 const navigationKeys = [
@@ -27,34 +27,41 @@ export function useKeyNav(
   // The navigation can be "turned off", which will not remove the
   // listeners and the logic will still work, but the state can be
   // presented as, for example, lack of highlight color.
-  const [on, setOn] = useState(false);
+  const on = useRef(false);
   const page = useMemo(() => Math.floor(position / pageSize) + 1, [pageSize, position]);
   const row = useMemo(() => position % pageSize, [pageSize, position]);
+  // We also have ref for row number, so we won't introduce circular dependencies for
+  // the listener callback.
+  const rowRef = useRef(0);
+  useEffect(() => { rowRef.current = row; }, [row]);
+  // State for expanded row
+  const [expandedRow, setExpandedRow] = useState(-1);
   // Let the component select a row. relativeRow is relative to the
   // data currently loaded in the table, e.g. if we have 10 items loaded,
   // the second item is 1 (we count from 0), even if it's 3rd page.
   const selectRow = useCallback((relativeRow) => {
-    setOn(true);
+    on.current = true;
     setPosition((page - 1) * pageSize + relativeRow);
   }, [page, pageSize]);
-
   // Adds `addend` to `position`. To decrease the position value just use
   // a negative `addend`.
   const incrementPosition = useCallback(
     (addend) => (currentPosition: number) => Math.max(0, Math.min(maxItems, currentPosition + addend)), [maxItems],
   );
+  const keyEvent = useRef<KeyboardEvent | undefined>();
+
   // Handles the pressed key
   const listener = useCallback((event) => {
     const { key } = event;
     // Most of the time, arrow up or down will move by one item...
     let arrowUpAndDownAddend = 1;
 
-    if (navigationKeys.includes(key) && on === false) {
+    if (navigationKeys.includes(key) && on.current === false) {
       // ... but, if the navigation was "turned off" and the user
       // is turning it back on just now, we want to focus the first item
       // (which always has 0 index)
       arrowUpAndDownAddend = 0;
-      setOn(true);
+      on.current = true;
     }
 
     switch (key) {
@@ -79,13 +86,32 @@ export function useKeyNav(
         setPosition(0);
         break;
       case 'Escape':
-        setOn(false);
+        on.current = false;
+        break;
+      case 'Enter':
+        event.preventDefault();
+        setExpandedRow((expanded) => {
+          const { current } = rowRef;
+          if (current === expanded) return -1;
+          return current;
+        });
         break;
       default:
+        // If another key was pressed, we ignore it...
         return;
     }
-    handleScroll(event, row, pageSize);
-  }, [on, handleScroll, row, pageSize, incrementPosition, maxItems]);
+
+    // ... if it was one of navigation keys, we save the event so that
+    // we can handle it in handleScroll function (we don't use the function
+    // here directly, to not introduce circular dependencies for the callback).
+    keyEvent.current = event;
+  }, [pageSize, incrementPosition, maxItems]);
+
+  useEffect(() => {
+    if (!keyEvent.current) return;
+
+    handleScroll(keyEvent.current, rowRef.current, pageSize);
+  }, [handleScroll, pageSize]);
 
   useEffect(() => {
     window.addEventListener('keydown', listener);
@@ -95,6 +121,8 @@ export function useKeyNav(
   return {
     page,
     row,
+    expandedRow,
+    setExpandedRow,
     position,
     keyNavOn: on,
     selectRow,
