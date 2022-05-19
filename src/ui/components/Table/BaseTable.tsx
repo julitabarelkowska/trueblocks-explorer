@@ -36,7 +36,6 @@ export const BaseTable = ({
   onSelectionChange?: (row: unknown) => void,
   onPageChange?: ({ page, pageSize }: { page: number, pageSize: number }) => void,
 }) => {
-  const [, setDisplayedRow] = useState(dataSource ? dataSource[0] : {});
   const [pageSize] = useState(defPageSize);
   const tableRef = useRef<HTMLTableElement>(document.createElement('table'));
   const {
@@ -75,9 +74,23 @@ export const BaseTable = ({
   }, [dataSource, extraData]);
 
   useEffect(() => {
-    setDisplayedRow(keyedData[row]);
-    onSelectionChange(keyedData[row]);
+    const listener = () => {
+      onSelectionChange(keyedData[row]);
+    };
+    // We have to bind to window, because Ant Design makes it
+    // impossible to get keyup event from their components.
+    window.addEventListener('keyup', listener);
+    return () => window.removeEventListener('keyup', listener);
   }, [keyedData, onSelectionChange, row]);
+
+  // We will execute this effect only once, to notify the parent about
+  // the default (first) item being selected when BaseTable mounts.
+  const parentalreadynotified = useRef(false);
+  useEffect(() => {
+    if (parentalreadynotified.current) return;
+    parentalreadynotified.current = true;
+    onSelectionChange(keyedData[row]);
+  });
 
   const expandedRowRender = expandRender !== undefined
     ? expandRender
