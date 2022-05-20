@@ -61,66 +61,6 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     getPage,
   } = useDatastore();
 
-  // const [transactionsReady, setTransactionsReady] = useState(false);
-  // const [page, setPage] = useState(1);
-  // const [pageSize, setPageSize] = useState(7);
-
-  // const fetchData = useCallback(async (range: { start: number, length: number }) => {
-  //   if (!currentAddress) return [];
-
-  //   console.log('FETCHING PAGE', range.start, range.length);
-
-  //   getSlice({
-  //     address: currentAddress,
-  //     start: range.start,
-  //     end: range.start + range.length,
-  //   });
-
-  //   const reply = await waitForMessage<DataStoreResult<GetSliceResult>>('getSlice');
-  //   // TODO: this doesnt check if this is the page data we want (it should be part of the hook)
-  //   return reply.result.items;
-  // }, [currentAddress, getSlice, waitForMessage]);
-
-  // const {
-  //   getPage,
-  //   getRange,
-  //   refresh,
-  //   getBufferSize,
-  // } = usePageBuffer<GetSliceResult['items'][0]>({ fetchData });
-
-  // const [theData, setTheData] = useState<Transaction[]>([]);
-
-  // useEffect(() => {
-  //   if (!transactionsReady) return;
-
-  //   (async () => {
-  //     const items = await getPage(page, pageSize);
-  //     console.log({ items });
-  //     setTheData(items);
-  //   })();
-  // }, [getPage, page, pageSize, transactionsReady]);
-
-  // useEffect(() => onMessage<LoadTransactionsStatus>('loadTransactions', (message) => {
-  //   const bufferRange = getRange();
-
-  //   if (!transactionsReady) {
-  //     (async () => {
-  //       await refresh();
-  //       setTransactionsReady(true);
-  //     })();
-  //     return;
-  //   }
-
-  //   console.log('Got transactions', message.result.total, '>', bufferRange.start + bufferRange.length);
-  //   if (getBufferSize() >= pageSize * 3 && message.result.total > bufferRange.start + bufferRange.length) return;
-
-  //   (async () => {
-  //     await refresh();
-  //     const items = await getPage(page, pageSize);
-  //     setTheData(items);
-  //   })();
-  // }), [getBufferSize, getPage, getRange, onMessage, page, pageSize, refresh, transactionsReady]);
-
   const onTablePageChange = useCallback((
     { page: newPage, pageSize: newPageSize }: { page: number, pageSize: number },
   ) => {
