@@ -1,6 +1,25 @@
-import { Transaction } from '@sdk';
+import { address, Transaction } from '@sdk';
 import { Eq } from 'fp-ts/lib/Eq';
 import { none, some } from 'fp-ts/lib/Option';
+
+export type FiltersState = FiltersOn | FiltersOff;
+export type FiltersOn = {
+  active: true,
+} & TransactionFilters;
+
+export type FiltersOff = {
+  active: false,
+};
+
+export type TransactionFilters = {
+  asset: address,
+  event: string,
+  function: string,
+};
+
+export function areFiltersActive(state: FiltersState): state is FiltersOn {
+  return state.active;
+}
 
 export const TransactionEquality: Eq<Transaction> = {
   equals({ hash: firstHash }: Transaction, { hash: secondHash }: Transaction) {

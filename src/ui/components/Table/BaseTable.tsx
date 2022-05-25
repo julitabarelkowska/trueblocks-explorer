@@ -97,6 +97,10 @@ export const BaseTable = ({
     : (rowContent: any) => <pre>{JSON.stringify(rowContent, null, 2)}</pre>;
 
   const dataWithSkeletons = useMemo(() => {
+    if (page === 1) {
+      return keyedData;
+    }
+
     const lastPage = Math.ceil(Number(totalRecords) / pageSize);
     const missingItems = (() => {
       // The last page of data can have less items than pageSize, but it will

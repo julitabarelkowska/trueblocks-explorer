@@ -10,6 +10,7 @@ import { ReactNode } from 'react-markdown';
 import { Transaction } from '@sdk';
 import Cookies from 'js-cookie';
 
+import { FiltersState } from '@modules/filters/transaction';
 import {
   getThemeByName, Theme, ThemeName,
 } from '@modules/themes';
@@ -38,9 +39,11 @@ type State = {
   transactions: Transaction[],
   meta: Meta
   totalRecords: number,
+  filteredRecords: number,
   transactionsLoaded: boolean,
   transactionsFetchedByWorker: number,
-}
+  filters: FiltersState,
+};
 
 const getDefaultNamesEditModalValue = () => ({
   address: '',
@@ -60,8 +63,10 @@ const initialState: State = {
   transactions: [],
   meta: createEmptyMeta(),
   totalRecords: 0,
+  filteredRecords: 0,
   transactionsLoaded: false,
   transactionsFetchedByWorker: 0,
+  filters: { active: false },
 };
 
 type SetTheme = {
@@ -114,6 +119,11 @@ type SetTotalRecords = {
   records: State['totalRecords'],
 };
 
+type SetFilteredRecords = {
+  type: 'SET_FILTERED_RECORDS',
+  filteredRecords: State['filteredRecords'],
+};
+
 type SetTransactionsLoaded = {
   type: 'SET_TRANSACTIONS_LOADED',
   loaded: State['transactionsLoaded'],
@@ -122,6 +132,11 @@ type SetTransactionsLoaded = {
 type SetTransactionsFetchedByWorker = {
   type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER',
   fetched: State['transactionsFetchedByWorker'],
+};
+
+type SetFilters = {
+  type: 'SET_FILTERS',
+  filters: State['filters'],
 };
 
 type GlobalAction =
@@ -135,8 +150,10 @@ type GlobalAction =
   | AddTransactions
   | SetMeta
   | SetTotalRecords
+  | SetFilteredRecords
   | SetTransactionsLoaded
-  | SetTransactionsFetchedByWorker;
+  | SetTransactionsFetchedByWorker
+  | SetFilters;
 
 const GlobalStateContext = createContext<[
   typeof initialState,
@@ -209,6 +226,11 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         ...state,
         totalRecords: action.records,
       };
+    case 'SET_FILTERED_RECORDS':
+      return {
+        ...state,
+        filteredRecords: action.filteredRecords,
+      };
     case 'SET_TRANSACTIONS_LOADED':
       return {
         ...state,
@@ -218,6 +240,11 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
       return {
         ...state,
         transactionsFetchedByWorker: action.fetched,
+      };
+    case 'SET_FILTERS':
+      return {
+        ...state,
+        filters: action.filters,
       };
     default:
       return state;
@@ -278,12 +305,20 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_TOTAL_RECORDS', records });
   }, [dispatch]);
 
+  const setFilteredRecords = useCallback((filteredRecords: SetFilteredRecords['filteredRecords']) => {
+    dispatch({ type: 'SET_FILTERED_RECORDS', filteredRecords });
+  }, [dispatch]);
+
   const setTransactionsLoaded = useCallback((loaded: SetTransactionsLoaded['loaded']) => {
     dispatch({ type: 'SET_TRANSACTIONS_LOADED', loaded });
   }, [dispatch]);
 
   const setTransactionsFetchedByWorker = useCallback((fetched: SetTransactionsFetchedByWorker['fetched']) => {
     dispatch({ type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER', fetched });
+  }, [dispatch]);
+
+  const setFilters = useCallback((filters: SetFilters['filters']) => {
+    dispatch({ type: 'SET_FILTERS', filters });
   }, [dispatch]);
 
   return {
@@ -306,10 +341,14 @@ export const useGlobalState = () => {
     setMeta,
     totalRecords: state.totalRecords,
     setTotalRecords,
+    filteredRecords: state.filteredRecords,
+    setFilteredRecords,
     transactionsLoaded: state.transactionsLoaded,
     setTransactionsLoaded,
     transactionsFetchedByWorker: state.transactionsFetchedByWorker,
     setTransactionsFetchedByWorker,
+    filters: state.filters,
+    setFilters,
   };
 };
 

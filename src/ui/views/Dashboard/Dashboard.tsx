@@ -1,13 +1,16 @@
 import React, {
   useEffect, useMemo, useState,
 } from 'react';
-import { generatePath, useParams } from 'react-router-dom';
+import {
+  generatePath, useParams,
+} from 'react-router-dom';
 
 import { proxy } from 'comlink';
 import Mousetrap from 'mousetrap';
 
 import { BaseView } from '@components/BaseView';
 import { useDatastore } from '@hooks/useDatastore';
+import { useSearchParams } from '@hooks/useSearchParams';
 
 import {
   DashboardAccountsAddressLocation,
@@ -32,6 +35,10 @@ import { Collections } from './Tabs/Collections';
 import { DetailsView } from './Tabs/Details';
 import { Monitors } from './Tabs/Monitors';
 
+const searchParamAsset = 'asset';
+const searchParamEvent = 'event';
+const searchParamFunction = 'function';
+
 export const DashboardView = () => {
   const [loading, setLoading] = useState(false);
   const [showReversed, setShowReversed] = useState(false);
@@ -47,34 +54,91 @@ export const DashboardView = () => {
   const { chain } = useGlobalState();
   const { currentAddress, setCurrentAddress, setTransactionsLoaded } = useGlobalState();
   const {
-    totalRecords, setTotalRecords,
+    totalRecords,
+    setTotalRecords,
+    setFilteredRecords,
     setTransactionsFetchedByWorker,
-  } = useGlobalState();
-  const {
-    meta: transactionsMeta, setTransactions,
+    meta: transactionsMeta,
+    setTransactions,
+    setFilters,
   } = useGlobalState();
   const {
     loadTransactions,
     getTransactionsTotal,
     cancelLoadTransactions,
+    setActiveFilters,
   } = useDatastore();
 
   const routeParams = useParams<{ address: string }>();
   const addressParam = useMemo(() => routeParams.address, [routeParams.address]);
 
+  // TODO: duplicate in History.tsx
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // const sp = new URLSearchParams(location.search);
+    // return sp.has('asset') || sp.has('event') || sp.has('function');
+
+    const asset = searchParams.get(searchParamAsset) || '';
+    const event = searchParams.get(searchParamEvent) || '';
+    const functionName = searchParams.get(searchParamFunction) || '';
+
+    if (!currentAddress) return;
+
+    if (!asset && !event && !functionName) {
+      setFilters({ active: false });
+      return;
+    }
+
+    const filtersSet = { asset, event, function: functionName };
+
+    setActiveFilters({
+      address: currentAddress,
+      filters: filtersSet,
+    });
+    setFilters({ active: true, ...filtersSet });
+  }, [currentAddress, searchParams, setActiveFilters, setFilters]);
+
+  // const history = useHistory();
+  // const { pathname } = useLocation();
+  // useEffect(() => {
+  //   if (!areFiltersActive(filters)) {
+  //     history.replace(`${pathname}`);
+  //     return;
+  //   }
+
+  //   const keys: Array<keyof typeof filters> = ['asset', 'event', 'function'];
+  //   keys.forEach((key) => {
+  //     if (filters[key]) return;
+
+  //     searchParams.delete(key);
+  //   });
+
+  //   history.replace(`${pathname}${searchParams.toString()}`);
+  // }, [filters, history, pathname, searchParams]);
+
   useEffect(() => {
     if (!currentAddress) return;
 
     setTransactionsLoaded(false);
-    getTransactionsTotal({ chain, addresses: [currentAddress] })
-      .then((stats) => setTotalRecords(stats[0].nRecords));
+    // TODO: remove filtered from this call?
+    getTransactionsTotal({ chain, addresses: [currentAddress], filtered: false })
+      .then((stats) => {
+        setTotalRecords(stats[0].nRecords);
+      });
+  }, [chain, currentAddress, getTransactionsTotal, setTotalRecords, setTransactionsLoaded]);
+
+  useEffect(() => {
+    if (!currentAddress) return;
 
     loadTransactions({
       chain,
       address: currentAddress,
     },
-    proxy(({ total }) => {
+    proxy(({ total, filtered }) => {
       setTransactionsFetchedByWorker(total);
+      setFilteredRecords(filtered);
+      // TODO: rename to "...Loading"
       setTransactionsLoaded(true);
     }));
   }, [
@@ -83,6 +147,7 @@ export const DashboardView = () => {
     getTransactionsTotal,
     loadTransactions,
     setTotalRecords,
+    setFilteredRecords,
     setTransactionsFetchedByWorker,
     setTransactionsLoaded,
   ]);

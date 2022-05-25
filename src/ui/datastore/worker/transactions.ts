@@ -107,6 +107,7 @@ type GetPage = (
 type GetPageResult = {
   page: number,
   items: Transaction[],
+  knownTotal: number,
 };
 export const getPage: GetPage = (getTransactions, { address, page, pageSize }) => {
   const pageStart = ((page - 1) * pageSize);
@@ -118,6 +119,7 @@ export const getPage: GetPage = (getTransactions, { address, page, pageSize }) =
   return {
     page,
     items: source.slice(pageStart, pageStart + pageSize),
+    knownTotal: source.length,
   };
 };
 

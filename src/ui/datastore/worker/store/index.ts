@@ -1,9 +1,17 @@
 import { address as Address, Name, Transaction } from '@sdk';
 
+import { TransactionFilters } from '@modules/filters/transaction';
+
 const store = {
   transactions: new Map<Address, Transaction[]>([]),
+  filteredTransactions: new Map<Address, Transaction[]>([]),
+  activeFilters: new Map<Address, TransactionFilters>([]),
   names: new Map<Address, Name>([]),
 };
+
+// TODO: write proper API
+export const getFilteredTransactionsStore = () => store.filteredTransactions;
+export const getActiveFiltersStore = () => store.activeFilters;
 
 type AppendTransactions = (address: Address, transactions: Transaction[]) => number;
 export const appendTransactions: AppendTransactions = (address, transactions) => {

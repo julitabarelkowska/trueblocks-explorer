@@ -2,6 +2,8 @@ import {
   address, getNames, ListStats, Name,
 } from '@sdk';
 
+import { TransactionFilters } from '@modules/filters/transaction';
+
 import {
   getChartItems, GetChartItemsOptions, getEventsItems, getFunctionsItems, getGas, getNeighbors, getPage, getSlice,
 } from './worker/transactions';
@@ -51,6 +53,7 @@ export type GetTransactionsTotal = {
   args: {
     chain: string,
     addresses: address[],
+    filtered?: boolean,
   }
 }
 
@@ -62,6 +65,7 @@ export type GetPage = {
     address: address,
     page: number,
     pageSize: number,
+    filtered?: boolean
   },
 };
 
@@ -138,3 +142,18 @@ export type GetNameFor = {
 };
 
 export type GetNameForResult = Name | undefined;
+
+// Filters
+
+export type SetActiveFilters = {
+  args: {
+    address: address,
+    filters: TransactionFilters,
+  },
+};
+
+export type GetActiveFilters = {
+  args: {
+    address: address,
+  },
+};

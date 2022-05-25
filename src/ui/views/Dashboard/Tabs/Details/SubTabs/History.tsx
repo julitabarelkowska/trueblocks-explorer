@@ -15,9 +15,6 @@ import { usePathWithAddress } from '@hooks/paths';
 import { useDatastore } from '@hooks/useDatastore';
 import { useName } from '@hooks/useName';
 import { useSearchParams } from '@hooks/useSearchParams';
-import {
-  applyFilters,
-} from '@modules/filters/transaction';
 import { TransactionModel } from '@modules/types/models/Transaction';
 
 import {
@@ -37,10 +34,6 @@ import { HistoryEvents } from './HistoryEvents';
 import { HistoryFunctions } from './HistoryFunctions';
 import { HistoryRecons } from './HistoryRecons';
 
-const searchParamAsset = 'asset';
-const searchParamEvent = 'event';
-const searchParamFunction = 'function';
-
 export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const { loading } = params;
   // const [theData, setTheData] = useState<Transaction[]>([]);
@@ -48,13 +41,15 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const {
     currentAddress,
     totalRecords,
+    setTotalRecords,
+    filteredRecords,
+    setFilteredRecords,
     transactionsLoaded,
+    transactionsFetchedByWorker,
+    filters,
   } = useGlobalState();
   const history = useHistory();
   const { pathname } = useLocation();
-  const [assetToFilterBy, setAssetToFilterBy] = useState('');
-  const [eventToFilterBy, setEventToFilterBy] = useState('');
-  const [functionToFilterBy, setFunctionToFilterBy] = useState('');
   const [selectedItem, setSelectedItem] = useState<typeof theData>();
   const searchParams = useSearchParams();
   const {
@@ -72,6 +67,11 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const [pageSize, setPageSize] = useState(7);
   const [theData, setTheData] = useState<Transaction[]>([]);
 
+  const recordCount = useMemo(
+    () => (filters.active ? filteredRecords : totalRecords),
+    [filteredRecords, filters.active, totalRecords],
+  );
+
   useEffect(() => {
     if (!currentAddress) return;
 
@@ -81,49 +81,100 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
       address: currentAddress,
       page,
       pageSize,
+      filtered: filters.active,
     })
       .then((result) => {
         if (result.page !== page) return;
 
+        // console.log('Got page', result.items.length);
+
+        setTheData(result.items);
+        if (filters.active) {
+          setFilteredRecords(result.knownTotal);
+        }
+      });
+  }, [currentAddress, filters.active, getPage, page, pageSize, setFilteredRecords, transactionsLoaded]);
+
+  useEffect(() => {
+    console.log('>>>>', transactionsFetchedByWorker / pageSize > page && theData.length >= pageSize);
+    if (transactionsFetchedByWorker / pageSize > page && theData.length >= pageSize) return;
+
+    if (!currentAddress) return;
+
+    if (!transactionsLoaded) return;
+
+    getPage({
+      address: currentAddress,
+      page,
+      pageSize,
+      filtered: filters.active,
+    })
+      .then((result) => {
+        if (!filters.active && result.knownTotal > totalRecords) {
+          setTotalRecords(result.knownTotal);
+        }
+
+        if (filters.active) {
+          setFilteredRecords(result.knownTotal);
+        }
+
+        if (result.page !== page) return;
+
         setTheData(result.items);
       });
-  }, [currentAddress, getPage, page, pageSize, transactionsLoaded]);
+  }, [currentAddress, filters.active, getPage, page, pageSize, setFilteredRecords, setTotalRecords, theData.length, totalRecords, transactionsFetchedByWorker, transactionsLoaded]);
 
   const [assetNameToDisplay, setAssetNameToDisplay] = useState('');
-
   useName(
-    [assetToFilterBy],
+    filters.active && 'asset' in filters ? [filters.asset] : [],
     ([name]) => setAssetNameToDisplay(name?.name || ''),
   );
 
-  useEffect(
-    () => {
-      setAssetToFilterBy(
-        searchParams.get(searchParamAsset) || '',
-      );
+  const [
+    assetToFilterBy,
+    eventToFilterBy,
+    functionToFilterBy,
+  ] = useMemo(() => {
+    if (!filters.active) return ['', '', ''];
+    return [
+      'asset' in filters ? filters.asset : '',
+      'event' in filters ? filters.event : '',
+      'function' in filters ? filters.function : '',
+    ];
+  }, [filters]);
 
-      setEventToFilterBy(
-        searchParams.get(searchParamEvent) || '',
-      );
+  // useEffect(
+  //   () => {
+  //     if (!currentAddress) return;
 
-      setFunctionToFilterBy(
-        searchParams.get(searchParamFunction) || '',
-      );
-    },
-    [searchParams],
-  );
+  //     setAssetToFilterBy(
+  //       asset,
+  //     );
+
+  //     setEventToFilterBy(
+  //       event,
+  //     );
+
+  //     setFunctionToFilterBy(
+  //       functionName,
+  //     );
+
+  //     setFilters(filters);
+  //   },
+  //   [currentAddress, searchParams, setActiveFilters, setFilters],
+  // );
 
   const filteredData = useMemo(() => {
-    let ret;
-    if (!assetToFilterBy && !eventToFilterBy && !functionToFilterBy) {
-      ret = theData;
-    } else {
-      ret = applyFilters(theData, {
-        assetAddress: assetToFilterBy,
-        eventName: eventToFilterBy,
-        functionName: functionToFilterBy,
-      });
-    }
+    const ret = theData;
+    // if (!assetToFilterBy && !eventToFilterBy && !functionToFilterBy) {
+    //   ret = theData;
+    // } else {
+    //   ret = applyFilters(theData, {
+    //     assetAddress: assetToFilterBy,
+    //     eventName: eventToFilterBy,
+    //     functionName: functionToFilterBy,
+    //   });
+    // }
     if (showReversed) {
       // TODO: we used to use TransactionModel here (with from and to names and some additional info filled in)
       return ret.sort((b: Transaction, a: Transaction) => {
@@ -135,7 +186,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
       if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
       return a.blockNumber - b.blockNumber;
     });
-  }, [theData, assetToFilterBy, eventToFilterBy, functionToFilterBy, showReversed]);
+  }, [showReversed, theData]);
 
   const makeClearFilter = (searchParamKey: string) => () => {
     const searchString = searchParams.delete(searchParamKey).toString();
@@ -144,8 +195,8 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
 
   const activeAssetFilter = (
     <FilterButton
-      visible={Boolean(assetToFilterBy)}
-      onClick={makeClearFilter(searchParamAsset)}
+      visible={'asset' in filters}
+      onClick={makeClearFilter('asset')}
     >
       {`Asset: ${assetNameToDisplay || assetToFilterBy}`}
     </FilterButton>
@@ -154,7 +205,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const activeEventFilter = (
     <FilterButton
       visible={Boolean(eventToFilterBy)}
-      onClick={makeClearFilter(searchParamEvent)}
+      onClick={makeClearFilter('event')}
     >
       {`Event: ${eventToFilterBy}`}
     </FilterButton>
@@ -163,7 +214,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const activeFunctionFilter = (
     <FilterButton
       visible={Boolean(functionToFilterBy)}
-      onClick={makeClearFilter(searchParamFunction)}
+      onClick={makeClearFilter('function')}
     >
       {`Function: ${functionToFilterBy}`}
     </FilterButton>
@@ -188,7 +239,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
             loading={loading}
             extraData={currentAddress}
             // name='history'
-            totalRecords={totalRecords}
+            totalRecords={recordCount}
             // activePage={page}
             showRowPlaceholder
             onSelectionChange={onSelectionChange}

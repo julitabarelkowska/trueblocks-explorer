@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { Route, Switch } from 'react-router-dom';
 
 import { useGlobalState } from '@state';
 import {
@@ -6,14 +7,22 @@ import {
   Progress,
 } from 'antd';
 
+import { usePathWithAddress } from '@hooks/paths';
 import { useName } from '@hooks/useName';
 
+import { DashboardAccountsAddressLocation } from '../../../../../Routes';
 import { AccountViewParams } from '../../../Dashboard';
 
 import './AddressBar.css';
 
-export const AddressBar = ({ params }: { params: AccountViewParams }) => {
-  const { currentAddress, chain } = useGlobalState();
+export const AddressBar = ({ params, filtersActive }: { params: AccountViewParams, filtersActive: boolean }) => {
+  const {
+    currentAddress,
+    chain,
+    totalRecords,
+    filteredRecords,
+  } = useGlobalState();
+  const generatePathWithAddress = usePathWithAddress();
   const [name, setName] = useState('');
 
   useName(
@@ -21,7 +30,6 @@ export const AddressBar = ({ params }: { params: AccountViewParams }) => {
     ([nameFound]) => setName(nameFound?.name || ''),
   );
 
-  const { totalRecords } = params;
   const title = useMemo(() => {
     if (!name) {
       return <PageHeader title={currentAddress} />;
@@ -41,7 +49,24 @@ export const AddressBar = ({ params }: { params: AccountViewParams }) => {
         </div>
       </div>
       <div />
-      <div>{`${totalRecords} records on ${chain}`}</div>
+      <Switch>
+        <Route exact path={generatePathWithAddress(DashboardAccountsAddressLocation)}>
+          {totalRecords}
+          {' '}
+          records on
+          {' '}
+          {chain}
+        </Route>
+        <Route>
+          {filtersActive ? filteredRecords : totalRecords}
+          {' '}
+          records
+          {' '}
+          {filtersActive ? 'matching filters on' : 'on'}
+          {' '}
+          {chain}
+        </Route>
+      </Switch>
     </div>
   );
 };

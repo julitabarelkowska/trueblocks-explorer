@@ -4,7 +4,7 @@ import {
 } from 'react';
 
 import {
-  CancelLoadTransactions, GetChartItems, GetEventsItems, GetFunctionsItems, GetGas, GetNameFor, GetNeighbors, GetPage, GetSlice, GetTransactionsTotal, LoadNames, LoadTransactions,
+  CancelLoadTransactions, GetChartItems, GetEventsItems, GetFunctionsItems, GetGas, GetNameFor, GetNeighbors, GetPage, GetSlice, GetTransactionsTotal, LoadNames, LoadTransactions, SetActiveFilters,
 } from '../datastore/messages';
 import { DatastoreApi, DataStoreContext } from '../DatastoreContext';
 
@@ -26,7 +26,11 @@ export function useDatastore() {
     ),
 
     loadTransactions: useCallback(
-      (options: LoadTransactions['args'], callback: Parameters<DatastoreApi['loadTransactions']>[1]) => worker.loadTransactions(options, callback),
+      (
+        options: LoadTransactions['args'],
+        callback: Parameters<DatastoreApi['loadTransactions']>[1],
+        onDone?: Parameters<DatastoreApi['loadTransactions']>[2],
+      ) => worker.loadTransactions(options, callback, onDone),
       [worker],
     ),
     cancelLoadTransactions: useCallback(
@@ -63,6 +67,12 @@ export function useDatastore() {
     ),
     getNeighbors: useCallback(
       (options: GetNeighbors['args']) => worker.getNeighbors(options),
+      [worker],
+    ),
+
+    // Filters
+    setActiveFilters: useCallback(
+      (options: SetActiveFilters['args']) => worker.setActiveFilters(options),
       [worker],
     ),
   };

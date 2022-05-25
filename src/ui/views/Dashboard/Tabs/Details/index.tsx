@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { createUseStyles } from 'react-jss';
 
+import { useGlobalState } from '@state';
+
 import { BaseView, ViewTab } from '@components/BaseView';
 import { usePathWithAddress } from '@hooks/paths';
 
@@ -30,17 +32,20 @@ import {
 
 export const DetailsView = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const {
+    filters,
+  } = useGlobalState();
+  const {
     loading,
   } = params;
 
   const generatePathWithAddress = usePathWithAddress();
-  const historyPaths = [
+  const historyPaths = useMemo(() => [
     DashboardAccountsHistoryLocation,
     DashboardAccountsHistoryReconsLocation,
     DashboardAccountsHistoryFunctionsLocation,
     DashboardAccountsHistoryEventsLocation,
     DashboardAccountsHistoryCustomLocation,
-  ];
+  ], []);
 
   const leftSideTabs: ViewTab[] = useMemo(() => [
     // TODO: this uses another data layout: txs per asset, so we should return it from datastore.
@@ -81,7 +86,7 @@ export const DetailsView = ({ params }: { params: Omit<AccountViewParams, 'theDa
 
   return (
     <div>
-      <AddressBar params={{ ...params, theData: [] }} />
+      <AddressBar params={{ ...params, theData: [] }} filtersActive={filters.active} />
       <div>
         <ViewOptions params={{ ...params, theData: [] }} />
         <BaseView cookieName='COOKIE_DASHBOARD_ACCOUNTS' tabs={leftSideTabs} position='left' />
