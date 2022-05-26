@@ -24,6 +24,7 @@ export const Functions = ({ loading }: { loading: boolean }) => {
 
   const [items, setItems] = useState<ItemCounterArray>([]);
   const {
+    chain,
     currentAddress,
     transactionsFetchedByWorker,
   } = useGlobalState();
@@ -34,9 +35,9 @@ export const Functions = ({ loading }: { loading: boolean }) => {
   const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    const result = await getFunctionsItems({ address: currentAddress });
+    const result = await getFunctionsItems({ chain, address: currentAddress });
     setItems(result);
-  }, [currentAddress, getFunctionsItems]);
+  }, [chain, currentAddress, getFunctionsItems]);
 
   useEffect(() => {
     if (transactionsFetchedByWorker > 0) {

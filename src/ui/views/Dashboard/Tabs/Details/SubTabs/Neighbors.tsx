@@ -8,6 +8,7 @@ import { useDatastore } from '@hooks/useDatastore';
 export const Neighbors = () => {
   const [items, setItems] = useState<GetNeighborsResult>([]);
   const {
+    chain,
     currentAddress,
     transactionsFetchedByWorker,
   } = useGlobalState();
@@ -18,9 +19,9 @@ export const Neighbors = () => {
   const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    const results = await getNeighbors({ address: currentAddress });
+    const results = await getNeighbors({ chain, address: currentAddress });
     setItems(results);
-  }, [currentAddress, getNeighbors]);
+  }, [chain, currentAddress, getNeighbors]);
 
   useEffect(() => {
     if (transactionsFetchedByWorker > 0) {

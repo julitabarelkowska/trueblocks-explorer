@@ -19,7 +19,9 @@ type HandleScroll = (event: KeyboardEvent, rowNumber: number, size: number) => v
 // values that get increased/decreased when the arrow keys, page up,
 // page down, home and end keys are pressed.
 export function useKeyNav(
-  { pageSize, maxItems, handleScroll }: { pageSize: number, maxItems: number, handleScroll: HandleScroll },
+  {
+    pageSize, maxItems, stream, handleScroll,
+  }: { pageSize: number, maxItems: number, stream: boolean, handleScroll: HandleScroll },
 ) {
   // Position in the dataset. In a set of maxItems items, it can be
   // an integer between 0 and maxItems.
@@ -29,7 +31,7 @@ export function useKeyNav(
   // presented as, for example, lack of highlight color.
   const on = useRef(false);
   const page = useMemo(() => Math.floor(position / pageSize) + 1, [pageSize, position]);
-  const row = useMemo(() => position % pageSize, [pageSize, position]);
+  const row = useMemo(() => (stream ? position % pageSize : position), [pageSize, position, stream]);
   // We also have ref for row number, so we won't introduce circular dependencies for
   // the listener callback.
   const rowRef = useRef(0);
@@ -46,9 +48,8 @@ export function useKeyNav(
   // Adds `addend` to `position`. To decrease the position value just use
   // a negative `addend`.
   const incrementPosition = useCallback(
-    (addend) => (currentPosition: number) => Math.max(0, Math.min(maxItems, currentPosition + addend)), [maxItems],
+    (addend) => (currentPosition: number) => Math.max(0, Math.min(maxItems - 1, currentPosition + addend)), [maxItems],
   );
-  const keyEvent = useRef<KeyboardEvent | undefined>();
 
   // Handles the pressed key
   const listener = useCallback((event) => {
@@ -80,7 +81,7 @@ export function useKeyNav(
         setPosition(incrementPosition(+pageSize));
         break;
       case 'End':
-        setPosition(maxItems);
+        setPosition(maxItems - 1);
         break;
       case 'Home':
         setPosition(0);
@@ -101,24 +102,14 @@ export function useKeyNav(
         return;
     }
 
-    // ... if it was one of navigation keys, we save the event so that
-    // we can handle it in handleScroll function (we don't use the function
-    // here directly, to not introduce circular dependencies for the callback).
-    keyEvent.current = event;
-  }, [pageSize, incrementPosition, maxItems]);
-
-  useEffect(() => {
-    if (!keyEvent.current) return;
-
-    handleScroll(keyEvent.current, rowRef.current, pageSize);
-  }, [handleScroll, pageSize]);
-
-  useEffect(() => {
-    window.addEventListener('keydown', listener);
-    return () => window.removeEventListener('keydown', listener);
-  }, [listener]);
+    // If we run into performance problems, some tests (before datastore fixes)
+    // showed having `handleScroll` as a dependency here to impact the performance.
+    // But, this was not observed in newer tests.
+    handleScroll(event, rowRef.current, pageSize);
+  }, [handleScroll, pageSize, incrementPosition, maxItems]);
 
   return {
+    onKeyDown: listener,
     page,
     row,
     expandedRow,

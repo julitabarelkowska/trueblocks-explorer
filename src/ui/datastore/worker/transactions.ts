@@ -101,17 +101,21 @@ export function fetchAll(chain: string, addresses: Address[], getNameFor: (addre
 }
 
 type GetPage = (
-  getTransactions: (address: Address) => Transaction[] | undefined,
-  { address, page, pageSize }: { address: Address, page: number, pageSize: number }
+  getTransactions: (chain: string, address: Address) => Transaction[] | undefined,
+  {
+    chain, address, page, pageSize,
+  }: { chain: string, address: Address, page: number, pageSize: number }
 ) => GetPageResult;
 type GetPageResult = {
   page: number,
   items: Transaction[],
   knownTotal: number,
 };
-export const getPage: GetPage = (getTransactions, { address, page, pageSize }) => {
+export const getPage: GetPage = (getTransactions, {
+  chain, address, page, pageSize,
+}) => {
   const pageStart = ((page - 1) * pageSize);
-  const source = getTransactions(address);
+  const source = getTransactions(chain, address);
   if (!source) {
     throw new Error(`store is empty for address ${address}`);
   }
@@ -278,10 +282,7 @@ export const getFunctionsItems: GetFunctionsItems = (transactions) => {
     });
 };
 
-// type GetGas = (transactions: Transaction[] | undefined, names: Map<string, Name>) => GetGasResult;
-// type GetGasResult = TransactionModel
-
-export const getGas = (transactions: Transaction[] | undefined, names: Map<string, Name>) => {
+export const getGas = (transactions: Transaction[] | undefined, getNameFor: (address: Address) => Name | undefined) => {
   if (!transactions) return [];
 
   const usesGas = transactions.filter((tx) => {
@@ -296,9 +297,9 @@ export const getGas = (transactions: Transaction[] | undefined, names: Map<strin
     transactionIndex: tx.transactionIndex,
     hash: tx.hash,
     from: tx.from,
-    fromName: names.get(tx.from),
+    fromName: getNameFor(tx.from),
     to: tx.to,
-    toName: names.get(tx.to),
+    toName: getNameFor(tx.to),
     isError: tx.isError,
     asset: st.assetSymbol,
     gasCostOut: st.gasCostOut,

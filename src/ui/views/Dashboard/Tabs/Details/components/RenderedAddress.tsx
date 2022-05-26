@@ -11,7 +11,6 @@ export const RenderedAddress = ({ record, which }: {record: TransactionModel, wh
   const acctFor = record.extraData;
   const isCurrent = address === acctFor;
 
-  // TODO: Should names be in the worker or UI? Investigate the current use
   const nameSource = which === 'from' ? 'fromName' : 'toName';
   let name = record[nameSource]?.name;
   if (!isSpecial && !isCurrent && !name) {

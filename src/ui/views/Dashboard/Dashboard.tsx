@@ -63,22 +63,18 @@ export const DashboardView = () => {
     setFilters,
   } = useGlobalState();
   const {
+    clearPerAccountStores,
     loadTransactions,
     getTransactionsTotal,
     cancelLoadTransactions,
     setActiveFilters,
   } = useDatastore();
-
+  const searchParams = useSearchParams();
   const routeParams = useParams<{ address: string }>();
+
   const addressParam = useMemo(() => routeParams.address, [routeParams.address]);
 
-  // TODO: duplicate in History.tsx
-  const searchParams = useSearchParams();
-
   useEffect(() => {
-    // const sp = new URLSearchParams(location.search);
-    // return sp.has('asset') || sp.has('event') || sp.has('function');
-
     const asset = searchParams.get(searchParamAsset) || '';
     const event = searchParams.get(searchParamEvent) || '';
     const functionName = searchParams.get(searchParamFunction) || '';
@@ -93,40 +89,26 @@ export const DashboardView = () => {
     const filtersSet = { asset, event, function: functionName };
 
     setActiveFilters({
+      chain,
       address: currentAddress,
       filters: filtersSet,
     });
     setFilters({ active: true, ...filtersSet });
-  }, [currentAddress, searchParams, setActiveFilters, setFilters]);
-
-  // const history = useHistory();
-  // const { pathname } = useLocation();
-  // useEffect(() => {
-  //   if (!areFiltersActive(filters)) {
-  //     history.replace(`${pathname}`);
-  //     return;
-  //   }
-
-  //   const keys: Array<keyof typeof filters> = ['asset', 'event', 'function'];
-  //   keys.forEach((key) => {
-  //     if (filters[key]) return;
-
-  //     searchParams.delete(key);
-  //   });
-
-  //   history.replace(`${pathname}${searchParams.toString()}`);
-  // }, [filters, history, pathname, searchParams]);
+  }, [chain, currentAddress, searchParams, setActiveFilters, setFilters]);
 
   useEffect(() => {
-    if (!currentAddress) return;
+    if (!currentAddress) return undefined;
 
     setTransactionsLoaded(false);
-    // TODO: remove filtered from this call?
-    getTransactionsTotal({ chain, addresses: [currentAddress], filtered: false })
+    getTransactionsTotal({ chain, addresses: [currentAddress] })
       .then((stats) => {
         setTotalRecords(stats[0].nRecords);
       });
-  }, [chain, currentAddress, getTransactionsTotal, setTotalRecords, setTransactionsLoaded]);
+
+    return () => {
+      clearPerAccountStores();
+    };
+  }, [chain, clearPerAccountStores, currentAddress, getTransactionsTotal, setTotalRecords, setTransactionsLoaded]);
 
   useEffect(() => {
     if (!currentAddress) return;
@@ -138,7 +120,6 @@ export const DashboardView = () => {
     proxy(({ total, filtered }) => {
       setTransactionsFetchedByWorker(total);
       setFilteredRecords(filtered);
-      // TODO: rename to "...Loading"
       setTransactionsLoaded(true);
     }));
   }, [
@@ -164,110 +145,22 @@ export const DashboardView = () => {
   //----------------------
   // Fires when the address switches and kicks off the whole process of re-building the data
   useEffect(() => {
-    // const { address } = routeParams;
     const address = addressParam;
 
     if (currentAddress && currentAddress !== address) {
-      cancelLoadTransactions({ address: currentAddress });
+      cancelLoadTransactions({ chain, address: currentAddress });
     }
 
     if (address) {
       setCurrentAddress(address);
     }
-  }, [cancelLoadTransactions, currentAddress, addressParam, setCurrentAddress]);
-
-  //----------------------
-  // Fires when the address changes and builds the request transaction count
-  // const listRequest = useSdk(() => getList({
-  //   chain,
-  //   count: true,
-  //   appearances: true,
-  //   addrs: [currentAddress as string],
-  // }),
-  // () => (currentAddress?.slice(0, 2) === '0x' && !!chain),
-  // [currentAddress, chain]) as CallStatus<ListStats[]>;
-
-  //----------------------
-  // Fires when listRequest changes and sets the transaction count
-  // useEffect(() => {
-  //   if (!isSuccessfulCall(listRequest)) return;
-  //   setTotalRecords(listRequest.data[0]?.nRecords);
-  // }, [listRequest, listRequest.type, setTotalRecords]);
+  }, [cancelLoadTransactions, currentAddress, addressParam, setCurrentAddress, chain]);
 
   //----------------------
   useEffect(() => {
     setTransactions([]);
     setTotalRecords(0);
   }, [setTransactions, chain, setTotalRecords]);
-
-  //----------------------
-  // Fires when the number of records or the address changes, repeats until all transactions are fetched
-  // const transactionsRequest = useSdk(() => getExport({
-  //   chain,
-  //   addrs: [currentAddress as string],
-  //   fmt: 'json',
-  //   cache: true,
-  //   cacheTraces: true,
-  //   staging: showStaging,
-  //   // unripe: showUnripe,
-  //   ether: true,
-  //   // dollars: false,
-  //   articulate: true,
-  //   accounting: true,
-  //   // reversed: false,
-  //   relevant: true,
-  //   // summarize_by: 'monthly',
-  //   firstRecord: transactions.length,
-  //   maxRecords: (() => {
-  //     if (transactions.length < 20) return 10;
-  //     if (transactions.length < 800) return 239;
-  //     return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
-  //   })(),
-  // }),
-  // () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
-  // [totalRecords, transactions.length, currentAddress, showStaging]);
-
-  //----------------------
-  // Fires when there are new transactions, appends them to the growing array
-  // useEffect(() => {
-  //   if (!isSuccessfulCall(transactionsRequest)) return;
-  //   addTransactions(transactionsRequest.data as Transaction[]);
-  // }, [addTransactions, transactionsRequest]);
-
-  //----------------------
-  // First when new transactions are present, reports an error if any
-  // useEffect(() => {
-  //   if (isFailedCall(transactionsRequest)) {
-  //     createErrorNotification({
-  //       description: 'Could not fetch transactions',
-  //     });
-  //   }
-  // }, [transactionsRequest]);
-
-  //----------------------
-  // Enhance the data with some names and other data we need
-  // const theData = useMemo(() => transactions
-  //   .map((transaction, index) => {
-  //     const id = String(index + 1);
-  //     const fromName = namesMap.get(transaction.from) || createEmptyAccountname();
-  //     const toName = namesMap.get(transaction.to) || createEmptyAccountname();
-  //     const staging = showStaging;
-  //     return {
-  //       ...transaction,
-  //       id,
-  //       fromName,
-  //       toName,
-  //       staging,
-  //       chain,
-  //     };
-  //   }), [namesMap, transactions, chain, showStaging]); // TODO: the staging data should come from the backend
-
-  //----------------------
-  // Sets and unsets the loading flag
-  // useEffect(() => {
-  //   const stateToSet = !transactionsRequest.loading ? false : transactions.length < 10;
-  //   setLoading(stateToSet);
-  // }, [transactions.length, transactionsRequest.loading]);
 
   const params: Omit<AccountViewParams, 'theData'> = useMemo(() => ({
     loading,
@@ -305,7 +198,6 @@ export const DashboardView = () => {
     DashboardAccountsHistoryCustomLocation,
     DashboardAccountsNeighborsLocation,
     DashboardAccountsGasLocation,
-    // DashboardAccountsChartsLocation,
     DashboardAccountsFunctionsLocation,
     DashboardAccountsEventsLocation,
   ], []);

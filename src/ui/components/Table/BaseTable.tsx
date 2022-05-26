@@ -1,6 +1,9 @@
 /* eslint-disable react/require-default-props */
 import React, {
-  useEffect, useMemo, useRef, useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
 
 import { Skeleton } from 'antd';
@@ -15,6 +18,7 @@ type JsonResponse = Record<string, any>;
 
 export const BaseTable = ({
   dataSource,
+  streamSource,
   columns,
   loading,
   extraData,
@@ -26,6 +30,7 @@ export const BaseTable = ({
   onPageChange = () => { },
 }: {
   dataSource: JsonResponse;
+  streamSource?: boolean,
   columns: ColumnsType<any>;
   loading: boolean;
   extraData?: string;
@@ -39,6 +44,7 @@ export const BaseTable = ({
   const [pageSize] = useState(defPageSize);
   const tableRef = useRef<HTMLTableElement>(document.createElement('table'));
   const {
+    onKeyDown,
     page,
     row,
     expandedRow,
@@ -46,6 +52,7 @@ export const BaseTable = ({
     selectRow,
     setPosition,
   } = useKeyNav({
+    stream: Boolean(streamSource),
     pageSize,
     maxItems: totalRecords || dataSource.length,
     handleScroll: (event: KeyboardEvent, rowNumber: number, size: number) => handleSelectionScroll({
@@ -73,22 +80,14 @@ export const BaseTable = ({
     );
   }, [dataSource, extraData]);
 
-  useEffect(() => {
-    const listener = () => {
-      onSelectionChange(keyedData[row]);
-    };
-    // We have to bind to window, because Ant Design makes it
-    // impossible to get keyup event from their components.
-    window.addEventListener('keyup', listener);
-    return () => window.removeEventListener('keyup', listener);
-  }, [keyedData, onSelectionChange, row]);
+  const onKeyUp = () => onSelectionChange(keyedData[row]);
 
   // We will execute this effect only once, to notify the parent about
   // the default (first) item being selected when BaseTable mounts.
-  const parentalreadynotified = useRef(false);
+  const parentAlreadyNotified = useRef(false);
   useEffect(() => {
-    if (parentalreadynotified.current) return;
-    parentalreadynotified.current = true;
+    if (parentAlreadyNotified.current) return;
+    parentAlreadyNotified.current = true;
     onSelectionChange(keyedData[row]);
   });
 
@@ -141,7 +140,8 @@ export const BaseTable = ({
   }, [columns, keyedData.length, pageSize]);
 
   return (
-    <div ref={tableRef}>
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div ref={tableRef} onKeyDown={onKeyDown} onKeyUp={onKeyUp} tabIndex={-1}>
       <Table
         onRow={(record, index) => ({
           onClick: () => {

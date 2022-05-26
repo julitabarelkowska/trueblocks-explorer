@@ -8,6 +8,7 @@ import { useDatastore } from '@hooks/useDatastore';
 export const Gas = () => {
   const [items, setItems] = useState<GetGasResult>([]);
   const {
+    chain,
     currentAddress,
     transactionsFetchedByWorker,
   } = useGlobalState();
@@ -18,9 +19,9 @@ export const Gas = () => {
   const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    const results = await getGas({ address: currentAddress });
+    const results = await getGas({ chain, address: currentAddress });
     setItems(results);
-  }, [currentAddress, getGas]);
+  }, [chain, currentAddress, getGas]);
 
   useEffect(() => {
     if (transactionsFetchedByWorker > 0) {

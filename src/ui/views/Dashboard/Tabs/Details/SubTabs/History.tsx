@@ -37,6 +37,7 @@ import { HistoryRecons } from './HistoryRecons';
 export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const { loading } = params;
   const {
+    chain,
     currentAddress,
     totalRecords,
     setTotalRecords,
@@ -49,7 +50,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(7);
   const [theData, setTheData] = useState<Transaction[]>([]);
-  const [selectedItem, setSelectedItem] = useState<typeof theData>();
+  const [selectedItem, setSelectedItem] = useState<Transaction>();
   const [assetNameToDisplay, setAssetNameToDisplay] = useState('');
   // This will keep the reference to the last loaded page, even if `page` state
   // changes, so we can compare pages when we get data from the worker.
@@ -68,6 +69,10 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     ([name]) => setAssetNameToDisplay(name?.name || ''),
   );
 
+  const siderParams = useMemo(() => ({
+    ...params,
+    theData,
+  }), [params, theData]);
   const recordCount = useMemo(
     () => (filters.active ? filteredRecords : totalRecords),
     [filteredRecords, filters.active, totalRecords],
@@ -85,6 +90,8 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     ];
   }, [filters]);
 
+  const onSelectionChange = useCallback((item) => setSelectedItem(item), []);
+
   const onTablePageChange = useCallback((
     { page: newPage, pageSize: newPageSize }: { page: number, pageSize: number },
   ) => {
@@ -97,6 +104,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     if (!transactionsLoaded) return;
 
     getPage({
+      chain,
       address: currentAddress,
       page,
       pageSize,
@@ -118,6 +126,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
         dataFiltered.current = filters.active;
       });
   }, [
+    chain,
     currentAddress,
     filters.active,
     getPage,
@@ -140,7 +149,17 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
 
     // if we reach this point, then we have to load the data
     getPageAndUpdate();
-  }, [filters.active, getPageAndUpdate, page, pageSize, theData.length, transactionsFetchedByWorker]);
+
+    // We keep dependency on whole `filters` object, because each time new filter is set in the store, we have
+    // to re-fetch the data
+  }, [filters, getPageAndUpdate, page, pageSize, theData.length, transactionsFetchedByWorker]);
+
+  // Update selection when we change filters status
+  useEffect(() => {
+    if (theData.length) {
+      onSelectionChange(theData[0]);
+    }
+  }, [filters.active, onSelectionChange, theData]);
 
   const makeClearFilter = (searchParamKey: string) => () => {
     const searchString = searchParams.delete(searchParamKey).toString();
@@ -149,7 +168,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
 
   const activeAssetFilter = (
     <FilterButton
-      visible={'asset' in filters}
+      visible={Boolean(assetToFilterBy)}
       onClick={makeClearFilter('asset')}
     >
       {`Asset: ${assetNameToDisplay || assetToFilterBy}`}
@@ -174,12 +193,6 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     </FilterButton>
   );
 
-  const onSelectionChange = useCallback((item) => setSelectedItem(item), []);
-  const siderParams = useMemo(() => ({
-    ...params,
-    theData,
-  }), [params, theData]);
-
   return (
     <div>
       <Row wrap={false} gutter={16}>
@@ -189,6 +202,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
           {activeFunctionFilter}
           <BaseTable
             dataSource={theData}
+            streamSource
             columns={transactionSchema}
             loading={loading}
             extraData={currentAddress}
@@ -202,7 +216,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
         </Col>
         <Col flex='2'>
           {/* this minWidth: 0 stops children from overflowing flex parent */}
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0 }} hidden={!theData.length}>
             <AccountHistorySider record={selectedItem as unknown as TransactionModel} params={siderParams} />
           </div>
         </Col>

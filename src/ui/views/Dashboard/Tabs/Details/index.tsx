@@ -48,7 +48,6 @@ export const DetailsView = ({ params }: { params: Omit<AccountViewParams, 'theDa
   ], []);
 
   const leftSideTabs: ViewTab[] = useMemo(() => [
-    // TODO: this uses another data layout: txs per asset, so we should return it from datastore.
     {
       name: 'Charts',
       location: generatePathWithAddress(DashboardAccountsAddressLocation),

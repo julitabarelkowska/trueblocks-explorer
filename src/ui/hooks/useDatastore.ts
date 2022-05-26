@@ -4,7 +4,7 @@ import {
 } from 'react';
 
 import {
-  CancelLoadTransactions, GetChartItems, GetEventsItems, GetFunctionsItems, GetGas, GetNameFor, GetNeighbors, GetPage, GetSlice, GetTransactionsTotal, LoadNames, LoadTransactions, SetActiveFilters,
+  CancelLoadTransactions, GetChartItems, GetEventsItems, GetFunctionsItems, GetGas, GetNameFor, GetNeighbors, GetPage, GetTransactionsTotal, LoadNames, LoadTransactions, SetActiveFilters,
 } from '../datastore/messages';
 import { DatastoreApi, DataStoreContext } from '../DatastoreContext';
 
@@ -16,63 +16,61 @@ export function useDatastore() {
   }
 
   return {
+    // General
+    clearPerAccountStores: useCallback(() => worker.clearPerAccountStores(), [worker]),
     loadNames: useCallback(
-      (options: LoadNames['args']) => worker.loadNames(options),
+      (options: LoadNames) => worker.loadNames(options),
       [worker],
     ),
     getNameFor: useCallback(
-      (options: GetNameFor['args']) => worker.getNameFor(options),
+      (options: GetNameFor) => worker.getNameFor(options),
       [worker],
     ),
 
     loadTransactions: useCallback(
       (
-        options: LoadTransactions['args'],
+        options: LoadTransactions,
         callback: Parameters<DatastoreApi['loadTransactions']>[1],
         onDone?: Parameters<DatastoreApi['loadTransactions']>[2],
       ) => worker.loadTransactions(options, callback, onDone),
       [worker],
     ),
     cancelLoadTransactions: useCallback(
-      (options: CancelLoadTransactions['args']) => worker.cancelLoadTransactions(options),
+      (options: CancelLoadTransactions) => worker.cancelLoadTransactions(options),
       [worker],
     ),
     getTransactionsTotal: useCallback(
-      (options: GetTransactionsTotal['args']) => worker.getTransactionsTotal(options),
+      (options: GetTransactionsTotal) => worker.getTransactionsTotal(options),
       [worker],
     ),
     getPage: useCallback(
-      (options: GetPage['args']) => worker.getPage(options),
-      [worker],
-    ),
-    getSlice: useCallback(
-      (options: GetSlice['args']) => worker.getSlice(options),
+      (options: GetPage) => worker.getPage(options),
       [worker],
     ),
     getChartItems: useCallback(
-      (options: GetChartItems['args']) => worker.getChartItems(options),
+      (options: GetChartItems) => worker.getChartItems(options),
       [worker],
     ),
     getEventsItems: useCallback(
-      (options: GetEventsItems['args']) => worker.getEventsItems(options),
+      (options: GetEventsItems) => worker.getEventsItems(options),
       [worker],
     ),
     getFunctionsItems: useCallback(
-      (options: GetFunctionsItems['args']) => worker.getFunctionsItems(options),
+      (options: GetFunctionsItems) => worker.getFunctionsItems(options),
       [worker],
     ),
     getGas: useCallback(
-      (options: GetGas['args']) => worker.getGas(options),
+      (options: GetGas) => worker.getGas(options),
       [worker],
     ),
     getNeighbors: useCallback(
-      (options: GetNeighbors['args']) => worker.getNeighbors(options),
+      (options: GetNeighbors) => worker.getNeighbors(options),
       [worker],
     ),
 
     // Filters
     setActiveFilters: useCallback(
-      (options: SetActiveFilters['args']) => worker.setActiveFilters(options),
+      (options: SetActiveFilters) => worker.setActiveFilters(options),
       [worker],
     ),
   };

@@ -26,6 +26,7 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
     hideZero,
   } = userPrefs;
   const {
+    chain,
     denom,
     currentAddress,
     transactionsLoaded,
@@ -44,6 +45,7 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
     if (!transactionsLoaded) return;
 
     const result = await getChartItems({
+      chain,
       address: currentAddress,
       // TODO: typecast
       denom: denom as 'ether' | 'dollars',
@@ -54,7 +56,7 @@ export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> 
       })(),
     });
     setItems(result);
-  }, [currentAddress, denom, getChartItems, hideZero, transactionsLoaded]);
+  }, [chain, currentAddress, denom, getChartItems, hideZero, transactionsLoaded]);
 
   useEffect(() => { getCurrentChartItems(); }, [getCurrentChartItems]);
 

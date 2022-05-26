@@ -5,7 +5,7 @@ import {
 import { TransactionFilters } from '@modules/filters/transaction';
 
 import {
-  getChartItems, GetChartItemsOptions, getEventsItems, getFunctionsItems, getGas, getNeighbors, getPage, getSlice,
+  getChartItems, GetChartItemsOptions, getEventsItems, getFunctionsItems, getGas, getNeighbors, getPage,
 } from './worker/transactions';
 
 export type DataStoreMessage =
@@ -13,7 +13,6 @@ export type DataStoreMessage =
   | CancelLoadTransactions
   | GetTransactionsTotal
   | GetPage
-  | GetSlice
   | GetChartItems
   | GetEventsItems
   | GetFunctionsItems
@@ -22,18 +21,9 @@ export type DataStoreMessage =
   | LoadNames
   | GetNameFor;
 
-// TODO move it or change file name
-export type DataStoreResult<ResultType> = {
-  call: DataStoreMessage['call'],
-  result: ResultType,
-};
-
 export type LoadTransactions = {
-  call: 'loadTransactions',
-  args: {
-    chain: string,
-    address: address,
-  }
+  chain: string,
+  address: address,
 };
 
 export type LoadTransactionsStatus = {
@@ -42,103 +32,68 @@ export type LoadTransactionsStatus = {
 }
 
 export type CancelLoadTransactions = {
-  call: 'cancelLoadTransactions',
-  args: {
-    address: address,
-  },
+  chain: string,
+  address: address,
 };
 
 export type GetTransactionsTotal = {
-  call: 'getTransactionsTotal',
-  args: {
-    chain: string,
-    addresses: address[],
-    filtered?: boolean,
-  }
+  chain: string,
+  addresses: address[],
 }
 
 export type GetTransactionsTotalResult = ListStats[];
 
 export type GetPage = {
-  call: 'getPage',
-  args: {
-    address: address,
-    page: number,
-    pageSize: number,
-    filtered?: boolean
-  },
+  chain: string,
+  address: address,
+  page: number,
+  pageSize: number,
+  filtered?: boolean
 };
 
 export type GetPageResult = ReturnType<typeof getPage>;
 
-export type GetSlice = {
-  call: 'getSlice',
-  args: {
-    address: address,
-    start: number,
-    end: number,
-  },
-};
-
-export type GetSliceResult = ReturnType<typeof getSlice>;
-
 export type GetChartItems = {
-  call: 'getChartItems',
-  args: {
-    address: address,
-  } & GetChartItemsOptions,
-};
+  chain: string,
+  address: address,
+} & GetChartItemsOptions;
 
 export type GetChartItemsResult = ReturnType<typeof getChartItems>;
 
 export type GetEventsItems = {
-  call: 'getEventsItems',
-  args: {
-    address: address,
-  },
+  chain: string,
+  address: address,
 };
 
 export type GetEventsItemsResult = ReturnType<typeof getEventsItems>;
 
 export type GetFunctionsItems = {
-  call: 'getFunctionsItems',
-  args: {
-    address: address,
-  },
+  chain: string,
+  address: address,
 };
 
 export type GetFunctionsItemsResult = ReturnType<typeof getFunctionsItems>;
 
 export type GetGas = {
-  call: 'getGas',
-  args: {
-    address: address,
-  },
+  chain: string,
+  address: address,
 };
 
 export type GetGasResult = ReturnType<typeof getGas>;
 
 export type GetNeighbors = {
-  call: 'getNeighbors',
-  args: {
-    address: address,
-  },
+  chain: string,
+  address: address,
 };
 
 export type GetNeighborsResult = ReturnType<typeof getNeighbors>;
 
-export type LoadNames = {
-  call: 'loadNames',
-  args: Parameters<typeof getNames>[0],
-};
+export type LoadNames = Parameters<typeof getNames>[0];
 
 export type LoadNamesResult = { total: number };
 
 export type GetNameFor = {
-  call: 'getNameFor',
-  args: {
-    address: address,
-  },
+  address: address,
 };
 
 export type GetNameForResult = Name | undefined;
@@ -146,14 +101,12 @@ export type GetNameForResult = Name | undefined;
 // Filters
 
 export type SetActiveFilters = {
-  args: {
-    address: address,
-    filters: TransactionFilters,
-  },
+  chain: string,
+  address: address,
+  filters: TransactionFilters,
 };
 
 export type GetActiveFilters = {
-  args: {
-    address: address,
-  },
+  chain: string,
+  address: address,
 };

@@ -23,6 +23,7 @@ export const Events = () => {
 
   const [items, setItems] = useState<ItemCounterArray>([]);
   const {
+    chain,
     currentAddress,
     transactionsFetchedByWorker,
   } = useGlobalState();
@@ -33,9 +34,9 @@ export const Events = () => {
   const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    const result = await getEventsItems({ address: currentAddress });
+    const result = await getEventsItems({ chain, address: currentAddress });
     setItems(result);
-  }, [currentAddress, getEventsItems]);
+  }, [chain, currentAddress, getEventsItems]);
 
   useEffect(() => {
     if (transactionsFetchedByWorker > 0) {

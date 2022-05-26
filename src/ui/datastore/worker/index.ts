@@ -3,12 +3,21 @@
 import { address as Address, getNames, Name } from '@sdk';
 import { expose } from 'comlink';
 
-import { TransactionFilters } from '@modules/filters/transaction';
+import { applyTransactionFilters, TransactionFilters } from '@modules/filters/transaction';
 
 import {
-  CancelLoadTransactions, DataStoreMessage, GetActiveFilters, GetChartItems, GetChartItemsResult, GetEventsItems, GetEventsItemsResult, GetFunctionsItems, GetFunctionsItemsResult, GetGas, GetGasResult, GetNameFor, GetNameForResult, GetNeighbors, GetNeighborsResult, GetPage, GetPageResult, GetSlice, GetSliceResult, GetTransactionsTotal, GetTransactionsTotalResult, LoadNames, LoadNamesResult, LoadTransactions, SetActiveFilters,
+  CancelLoadTransactions,
+  GetActiveFilters,
+  GetChartItems,
+  GetEventsItems,
+  GetFunctionsItems,
+  GetGas,
+  GetNameFor,
+  GetNeighbors,
+  GetPage,
+  GetTransactionsTotal,
+  SetActiveFilters,
 } from '../messages';
-import { applyTransactionFilters } from './filters';
 import * as Names from './names';
 import * as Store from './store';
 import * as Transactions from './transactions';
@@ -25,7 +34,7 @@ const streamsToCancel: Set<Address> = new Set();
 
 type WorkerApi = {
   loadNames: (options: Parameters<typeof getNames>[0]) => Promise<{ total: number }>,
-  getNameFor: (options: GetNameFor['args']) => Name | undefined,
+  getNameFor: (options: GetNameFor) => Name | undefined,
   loadTransactions: (
     options: {
       chain: string, address: string,
@@ -33,18 +42,18 @@ type WorkerApi = {
     callback: (state: { new: number, total: number, filtered: number }) => void,
     onDone?: () => void,
   ) => Promise<void>,
-  cancelLoadTransactions: (options: CancelLoadTransactions['args']) => void,
-  getTransactionsTotal: (options: GetTransactionsTotal['args']) => ReturnType<typeof Transactions.getTransactionsTotal>,
-  getPage: (options: GetPage['args']) => ReturnType<typeof Transactions.getPage>,
-  getSlice: (options: GetSlice['args']) => ReturnType<typeof Transactions.getSlice>,
-  getChartItems: (options: GetChartItems['args']) => ReturnType<typeof Transactions.getChartItems>,
-  getEventsItems: (options: GetEventsItems['args']) => ReturnType<typeof Transactions.getEventsItems>,
-  getFunctionsItems: (options: GetFunctionsItems['args']) => ReturnType<typeof Transactions.getFunctionsItems>,
-  getGas: (options: GetGas['args']) => ReturnType<typeof Transactions.getGas>,
-  getNeighbors: (options: GetNeighbors['args']) => ReturnType<typeof Transactions.getNeighbors>,
+  cancelLoadTransactions: (options: CancelLoadTransactions) => void,
+  getTransactionsTotal: (options: GetTransactionsTotal) => ReturnType<typeof Transactions.getTransactionsTotal>,
+  getPage: (options: GetPage) => ReturnType<typeof Transactions.getPage>,
+  getChartItems: (options: GetChartItems) => ReturnType<typeof Transactions.getChartItems>,
+  getEventsItems: (options: GetEventsItems) => ReturnType<typeof Transactions.getEventsItems>,
+  getFunctionsItems: (options: GetFunctionsItems) => ReturnType<typeof Transactions.getFunctionsItems>,
+  getGas: (options: GetGas) => ReturnType<typeof Transactions.getGas>,
+  getNeighbors: (options: GetNeighbors) => ReturnType<typeof Transactions.getNeighbors>,
 
-  setActiveFilters: (options: SetActiveFilters['args']) => Boolean,
-  getActiveFilters: (options: GetActiveFilters['args']) => TransactionFilters | null,
+  setActiveFilters: (options: SetActiveFilters) => Boolean,
+  getActiveFilters: (options: GetActiveFilters) => TransactionFilters | null,
+  clearPerAccountStores: () => void,
 };
 export const api: WorkerApi = {
   // Names
@@ -66,21 +75,20 @@ export const api: WorkerApi = {
       await readWholeStream(
         stream,
         async (transactions) => {
-          const total = Store.appendTransactions(address, transactions);
-          const activeFilters = Store.getActiveFiltersStore().get(address);
+          const total = Store.appendTransactions(chain, address, transactions);
+          const activeFilters = Store.getActiveFilters(chain, address);
           const transactionFilter = activeFilters ? applyTransactionFilters(activeFilters) : undefined;
+          let newLength = 0;
 
           if (transactionFilter) {
             const filtered = transactions.filter(transactionFilter);
-            const alreadyPresent = Store.getFilteredTransactionsStore().get(address) || [];
-
-            Store.getFilteredTransactionsStore().set(address, [...alreadyPresent, ...filtered]);
+            newLength = Store.appendFilteredTransactions(chain, address, filtered);
           }
 
           await callback({
             new: transactions.length,
             total,
-            filtered: Number(Store.getFilteredTransactionsStore().get(address)?.length),
+            filtered: newLength,
           });
         },
         onDone,
@@ -90,45 +98,20 @@ export const api: WorkerApi = {
       streamsToCancel.delete(address);
     }
   },
-  // TODO: support chain
-  cancelLoadTransactions({ address }) {
-    streamsToCancel.add(address);
+  cancelLoadTransactions({ chain, address }) {
+    streamsToCancel.add(`${chain}:${address}`);
   },
-  getTransactionsTotal({ chain, addresses, filtered }) {
-    // if (filtered) {
-    //   const r = addresses
-    //     .filter((address) => Store.getFilteredTransactionsStore().get(address) !== undefined);
-
-    //   if (!r.length) {
-    //     return Promise.resolve(addresses.map((address) => ({
-    //       address,
-    //       fileSize: 0,
-    //       nRecords: 0,
-    //     })));
-    //   }
-
-    //   return Promise.resolve(
-    //     r
-    //       .map((address) => ({
-    //         address,
-    //         fileSize: 0,
-    //         // @ts-ignore
-    //         nRecords: Store.getFilteredTransactionsStore().get(address).length,
-    //       })),
-    //   );
-    // }
-
+  getTransactionsTotal({ chain, addresses }) {
     return Transactions.getTransactionsTotal(
       chain,
       addresses,
     );
   },
   getPage({
-    address, page, pageSize, filtered,
+    chain, address, page, pageSize, filtered,
   }) {
     if (filtered) {
-      const filteredResults = Store.getFilteredTransactionsStore().get(address);
-      console.log('Getting filtered page', filteredResults?.length);
+      const filteredResults = Store.getFilteredTransactionsFor(chain, address);
       if (!filteredResults) return { page, items: [], knownTotal: 0 };
 
       const pageStart = ((page - 1) * pageSize);
@@ -140,63 +123,52 @@ export const api: WorkerApi = {
     }
 
     return Transactions.getPage(Store.getTransactionsFor, {
+      chain,
       address,
       page,
       pageSize,
     });
   },
-  getSlice({ address, start, end }) {
-    return Transactions.getSlice(Store.getTransactionsFor, {
-      address,
-      start,
-      end,
-    });
-  },
-  getChartItems({ address, ...options }) {
-    const transactions = Store.getTransactionsFor(address);
+  getChartItems({ chain, address, ...options }) {
+    const transactions = Store.getTransactionsFor(chain, address);
 
     return Transactions.getChartItems(transactions, options);
   },
-  getEventsItems({ address }) {
-    const transactions = Store.getTransactionsFor(address);
+  getEventsItems({ chain, address }) {
+    const transactions = Store.getTransactionsFor(chain, address);
 
     return Transactions.getEventsItems(transactions);
   },
-  getFunctionsItems({ address }) {
-    const transactions = Store.getTransactionsFor(address);
+  getFunctionsItems({ chain, address }) {
+    const transactions = Store.getTransactionsFor(chain, address);
 
     return Transactions.getFunctionsItems(transactions);
   },
-  getGas({ address }) {
-    const transactions = Store.getTransactionsFor(address);
+  getGas({ chain, address }) {
+    const transactions = Store.getTransactionsFor(chain, address);
 
-    // TODO: FIXME!
-    return Transactions.getGas(transactions, new Map([]));
+    return Transactions.getGas(transactions, Store.getNameFor);
   },
-  getNeighbors({ address }) {
-    const transactions = Store.getTransactionsFor(address);
+  getNeighbors({ chain, address }) {
+    const transactions = Store.getTransactionsFor(chain, address);
 
     return Transactions.getNeighbors(transactions);
   },
 
   // Filters
-  setActiveFilters({ address, filters }) {
-    Store.getActiveFiltersStore().set(address, filters);
-    console.log('Setting filters to', filters);
-
-    const allTransactions = Store.getTransactionsFor(address);
+  setActiveFilters({ chain, address, filters }) {
+    Store.setActiveFilters(chain, address, filters);
+    const allTransactions = Store.getTransactionsFor(chain, address);
 
     if (!allTransactions) return false;
 
     const filtered = allTransactions.filter(applyTransactionFilters(filters));
-    console.log('>>>', filtered.length);
-    Store.getFilteredTransactionsStore().set(address, filtered);
+    Store.replaceFilteredTransactions(chain, address, filtered);
     return true;
   },
 
-  // TODO: not sure if it's needed
-  getActiveFilters({ address }) {
-    const filters = Store.getActiveFiltersStore().get(address);
+  getActiveFilters({ chain, address }) {
+    const filters = Store.getActiveFilters(chain, address);
 
     if (!filters) return null;
 
@@ -206,6 +178,10 @@ export const api: WorkerApi = {
       ...filters,
       ...(assetName ? { asset: assetName.name } : {}),
     };
+  },
+
+  clearPerAccountStores() {
+    Store.clearPerAccountStores();
   },
 };
 
