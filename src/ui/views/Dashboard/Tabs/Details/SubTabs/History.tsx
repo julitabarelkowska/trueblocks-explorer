@@ -1,6 +1,6 @@
 import React, {
   useCallback,
-  useEffect, useMemo, useState,
+  useEffect, useMemo, useRef, useState,
 } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
@@ -36,8 +36,6 @@ import { HistoryRecons } from './HistoryRecons';
 
 export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const { loading } = params;
-  // const [theData, setTheData] = useState<Transaction[]>([]);
-  const { showReversed } = params.userPrefs;
   const {
     currentAddress,
     totalRecords,
@@ -48,13 +46,44 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     transactionsFetchedByWorker,
     filters,
   } = useGlobalState();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(7);
+  const [theData, setTheData] = useState<Transaction[]>([]);
+  const [selectedItem, setSelectedItem] = useState<typeof theData>();
+  const [assetNameToDisplay, setAssetNameToDisplay] = useState('');
+  // This will keep the reference to the last loaded page, even if `page` state
+  // changes, so we can compare pages when we get data from the worker.
+  const loadedPage = useRef(0);
+  // Keep the information about whether or not the last page was filtered
+  const dataFiltered = useRef(false);
+
   const history = useHistory();
   const { pathname } = useLocation();
-  const [selectedItem, setSelectedItem] = useState<typeof theData>();
   const searchParams = useSearchParams();
   const {
     getPage,
   } = useDatastore();
+  useName(
+    filters.active ? [filters.asset] : [],
+    ([name]) => setAssetNameToDisplay(name?.name || ''),
+  );
+
+  const recordCount = useMemo(
+    () => (filters.active ? filteredRecords : totalRecords),
+    [filteredRecords, filters.active, totalRecords],
+  );
+  const [
+    assetToFilterBy,
+    eventToFilterBy,
+    functionToFilterBy,
+  ] = useMemo(() => {
+    if (!filters.active) return ['', '', ''];
+    return [
+      'asset' in filters ? filters.asset : '',
+      'event' in filters ? filters.event : '',
+      'function' in filters ? filters.function : '',
+    ];
+  }, [filters]);
 
   const onTablePageChange = useCallback((
     { page: newPage, pageSize: newPageSize }: { page: number, pageSize: number },
@@ -62,43 +91,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     setPage(newPage);
     setPageSize(newPageSize);
   }, []);
-
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(7);
-  const [theData, setTheData] = useState<Transaction[]>([]);
-
-  const recordCount = useMemo(
-    () => (filters.active ? filteredRecords : totalRecords),
-    [filteredRecords, filters.active, totalRecords],
-  );
-
-  useEffect(() => {
-    if (!currentAddress) return;
-
-    if (!transactionsLoaded) return;
-
-    getPage({
-      address: currentAddress,
-      page,
-      pageSize,
-      filtered: filters.active,
-    })
-      .then((result) => {
-        if (result.page !== page) return;
-
-        // console.log('Got page', result.items.length);
-
-        setTheData(result.items);
-        if (filters.active) {
-          setFilteredRecords(result.knownTotal);
-        }
-      });
-  }, [currentAddress, filters.active, getPage, page, pageSize, setFilteredRecords, transactionsLoaded]);
-
-  useEffect(() => {
-    console.log('>>>>', transactionsFetchedByWorker / pageSize > page && theData.length >= pageSize);
-    if (transactionsFetchedByWorker / pageSize > page && theData.length >= pageSize) return;
-
+  const getPageAndUpdate = useCallback(() => {
     if (!currentAddress) return;
 
     if (!transactionsLoaded) return;
@@ -121,72 +114,33 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
         if (result.page !== page) return;
 
         setTheData(result.items);
+        loadedPage.current = result.page;
+        dataFiltered.current = filters.active;
       });
-  }, [currentAddress, filters.active, getPage, page, pageSize, setFilteredRecords, setTotalRecords, theData.length, totalRecords, transactionsFetchedByWorker, transactionsLoaded]);
+  }, [
+    currentAddress,
+    filters.active,
+    getPage,
+    page,
+    pageSize,
+    setFilteredRecords,
+    setTotalRecords,
+    totalRecords,
+    transactionsLoaded,
+  ]);
 
-  const [assetNameToDisplay, setAssetNameToDisplay] = useState('');
-  useName(
-    filters.active && 'asset' in filters ? [filters.asset] : [],
-    ([name]) => setAssetNameToDisplay(name?.name || ''),
-  );
+  useEffect(() => {
+    // This makes the effect dependant on transactionsFetchedByWorker, so each time we load
+    // more transactions, this code will fire and load them (if we're on the right page).
+    if (!transactionsFetchedByWorker) return;
 
-  const [
-    assetToFilterBy,
-    eventToFilterBy,
-    functionToFilterBy,
-  ] = useMemo(() => {
-    if (!filters.active) return ['', '', ''];
-    return [
-      'asset' in filters ? filters.asset : '',
-      'event' in filters ? filters.event : '',
-      'function' in filters ? filters.function : '',
-    ];
-  }, [filters]);
+    // This prevents from reloading the same data if two conditions are same: 1. same page;
+    // 2. same dataset (filtered or not)
+    if ((page === loadedPage.current && theData.length === pageSize) && dataFiltered.current === filters.active) return;
 
-  // useEffect(
-  //   () => {
-  //     if (!currentAddress) return;
-
-  //     setAssetToFilterBy(
-  //       asset,
-  //     );
-
-  //     setEventToFilterBy(
-  //       event,
-  //     );
-
-  //     setFunctionToFilterBy(
-  //       functionName,
-  //     );
-
-  //     setFilters(filters);
-  //   },
-  //   [currentAddress, searchParams, setActiveFilters, setFilters],
-  // );
-
-  const filteredData = useMemo(() => {
-    const ret = theData;
-    // if (!assetToFilterBy && !eventToFilterBy && !functionToFilterBy) {
-    //   ret = theData;
-    // } else {
-    //   ret = applyFilters(theData, {
-    //     assetAddress: assetToFilterBy,
-    //     eventName: eventToFilterBy,
-    //     functionName: functionToFilterBy,
-    //   });
-    // }
-    if (showReversed) {
-      // TODO: we used to use TransactionModel here (with from and to names and some additional info filled in)
-      return ret.sort((b: Transaction, a: Transaction) => {
-        if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
-        return a.blockNumber - b.blockNumber;
-      });
-    }
-    return ret.sort((a: Transaction, b: Transaction) => {
-      if (a.blockNumber === b.blockNumber) return a.transactionIndex - b.transactionIndex;
-      return a.blockNumber - b.blockNumber;
-    });
-  }, [showReversed, theData]);
+    // if we reach this point, then we have to load the data
+    getPageAndUpdate();
+  }, [filters.active, getPageAndUpdate, page, pageSize, theData.length, transactionsFetchedByWorker]);
 
   const makeClearFilter = (searchParamKey: string) => () => {
     const searchString = searchParams.delete(searchParamKey).toString();
@@ -234,7 +188,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
           {activeEventFilter}
           {activeFunctionFilter}
           <BaseTable
-            dataSource={filteredData}
+            dataSource={theData}
             columns={transactionSchema}
             loading={loading}
             extraData={currentAddress}
