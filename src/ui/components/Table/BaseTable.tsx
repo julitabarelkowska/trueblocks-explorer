@@ -1,12 +1,10 @@
 /* eslint-disable react/require-default-props */
 import React, {
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
 
-import { Skeleton } from 'antd';
 import Table, { ColumnsType } from 'antd/lib/table';
 
 import { useKeyNav } from '@hooks/useKeyNav';
@@ -25,7 +23,6 @@ export const BaseTable = ({
   expandRender = undefined,
   defPageSize = 7,
   totalRecords,
-  showRowPlaceholder = false,
   onSelectionChange = () => { },
   onPageChange = () => { },
 }: {
@@ -37,7 +34,6 @@ export const BaseTable = ({
   expandRender?: (row: any) => JSX.Element;
   defPageSize?: number;
   totalRecords?: number,
-  showRowPlaceholder?: boolean,
   onSelectionChange?: (row: unknown) => void,
   onPageChange?: ({ page, pageSize }: { page: number, pageSize: number }) => void,
 }) => {
@@ -95,50 +91,6 @@ export const BaseTable = ({
     ? expandRender
     : (rowContent: any) => <pre>{JSON.stringify(rowContent, null, 2)}</pre>;
 
-  const dataWithSkeletons = useMemo(() => {
-    if (page === 1) {
-      return keyedData;
-    }
-
-    const lastPage = Math.ceil(Number(totalRecords) / pageSize);
-    const missingItems = (() => {
-      // The last page of data can have less items than pageSize, but it will
-      // always be modulo of totalRecords and pageSize
-      if (page === lastPage) {
-        const expectedItems = Number(totalRecords) % pageSize;
-        return expectedItems - keyedData.length;
-      }
-
-      return pageSize - keyedData.length;
-    })();
-
-    if (missingItems === 0) return keyedData;
-
-    return Array.from({ length: pageSize }, (v, index) => {
-      if (keyedData[index] !== undefined) return keyedData[index];
-
-      return {
-        key: `skeleton-${index}`,
-      };
-    });
-  }, [page, keyedData, pageSize, totalRecords]);
-
-  const columnsWithSkeletons = useMemo(() => {
-    if (keyedData.length >= pageSize) return columns;
-
-    const skeletonRegexp = /skeleton-/;
-
-    return columns.map((column) => ({
-      ...column,
-      // TODO: replace `any`when we fix typing for `columns`
-      render(text: string, record: any, index: number) {
-        if (!skeletonRegexp.test(record.key)) return column.render?.(text, record, index);
-
-        return <Skeleton paragraph={{ rows: 3 }} title={false} active key={column.key} />;
-      },
-    }));
-  }, [columns, keyedData.length, pageSize]);
-
   return (
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div ref={tableRef} onKeyDown={onKeyDown} onKeyUp={onKeyUp} tabIndex={-1}>
@@ -151,8 +103,8 @@ export const BaseTable = ({
         })}
         size='small'
         loading={loading}
-        columns={showRowPlaceholder ? columnsWithSkeletons : columns}
-        dataSource={showRowPlaceholder ? dataWithSkeletons : keyedData}
+        columns={columns}
+        dataSource={keyedData}
         expandable={{
           expandedRowRender,
           expandedRowKeys: [expandedRow],
