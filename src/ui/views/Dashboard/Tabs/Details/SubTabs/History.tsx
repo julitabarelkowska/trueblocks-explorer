@@ -206,9 +206,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
             columns={transactionSchema}
             loading={loading}
             extraData={currentAddress}
-            // name='history'
             totalRecords={recordCount}
-            // activePage={page}
             showRowPlaceholder
             onSelectionChange={onSelectionChange}
             onPageChange={onTablePageChange}

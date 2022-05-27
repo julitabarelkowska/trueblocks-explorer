@@ -81,8 +81,6 @@ export const DetailsView = ({ params }: { params: Omit<AccountViewParams, 'theDa
   ],
   [generatePathWithAddress, historyPaths, loading, params]);
 
-  // if (!theData) return <></>;
-
   return (
     <div>
       <AddressBar params={{ ...params, theData: [] }} filtersActive={filters.active} />
