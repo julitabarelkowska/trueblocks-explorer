@@ -14,7 +14,7 @@ import { useGlobalState } from '../../../State';
 export const When = () => {
   const { chain } = useGlobalState();
   const dataCall = useSdk(() => getWhen({
-    chain,
+    chain: chain.chain,
     list: true,
   }));
 

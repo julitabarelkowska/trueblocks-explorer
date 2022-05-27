@@ -89,7 +89,7 @@ export const DashboardView = () => {
     const filtersSet = { asset, event, function: functionName };
 
     setActiveFilters({
-      chain,
+      chain: chain.chain,
       address: currentAddress,
       filters: filtersSet,
     });
@@ -100,7 +100,7 @@ export const DashboardView = () => {
     if (!currentAddress) return undefined;
 
     setTransactionsLoaded(false);
-    getTransactionsTotal({ chain, addresses: [currentAddress] })
+    getTransactionsTotal({ chain: chain.chain, addresses: [currentAddress] })
       .then((stats) => {
         setTotalRecords(stats[0].nRecords);
       });
@@ -114,7 +114,7 @@ export const DashboardView = () => {
     if (!currentAddress) return;
 
     loadTransactions({
-      chain,
+      chain: chain.chain,
       address: currentAddress,
     },
     proxy(({ total, filtered }) => {
@@ -148,7 +148,7 @@ export const DashboardView = () => {
     const address = addressParam;
 
     if (currentAddress && currentAddress !== address) {
-      cancelLoadTransactions({ chain, address: currentAddress });
+      cancelLoadTransactions({ chain: chain.chain, address: currentAddress });
     }
 
     if (address) {

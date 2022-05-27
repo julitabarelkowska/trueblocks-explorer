@@ -11,6 +11,7 @@ import {
   UnorderedListOutlined,
 } from '@ant-design/icons';
 import {
+  Chain,
   getStatus, Status, SuccessResponse,
 } from '@sdk';
 import {
@@ -50,7 +51,12 @@ const useStyles = createUseStyles({
 });
 
 export const App = () => {
-  const { chain } = useGlobalState();
+  const {
+    chain,
+    setChain,
+    chainLoaded,
+    setChainLoaded,
+  } = useGlobalState();
   dayjs.extend(relativeTime);
 
   const { location, action } = useHistory();
@@ -70,7 +76,7 @@ export const App = () => {
   useEffect(() => {
     (async () => {
       await loadNames({
-        chain,
+        chain: chain.chain,
         terms: [''],
         expand: true,
         all: true,
@@ -90,7 +96,8 @@ export const App = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       const statusResponse = wrapResponse(await getStatus({
-        chain,
+        chain: chain.chain,
+        fmt: 'api',
       }));
 
       if (isSuccessfulCall(statusResponse)) {
@@ -98,6 +105,13 @@ export const App = () => {
           data: statusResponse.data[0] as Status,
           meta: statusResponse.meta,
         });
+
+        if (chainLoaded) return;
+
+        setChain(
+          statusResponse.data[0].chains.find(({ chain: chainName }) => chainName === chain.chain) as Chain,
+        );
+        setChainLoaded(true);
       }
 
       if (isFailedCall(statusResponse)) {
@@ -111,27 +125,6 @@ export const App = () => {
 
     return () => clearInterval(intervalId);
   }, [chain]);
-
-  // const namesRequest = useSdk(() => getNames({
-  //   chain,
-  //   terms: [''],
-  //   expand: true,
-  //   all: true,
-  // }));
-
-  // useEffect(() => {
-  //   const resultMap = (() => {
-  //     if (!isSuccessfulCall(namesRequest)) return new Map();
-
-  //     const { data: fetchedNames } = namesRequest;
-
-  //     if (typeof fetchedNames === 'string') return new Map();
-
-  //     return new Map((fetchedNames as Name[]).map((name) => [name.address, name]));
-  //   })();
-
-  //   setNamesMap(resultMap);
-  // }, [namesRequest, setNamesMap]);
 
   const menuItems: MenuItems = [
     {
@@ -167,14 +160,13 @@ export const App = () => {
     return <Redirect to={lastLocation} />;
   }
 
-  // TODO: BOGUS - {`TrueBlocks Account Explorer - ${process.env.CHAIN} chain`}
   return (
     <Layout>
       <Header className='app-header'>
         <Title style={{ color: 'white' }} level={2}>
-          {`TrueBlocks Account Explorer - ${chain} chain`}
+          {`TrueBlocks Account Explorer - ${chain.chain} chain`}
         </Title>
-        <ChainSelect />
+        <ChainSelect status={status.data} />
       </Header>
       <Layout>
         <SidePanel header='Menu' dir={PanelDirection.Left} cookieName='MENU_EXPANDED' collapsibleContent={false}>
@@ -190,7 +182,7 @@ export const App = () => {
               }}
             >
               <Loading
-                loading={namesLoading}
+                loading={!chainLoaded || namesLoading}
               >
                 {namesLoading
                   ? null
@@ -200,7 +192,7 @@ export const App = () => {
               </Loading>
             </Content>
             <SidePanel header='Status' cookieName='STATUS_EXPANDED' dir={PanelDirection.Right}>
-              <StatusPanel chain={chain} status={status} loading={loadingStatus} error={statusError} />
+              <StatusPanel chain={chain.chain} status={status} loading={loadingStatus} error={statusError} />
             </SidePanel>
             <SidePanel
               header='Help'

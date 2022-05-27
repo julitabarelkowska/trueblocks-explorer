@@ -9,10 +9,9 @@ export type Monitor = {
   address: address
   name: string
   isCustom: boolean
+  deleted: boolean
   symbol: string
   source: string
-  decimals: number
+  decimals: uint64
   isContract: boolean
-  isValid: boolean
-  deleted: boolean
 }

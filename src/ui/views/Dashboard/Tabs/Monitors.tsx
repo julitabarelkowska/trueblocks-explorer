@@ -3,7 +3,9 @@ import React, {
 } from 'react';
 
 import { PlusCircleFilled, SearchOutlined } from '@ant-design/icons';
-import { getStatus, Monitor, Status } from '@sdk';
+import {
+  Chain, getStatus, Monitor, Status,
+} from '@sdk';
 import {
   Button, Input,
 } from 'antd';
@@ -39,7 +41,7 @@ export const Monitors = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
 
   const monitorsCall = useSdk(() => getStatus({
-    chain,
+    chain: chain.chain,
     modes: ['monitors'],
     details: true,
   }), undefined, []) as CallStatus<Status[]>;
@@ -147,11 +149,11 @@ export const Monitors = () => {
     { name: 'M', address: '0x054993ab0f2b1acc0fdc65405ee203b4271bebe6' },
   ];
 
-  const columns = useMemo(() => monitorSchema
+  const columns = useMemo(() => getMonitorSchema(chain)
     .map((item) => {
       if ('children' in item) return item;
       return { ...item, ...getColumnSearchProps(item.dataIndex) };
-    }), []);
+    }), [chain]);
 
   return (
     <>
@@ -239,88 +241,96 @@ const ResetButton = ({ onClick }: { onClick: any }) => (
   </Button>
 );
 
-const monitorSchema: ColumnsType<Monitor> = [
-  addColumn({
-    title: 'Name / Address',
-    dataIndex: 'searchStr',
-    configuration: {
-      render: (unused, record) => (record.address
-        ? <ClickableAddress name={record.name} address={record.address} />
-        : null
-      ),
-      width: 500,
-    },
-  }),
-  addTagsColumn(
-    {
-      title: 'Tags',
-      dataIndex: 'tags',
+function getMonitorSchema(chain: Chain): ColumnsType<Monitor> {
+  return [
+    addColumn({
+      title: 'Name / Address',
+      dataIndex: 'searchStr',
       configuration: {
-        ellipsis: false,
+        render: (unused, record) => (record.address
+          ? <ClickableAddress name={record.name} address={record.address} />
+          : null
+        ),
+        width: 500,
       },
-    },
-    (tag: string) => console.log('tag click', tag),
-  ),
-  addNumColumn({
-    title: 'nAppearances',
-    dataIndex: 'nApps',
-    configuration: {
-      sorter: {
-        compare: (a, b) => a.nApps - b.nApps,
-        multiple: 1,
+    }),
+    addTagsColumn(
+      {
+        title: 'Tags',
+        dataIndex: 'tags',
+        configuration: {
+          ellipsis: false,
+        },
       },
-    },
-  }),
-  addNumColumn({
-    title: 'firstAppearance',
-    dataIndex: 'firstApp',
-  }),
-  addNumColumn({
-    title: 'latestAppearance',
-    dataIndex: 'latestApp',
-  }),
-  addNumColumn({
-    title: 'sizeInBytes',
-    dataIndex: 'sizeInBytes',
-  }),
-  addActionsColumn<Monitor>(
-    {
-      title: 'Actions',
-      dataIndex: '',
+      (tag: string) => console.log('tag click', tag),
+    ),
+    addNumColumn({
+      title: 'nAppearances',
+      dataIndex: 'nApps',
       configuration: {
-        align: 'left',
+        sorter: {
+          compare: (a, b) => a.nApps - b.nApps,
+          multiple: 1,
+        },
       },
-    },
-    {
-      width: 150,
-      getComponent: getTableActions,
-    },
-  ),
-];
+    }),
+    addNumColumn({
+      title: 'firstAppearance',
+      dataIndex: 'firstApp',
+    }),
+    addNumColumn({
+      title: 'latestAppearance',
+      dataIndex: 'latestApp',
+    }),
+    addNumColumn({
+      title: 'sizeInBytes',
+      dataIndex: 'sizeInBytes',
+    }),
+    addActionsColumn<Monitor>(
+      {
+        title: 'Actions',
+        dataIndex: '',
+        configuration: {
+          align: 'left',
+        },
+      },
+      {
+        width: 150,
+        getComponent: getTableActions(chain),
+      },
+    ),
+  ];
+}
 
-// TODO: BOGUS - per chain data
-function getTableActions(item: Monitor) {
-  const onClick = (action: string, monitor: typeof item) => {
-    switch (action) {
-      case 'info':
-        openInExplorer(`https://etherscan.io/address/${monitor.address}`);
-        break;
-      case 'delete':
-        console.log('DELETE');
-        break;
-      case 'edit':
-        console.log('EDIT');
-        break;
-      case 'view':
-        console.log('VIEW');
-        break;
-      default:
-        console.log('Unknown action', action, monitor.name);
-        break;
-    }
+function getTableActions(chain: Chain) {
+  return (item: Monitor) => {
+    const onClick = (action: string, monitor: typeof item) => {
+      const remoteAddress = new URL(
+        `/address/${monitor.address}`,
+        chain.remoteExplorer,
+      );
+
+      switch (action) {
+        case 'info':
+          openInExplorer(remoteAddress.toString());
+          break;
+        case 'delete':
+          console.log('DELETE');
+          break;
+        case 'edit':
+          console.log('EDIT');
+          break;
+        case 'view':
+          console.log('VIEW');
+          break;
+        default:
+          console.log('Unknown action', action, monitor.name);
+          break;
+      }
+    };
+
+    return <TableActions item={item} onClick={onClick} />;
   };
-
-  return <TableActions item={item} onClick={onClick} />;
 }
 
 //-------------------------------------------------------------------------

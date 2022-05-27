@@ -19,7 +19,7 @@ export const Neighbors = () => {
   const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    const results = await getNeighbors({ chain, address: currentAddress });
+    const results = await getNeighbors({ chain: chain.chain, address: currentAddress });
     setItems(results);
   }, [chain, currentAddress, getNeighbors]);
 

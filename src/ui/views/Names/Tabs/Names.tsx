@@ -44,7 +44,7 @@ export const Names = () => {
 
   // App also makes this request, maybe we can use global state?
   const namesCall = useSdk(() => getNames({
-    chain,
+    chain: chain.chain,
     terms: [],
     expand: true,
     all: true,

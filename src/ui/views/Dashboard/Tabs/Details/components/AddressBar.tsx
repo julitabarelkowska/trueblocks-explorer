@@ -55,7 +55,7 @@ export const AddressBar = ({ params, filtersActive }: { params: AccountViewParam
           {' '}
           records on
           {' '}
-          {chain}
+          {chain.chain}
         </Route>
         <Route>
           {filtersActive ? filteredRecords : totalRecords}
@@ -64,7 +64,7 @@ export const AddressBar = ({ params, filtersActive }: { params: AccountViewParam
           {' '}
           {filtersActive ? 'matching filters on' : 'on'}
           {' '}
-          {chain}
+          {chain.chain}
         </Route>
       </Switch>
     </div>

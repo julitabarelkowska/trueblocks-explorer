@@ -1,5 +1,5 @@
 import * as ApiCallers from "../lib/api_callers";
-import { address, topic, fourbyte, Appearance, Reconciliation, Transaction, Receipt, Log, Trace } from "../types";
+import { address, topic, fourbyte, Appearance, Reconciliation, ListStats, Transaction, Receipt, Log, Trace } from "../types";
 
 export function getExport(
   parameters?: {
@@ -40,7 +40,7 @@ export function getExport(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Appearance[] | Reconciliation[] | Transaction[] | Receipt[] | Log[] | Trace[]>(
+  return ApiCallers.fetch<Appearance[] | Reconciliation[] | ListStats[] | Transaction[] | Receipt[] | Log[] | Trace[]>(
     {
       endpoint: '/export', method: 'get', parameters, options,
     },

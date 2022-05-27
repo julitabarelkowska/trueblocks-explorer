@@ -1,4 +1,4 @@
-import { timestamp, Cache, Chain } from "../types";
+import { timestamp, Chain, Cache } from "../types";
 
 export type Status = {
   clientVersion: string
@@ -18,6 +18,6 @@ export type Status = {
   hasEskey: boolean
   hasPinkey: boolean
   ts: timestamp
-  caches: Cache[]
   chains: Chain[]
+  caches: Cache[]
 }

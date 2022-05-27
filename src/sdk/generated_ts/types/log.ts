@@ -1,4 +1,4 @@
-import { blknum, timestamp, address, topic, bytes, ArticulatedLog } from "../types";
+import { blknum, timestamp, address, topic, bytes, Function } from "../types";
 
 export type Log = {
   blockNumber: blknum
@@ -8,6 +8,6 @@ export type Log = {
   address: address
   topics: topic[]
   data: bytes
-  articulatedLog: ArticulatedLog
+  articulatedLog: Function
   compressedLog: string
 }

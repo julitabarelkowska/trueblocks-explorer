@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { ReactNode } from 'react-markdown';
 
-import { Transaction } from '@sdk';
+import { Chain, Transaction } from '@sdk';
 import Cookies from 'js-cookie';
 
 import { FiltersState } from '@modules/filters/transaction';
@@ -18,7 +18,35 @@ import { createEmptyMeta, Meta } from '@modules/types/Meta';
 
 const THEME: ThemeName = Cookies.get('theme') as ThemeName || 'default';
 const ADDRESS = Cookies.get('address');
-const CHAIN = Cookies.get('chain') || process.env.CHAIN || 'mainnet';
+const [CHAIN, defaultChainLoaded]: readonly [Chain, boolean] = (() => {
+  const stringified = Cookies.get('chain');
+  const defaultValue: Chain = {
+    chain: 'mainnet',
+    chainId: 1,
+    symbol: 'ETH',
+    rpcProvider: '',
+    apiProvider: '',
+    remoteExplorer: 'http://trueblocks.io',
+    localExplorer: '',
+    pinGateway: '',
+  };
+
+  if (!stringified) return [defaultValue, true] as const;
+
+  try {
+    const parsed: Chain = JSON.parse(stringified);
+
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Incorrect value found in chain cookie');
+    }
+
+    return [parsed, false] as const;
+  } catch (error) {
+    console.error(error);
+    Cookies.set('chain', defaultValue);
+    return [defaultValue, true] as const;
+  }
+})();
 const DENOM = Cookies.get('denom') || 'ether';
 
 type NamesEditModalState = {
@@ -31,7 +59,8 @@ type NamesEditModalState = {
 
 type State = {
   theme: Theme,
-  chain: string,
+  chain: Chain,
+  chainLoaded: boolean,
   denom: string,
   currentAddress?: string,
   namesEditModalVisible: boolean,
@@ -56,6 +85,7 @@ const getDefaultNamesEditModalValue = () => ({
 const initialState: State = {
   theme: getThemeByName(THEME),
   chain: CHAIN,
+  chainLoaded: !defaultChainLoaded,
   denom: DENOM,
   currentAddress: ADDRESS,
   namesEditModalVisible: false,
@@ -77,6 +107,11 @@ type SetTheme = {
 type SetChain = {
   type: 'SET_CHAIN',
   chain: State['chain'],
+};
+
+type SetChainLoaded = {
+  type: 'SET_CHAIN_LOADED',
+  loaded: State['chainLoaded'],
 };
 
 type SetDenom = {
@@ -142,6 +177,7 @@ type SetFilters = {
 type GlobalAction =
   | SetTheme
   | SetChain
+  | SetChainLoaded
   | SetDenom
   | SetCurrentAddress
   | SetNamesEditModal
@@ -169,10 +205,15 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         theme: action.theme,
       };
     case 'SET_CHAIN':
-      Cookies.set('chain', action.chain);
+      Cookies.set('chain', JSON.stringify(action.chain));
       return {
         ...state,
         chain: action.chain,
+      };
+    case 'SET_CHAIN_LOADED':
+      return {
+        ...state,
+        chainLoaded: action.loaded,
       };
     case 'SET_DENOM':
       // TODO(tjayrush): not sure why this doesn't work
@@ -273,6 +314,10 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_CHAIN', chain });
   };
 
+  const setChainLoaded = (loaded: SetChainLoaded['loaded']) => {
+    dispatch({ type: 'SET_CHAIN_LOADED', loaded });
+  };
+
   const setDenom = (denom: SetDenom['denom']) => {
     dispatch({ type: 'SET_DENOM', denom });
   };
@@ -326,6 +371,8 @@ export const useGlobalState = () => {
     setTheme,
     chain: state.chain,
     setChain,
+    chainLoaded: state.chainLoaded,
+    setChainLoaded,
     denom: state.denom,
     setDenom,
     currentAddress: state.currentAddress,

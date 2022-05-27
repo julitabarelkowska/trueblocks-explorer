@@ -34,7 +34,7 @@ export const Events = () => {
   const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    const result = await getEventsItems({ chain, address: currentAddress });
+    const result = await getEventsItems({ chain: chain.chain, address: currentAddress });
     setItems(result);
   }, [chain, currentAddress, getEventsItems]);
 

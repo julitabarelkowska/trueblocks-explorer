@@ -104,7 +104,7 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     if (!transactionsLoaded) return;
 
     getPage({
-      chain,
+      chain: chain.chain,
       address: currentAddress,
       page,
       pageSize,

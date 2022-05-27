@@ -19,7 +19,7 @@ export const Gas = () => {
   const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    const results = await getGas({ chain, address: currentAddress });
+    const results = await getGas({ chain: chain.chain, address: currentAddress });
     setItems(results);
   }, [chain, currentAddress, getGas]);
 

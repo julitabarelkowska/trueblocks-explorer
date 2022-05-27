@@ -35,7 +35,7 @@ export const Functions = ({ loading }: { loading: boolean }) => {
   const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 
-    const result = await getFunctionsItems({ chain, address: currentAddress });
+    const result = await getFunctionsItems({ chain: chain.chain, address: currentAddress });
     setItems(result);
   }, [chain, currentAddress, getFunctionsItems]);
 
