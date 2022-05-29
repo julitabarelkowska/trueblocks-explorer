@@ -7,11 +7,10 @@ import React, {
 } from 'react';
 import { ReactNode } from 'react-markdown';
 
-import {
-  address as Address, Chain, Name, Transaction,
-} from '@sdk';
+import { Chain, Transaction } from '@sdk';
 import Cookies from 'js-cookie';
 
+import { FiltersState } from '@modules/filters/transaction';
 import {
   getThemeByName, Theme, ThemeName,
 } from '@modules/themes';
@@ -64,13 +63,16 @@ type State = {
   chainLoaded: boolean,
   denom: string,
   currentAddress?: string,
-  namesMap: Map<Address, Name>
   namesEditModalVisible: boolean,
   namesEditModal: NamesEditModalState,
   transactions: Transaction[],
   meta: Meta
   totalRecords: number,
-}
+  filteredRecords: number,
+  transactionsLoaded: boolean,
+  transactionsFetchedByWorker: number,
+  filters: FiltersState,
+};
 
 const getDefaultNamesEditModalValue = () => ({
   address: '',
@@ -86,12 +88,15 @@ const initialState: State = {
   chainLoaded: !defaultChainLoaded,
   denom: DENOM,
   currentAddress: ADDRESS,
-  namesMap: new Map(),
   namesEditModalVisible: false,
   namesEditModal: getDefaultNamesEditModalValue(),
   transactions: [],
   meta: createEmptyMeta(),
   totalRecords: 0,
+  filteredRecords: 0,
+  transactionsLoaded: false,
+  transactionsFetchedByWorker: 0,
+  filters: { active: false },
 };
 
 type SetTheme = {
@@ -117,11 +122,6 @@ type SetDenom = {
 type SetCurrentAddress = {
   type: 'SET_CURRENT_ADDRESS',
   address: State['currentAddress'],
-};
-
-type SetNamesMap = {
-  type: 'SET_NAMES_MAP',
-  namesMap: State['namesMap'],
 };
 
 type SetNamesEditModal = {
@@ -154,19 +154,42 @@ type SetTotalRecords = {
   records: State['totalRecords'],
 };
 
+type SetFilteredRecords = {
+  type: 'SET_FILTERED_RECORDS',
+  filteredRecords: State['filteredRecords'],
+};
+
+type SetTransactionsLoaded = {
+  type: 'SET_TRANSACTIONS_LOADED',
+  loaded: State['transactionsLoaded'],
+};
+
+type SetTransactionsFetchedByWorker = {
+  type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER',
+  fetched: State['transactionsFetchedByWorker'],
+};
+
+type SetFilters = {
+  type: 'SET_FILTERS',
+  filters: State['filters'],
+};
+
 type GlobalAction =
   | SetTheme
   | SetChain
   | SetChainLoaded
   | SetDenom
   | SetCurrentAddress
-  | SetNamesMap
   | SetNamesEditModal
   | SetNamesEditModalVisible
   | SetTransactions
   | AddTransactions
   | SetMeta
-  | SetTotalRecords;
+  | SetTotalRecords
+  | SetFilteredRecords
+  | SetTransactionsLoaded
+  | SetTransactionsFetchedByWorker
+  | SetFilters;
 
 const GlobalStateContext = createContext<[
   typeof initialState,
@@ -210,11 +233,6 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         };
       }
       return state;
-    case 'SET_NAMES_MAP':
-      return {
-        ...state,
-        namesMap: action.namesMap,
-      };
     case 'SET_NAMES_EDIT_MODAL':
       return {
         ...state,
@@ -248,6 +266,26 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
       return {
         ...state,
         totalRecords: action.records,
+      };
+    case 'SET_FILTERED_RECORDS':
+      return {
+        ...state,
+        filteredRecords: action.filteredRecords,
+      };
+    case 'SET_TRANSACTIONS_LOADED':
+      return {
+        ...state,
+        transactionsLoaded: action.loaded,
+      };
+    case 'SET_TRANSACTIONS_FETCHED_BY_WORKER':
+      return {
+        ...state,
+        transactionsFetchedByWorker: action.fetched,
+      };
+    case 'SET_FILTERS':
+      return {
+        ...state,
+        filters: action.filters,
       };
     default:
       return state;
@@ -284,12 +322,8 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_DENOM', denom });
   };
 
-  const setCurrentAddress = (address: SetCurrentAddress['address']) => {
+  const setCurrentAddress = useCallback((address: SetCurrentAddress['address']) => {
     dispatch({ type: 'SET_CURRENT_ADDRESS', address });
-  };
-
-  const setNamesMap = useCallback((namesMap: SetNamesMap['namesMap']) => {
-    dispatch({ type: 'SET_NAMES_MAP', namesMap });
   }, [dispatch]);
 
   const setNamesEditModal = (val: SetNamesEditModal['val']) => {
@@ -316,6 +350,22 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_TOTAL_RECORDS', records });
   }, [dispatch]);
 
+  const setFilteredRecords = useCallback((filteredRecords: SetFilteredRecords['filteredRecords']) => {
+    dispatch({ type: 'SET_FILTERED_RECORDS', filteredRecords });
+  }, [dispatch]);
+
+  const setTransactionsLoaded = useCallback((loaded: SetTransactionsLoaded['loaded']) => {
+    dispatch({ type: 'SET_TRANSACTIONS_LOADED', loaded });
+  }, [dispatch]);
+
+  const setTransactionsFetchedByWorker = useCallback((fetched: SetTransactionsFetchedByWorker['fetched']) => {
+    dispatch({ type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER', fetched });
+  }, [dispatch]);
+
+  const setFilters = useCallback((filters: SetFilters['filters']) => {
+    dispatch({ type: 'SET_FILTERS', filters });
+  }, [dispatch]);
+
   return {
     theme: state.theme,
     setTheme,
@@ -327,8 +377,6 @@ export const useGlobalState = () => {
     setDenom,
     currentAddress: state.currentAddress,
     setCurrentAddress,
-    namesMap: state.namesMap,
-    setNamesMap,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
     namesEditModalVisible: state.namesEditModalVisible,
@@ -340,6 +388,14 @@ export const useGlobalState = () => {
     setMeta,
     totalRecords: state.totalRecords,
     setTotalRecords,
+    filteredRecords: state.filteredRecords,
+    setFilteredRecords,
+    transactionsLoaded: state.transactionsLoaded,
+    setTransactionsLoaded,
+    transactionsFetchedByWorker: state.transactionsFetchedByWorker,
+    setTransactionsFetchedByWorker,
+    filters: state.filters,
+    setFilters,
   };
 };
 
@@ -348,13 +404,4 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo((): [State, React.Dispatch<GlobalAction>] => [state, dispatch], [state]);
 
   return <GlobalStateContext.Provider value={value}>{children}</GlobalStateContext.Provider>;
-};
-
-export const useGlobalNames = () => {
-  const {
-    namesMap, setNamesMap,
-  } = useGlobalState();
-  return {
-    namesMap, setNamesMap,
-  };
 };

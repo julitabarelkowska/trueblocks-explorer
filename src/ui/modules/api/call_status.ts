@@ -37,7 +37,7 @@ export function createPendingCall<Resource>(): CallStatus<Resource> {
 // Creates a new CallStatus with the data or error contained in response.
 // This is usefull if we already have the response, but will need the call
 // information later on (e.g. for subsequent requests).
-export function wrapResponse<Resource>(response: AnyResponse<Resource>): CallStatus<Resource> {
+export function wrapResponse<Resource>(response: AnyResponse<Resource>): CallSuccess<Resource> | CallError {
   const base = {
     loading: false,
     initiated: true,

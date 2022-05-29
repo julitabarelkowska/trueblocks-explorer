@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { CopyTwoTone } from '@ant-design/icons';
-import { Log, Transaction } from '@sdk';
-import { useGlobalNames } from '@state';
+import { Log, Name, Transaction } from '@sdk';
 import { Button, Card } from 'antd';
 
 import { Address } from '@components/Address';
 import { DataDisplay } from '@components/DataDisplay';
+import { useDatastore } from '@hooks/useDatastore';
 import { OnValue } from '@modules/tree';
 
 import { isAddress } from '../../../../../Utilities';
@@ -18,25 +18,39 @@ type LogOutput = { emitter: Log['address'] } & Omit<Log, 'address'>;
 //-----------------------------------------------------------------
 export const HistoryEvents = ({ record }: { record: Transaction }) => {
   const styles = useAcctStyles();
+  const {
+    getNameFor,
+  } = useDatastore();
 
   const key = `${record.blockNumber}.${record.transactionIndex}`;
-  const { namesMap } = useGlobalNames();
+  const [titles, setTitles] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const promises = (record.receipt?.logs || [])
+      .filter(Boolean)
+      .map(async (log) => {
+        if (!log.address) return '';
+
+        const nameFound = await (getNameFor({ address: log.address }) as Promise<Name | undefined>);
+        const name = nameFound ? ` from ${nameFound.name}` : ` from ${log.address.slice(0, 6)}`;
+
+        if (!log.articulatedLog) return `[unknown]${name}`;
+
+        return `${log.articulatedLog.name}${name}`;
+      });
+
+    (async () => {
+      const names = await Promise.all(promises);
+      if (cancelled) return;
+      setTitles(names);
+    })();
+    return () => { cancelled = true; };
+  }, [getNameFor, record]);
 
   let title = '[no logs]';
-  if (record.receipt && record.receipt.logs && record.receipt.logs.length > 0) {
-    let titles = record.receipt.logs.map((log) => {
-      const hasAddress = Boolean(log.address);
-      if (hasAddress) {
-        const n = namesMap.get(log.address);
-        const name = n ? ` from ${n.name}` : ` from ${log.address.slice(0, 6)}`;
-        if (log.articulatedLog) {
-          return `${log.articulatedLog.name}${name}`;
-        }
-        return `[unknown]${name}`;
-      }
-      return '';
-    });
-    titles = titles?.filter((log) => log !== '');
+
+  if (record.receipt && record.receipt?.logs && record.receipt?.logs?.length > 0) {
     if (titles.length !== 0) {
       title = titles.join(', ');
     } else {

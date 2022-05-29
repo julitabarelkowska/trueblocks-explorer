@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import { createUseStyles } from 'react-jss';
 
+import { useGlobalState } from '@state';
+
 import { BaseView, ViewTab } from '@components/BaseView';
 import { usePathWithAddress } from '@hooks/paths';
 
 import {
   DashboardAccountsAddressLocation,
-  // DashboardAccountsChartsLocation,
   DashboardAccountsEventsLocation,
   DashboardAccountsFunctionsLocation,
   DashboardAccountsGasLocation,
@@ -21,22 +22,30 @@ import { AccountViewParams } from '../../Dashboard';
 import { AddressBar } from './components/AddressBar';
 import { ViewOptions } from './components/ViewOptions';
 import {
-  Charts, Events, Functions, Gas, History, Neighbors,
+  Charts,
+  Events,
+  Functions,
+  Gas,
+  History,
+  Neighbors,
 } from './SubTabs';
 
-export const DetailsView = ({ params }: { params: AccountViewParams }) => {
+export const DetailsView = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const {
-    theData, loading,
+    filters,
+  } = useGlobalState();
+  const {
+    loading,
   } = params;
 
   const generatePathWithAddress = usePathWithAddress();
-  const historyPaths = [
+  const historyPaths = useMemo(() => [
     DashboardAccountsHistoryLocation,
     DashboardAccountsHistoryReconsLocation,
     DashboardAccountsHistoryFunctionsLocation,
     DashboardAccountsHistoryEventsLocation,
     DashboardAccountsHistoryCustomLocation,
-  ];
+  ], []);
 
   const leftSideTabs: ViewTab[] = useMemo(() => [
     {
@@ -52,33 +61,31 @@ export const DetailsView = ({ params }: { params: AccountViewParams }) => {
     {
       name: 'Events',
       location: generatePathWithAddress(DashboardAccountsEventsLocation),
-      component: <Events theData={theData} />,
+      component: <Events />,
     },
     {
       name: 'Functions',
       location: generatePathWithAddress(DashboardAccountsFunctionsLocation),
-      component: <Functions theData={theData} loading={loading} />,
+      component: <Functions loading={loading} />,
     },
     {
       name: 'Gas',
       location: generatePathWithAddress(DashboardAccountsGasLocation),
-      component: <Gas theData={theData} />,
+      component: <Gas />,
     },
     {
       name: 'Neighbors',
       location: generatePathWithAddress(DashboardAccountsNeighborsLocation),
-      component: <Neighbors theData={theData} />,
+      component: <Neighbors />,
     },
   ],
-  [generatePathWithAddress, loading, params, theData]);
-
-  if (!theData) return <></>;
+  [generatePathWithAddress, historyPaths, loading, params]);
 
   return (
     <div>
-      <AddressBar params={params} />
+      <AddressBar params={{ ...params, theData: [] }} filtersActive={filters.active} />
       <div>
-        <ViewOptions params={params} />
+        <ViewOptions params={{ ...params, theData: [] }} />
         <BaseView cookieName='COOKIE_DASHBOARD_ACCOUNTS' tabs={leftSideTabs} position='left' />
       </div>
     </div>

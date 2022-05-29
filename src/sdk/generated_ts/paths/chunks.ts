@@ -1,10 +1,13 @@
 import * as ApiCallers from "../lib/api_callers";
-import { blknum, PinnedChunk, Manifest } from "../types";
+import { blknum, address, PinnedChunk, Manifest } from "../types";
 
 export function getChunks(
   parameters?: {
+    mode: 'stats' | 'pins' | 'blooms' | 'index' | 'addresses' | 'appearances',
     blocks?: blknum[],
-    extract?: 'stats' | 'pins' | 'blooms' | 'index' | 'header' | 'addresses' | 'appearances',
+    addrs?: address[],
+    check?: boolean,
+    belongs?: boolean,
     chain: string,
     noHeader?: boolean,
     fmt?: string,

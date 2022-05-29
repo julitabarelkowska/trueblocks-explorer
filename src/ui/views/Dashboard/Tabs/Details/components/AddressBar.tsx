@@ -1,31 +1,44 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { Route, Switch } from 'react-router-dom';
 
+import { useGlobalState } from '@state';
 import {
   PageHeader,
   Progress,
 } from 'antd';
 
-import { useGlobalNames, useGlobalState } from '../../../../../State';
+import { usePathWithAddress } from '@hooks/paths';
+import { useName } from '@hooks/useName';
+
+import { DashboardAccountsAddressLocation } from '../../../../../Routes';
 import { AccountViewParams } from '../../../Dashboard';
 
 import './AddressBar.css';
 
-export const AddressBar = ({ params }: { params: AccountViewParams }) => {
-  const { currentAddress, chain } = useGlobalState();
-  const { namesMap } = useGlobalNames();
-  const { totalRecords } = params;
+export const AddressBar = ({ params, filtersActive }: { params: AccountViewParams, filtersActive: boolean }) => {
+  const {
+    currentAddress,
+    chain,
+    totalRecords,
+    filteredRecords,
+  } = useGlobalState();
+  const generatePathWithAddress = usePathWithAddress();
+  const [name, setName] = useState('');
+
+  useName(
+    [String(currentAddress)],
+    ([nameFound]) => setName(nameFound?.name || ''),
+  );
 
   const title = useMemo(() => {
-    const name = currentAddress ? namesMap.get(currentAddress)?.name : '';
-
     if (!name) {
       return <PageHeader title={currentAddress} />;
     }
 
     return <PageHeader title={name} subTitle={currentAddress} />;
-  }, [currentAddress, namesMap]);
+  }, [currentAddress, name]);
 
-  if (!namesMap || !currentAddress) return <></>;
+  if (!currentAddress) return <></>;
 
   return (
     <div className='addressBar'>
@@ -36,7 +49,24 @@ export const AddressBar = ({ params }: { params: AccountViewParams }) => {
         </div>
       </div>
       <div />
-      <div>{`${totalRecords} records on ${chain.chain}`}</div>
+      <Switch>
+        <Route exact path={generatePathWithAddress(DashboardAccountsAddressLocation)}>
+          {totalRecords}
+          {' '}
+          records on
+          {' '}
+          {chain.chain}
+        </Route>
+        <Route>
+          {filtersActive ? filteredRecords : totalRecords}
+          {' '}
+          records
+          {' '}
+          {filtersActive ? 'matching filters on' : 'on'}
+          {' '}
+          {chain.chain}
+        </Route>
+      </Switch>
     </div>
   );
 };

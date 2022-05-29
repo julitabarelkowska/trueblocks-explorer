@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import {
   Chain,
-  getNames, getStatus, Name, Status, SuccessResponse,
+  getStatus, Status, SuccessResponse,
 } from '@sdk';
 import {
   Layout,
@@ -28,7 +28,7 @@ import { MainMenu, MenuItems } from '@components/MainMenu';
 import { HelpPanel } from '@components/SidePanels/HelpPanel';
 import { PanelDirection, SidePanel } from '@components/SidePanels/SidePanel';
 import { StatusPanel } from '@components/SidePanels/StatusPanel';
-import { useSdk } from '@hooks/useSdk';
+import { useDatastore } from '@hooks/useDatastore';
 import {
   isFailedCall, isSuccessfulCall, wrapResponse,
 } from '@modules/api/call_status';
@@ -38,7 +38,7 @@ import { createEmptyStatus } from '@modules/types/Status';
 import {
   ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation,
 } from './Routes';
-import { useGlobalNames, useGlobalState } from './State';
+import { useGlobalState } from './State';
 
 import 'antd/dist/antd.css';
 import './app.css';
@@ -59,7 +59,6 @@ export const App = () => {
   } = useGlobalState();
   dayjs.extend(relativeTime);
 
-  const { setNamesMap } = useGlobalNames();
   const { location, action } = useHistory();
   const [status, setStatus] = useState<Pick<SuccessResponse<Status>, 'data' | 'meta'>>({
     data: createEmptyStatus(),
@@ -67,8 +66,24 @@ export const App = () => {
   });
   const [statusError, setStatusError] = useState(false);
   const [loadingStatus] = useState(false);
+  const [namesLoading, setNamesLoading] = useState(true);
   const [lastLocation, setLastLocation] = useState('');
   const styles = useStyles();
+  const {
+    loadNames,
+  } = useDatastore();
+
+  useEffect(() => {
+    (async () => {
+      await loadNames({
+        chain: chain.chain,
+        terms: [''],
+        expand: true,
+        all: true,
+      });
+      setNamesLoading(false);
+    })();
+  }, [chain, loadNames]);
 
   useEffect(() => setLastLocation(localStorage.getItem('lastLocation') || ''), []);
   useEffect(() => {
@@ -110,27 +125,6 @@ export const App = () => {
 
     return () => clearInterval(intervalId);
   }, [chain]);
-
-  const namesRequest = useSdk(() => getNames({
-    chain: chain.chain,
-    terms: [''],
-    expand: true,
-    all: true,
-  }));
-
-  useEffect(() => {
-    const resultMap = (() => {
-      if (!isSuccessfulCall(namesRequest)) return new Map();
-
-      const { data: fetchedNames } = namesRequest;
-
-      if (typeof fetchedNames === 'string') return new Map();
-
-      return new Map((fetchedNames as Name[]).map((name) => [name.address, name]));
-    })();
-
-    setNamesMap(resultMap);
-  }, [namesRequest, setNamesMap]);
 
   const menuItems: MenuItems = [
     {
@@ -188,9 +182,13 @@ export const App = () => {
               }}
             >
               <Loading
-                loading={!chainLoaded}
+                loading={!chainLoaded || namesLoading}
               >
-                <Routes />
+                {namesLoading
+                  ? null
+                  : (
+                    <Routes />
+                  )}
               </Loading>
             </Content>
             <SidePanel header='Status' cookieName='STATUS_EXPANDED' dir={PanelDirection.Right}>

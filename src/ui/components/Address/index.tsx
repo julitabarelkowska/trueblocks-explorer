@@ -1,20 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { CopyTwoTone } from '@ant-design/icons';
-import { useGlobalState } from '@state';
 import { Button } from 'antd';
+
+import { useName } from '@hooks/useName';
 
 import { DashboardAccountsLocation } from '../../Routes';
 
 export const Address = (
   { address, showCopy = true, link = false }: { address: string, showCopy?: boolean, link?: boolean },
 ) => {
+  const [name, setName] = useState('');
+
+  useName(
+    [address],
+    ([nameFound]) => setName(nameFound?.name || ''),
+  );
+
   let addr = address;
   if (addr && addr.length === 66) {
     addr = `0x${addr.substr(26, 66)}`;
   }
-  const { namesMap: names } = useGlobalState();
+
   const linkComponent = (
     <Link to={{
       pathname: DashboardAccountsLocation, search: String(new URLSearchParams({ address: String(addr) })),
@@ -38,9 +46,7 @@ export const Address = (
         )
         : null}
       <div>
-        {names.has(String(addr))
-          ? names.get(String(addr))?.name
-          : null}
+        {name}
       </div>
     </>
   );

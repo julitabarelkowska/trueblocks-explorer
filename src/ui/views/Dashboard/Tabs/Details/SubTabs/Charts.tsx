@@ -1,114 +1,94 @@
-import React, { useMemo } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 
-import { Chain, Reconciliation, Transaction } from '@sdk';
-import dayjs from 'dayjs';
+import { Chain, Name } from '@sdk';
+import { useGlobalState, useGlobalState2 } from '@state';
+import { GetChartItemsResult } from 'src/ui/datastore/messages';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';
 import { usePathWithAddress } from '@hooks/paths';
+import { useDatastore } from '@hooks/useDatastore';
 import { createWrapper } from '@hooks/useSearchParams';
-// FIXME: these look like UI-related types
-import { AssetHistory, Balance } from '@modules/types';
 
+// FIXME: these look like UI-related types
 import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
-import { useGlobalNames, useGlobalState, useGlobalState2 } from '../../../../../State';
 import { chartColors } from '../../../../../Utilities';
 import { AccountViewParams } from '../../../Dashboard';
 
-export const Charts = ({ params }: { params: AccountViewParams }) => {
+export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const {
-    theData,
     userPrefs,
   } = params;
   const {
-    hideNamed,
     hideZero,
   } = userPrefs;
-  const { denom } = useGlobalState();
-  const { namesMap } = useGlobalNames();
+  const {
+    chain,
+    denom,
+    currentAddress,
+    transactionsLoaded,
+    transactionsFetchedByWorker,
+  } = useGlobalState();
 
-  const uniqAssets = useMemo(() => {
-    if (!theData.length) return [];
+  const {
+    getChartItems,
+  } = useDatastore();
 
-    const unique: Array<AssetHistory> = [];
+  const [items, setItems] = useState<GetChartItemsResult>([]);
 
-    theData.forEach((tx: Transaction) => {
-      tx.statements?.forEach((statement: Reconciliation) => {
-        if (unique.find((asset: AssetHistory) => asset.assetAddr === statement.assetAddr) === undefined) {
-          unique.push({
-            assetAddr: statement.assetAddr,
-            assetSymbol: statement.assetSymbol,
-            balHistory: [],
-          });
-        }
-      });
+  const getCurrentChartItems = useCallback(async () => {
+    if (!currentAddress) return;
 
-      unique.forEach((asset: AssetHistory, index: number) => {
-        const found = tx.statements?.find((statement: Reconciliation) => asset.assetAddr === statement.assetAddr);
-        // TODO: do not convert the below to strings
-        if (found) {
-          unique[index].balHistory = [
-            ...unique[index].balHistory,
-            {
-              balance: (denom === 'dollars'
-                ? parseInt(found.endBal.toString() || '0', 10) * Number(found.spotPrice)
-                : parseInt(found.endBal.toString() || '0', 10)),
-              date: new Date(found.timestamp * 1000),
-              reconciled: found.reconciled,
-            },
-          ];
-        }
-      });
+    if (!transactionsLoaded) return;
+
+    const result = await getChartItems({
+      chain: chain.chain,
+      address: currentAddress,
+      // TODO: typecast
+      denom: denom as 'ether' | 'dollars',
+      zeroBalanceStrategy: (() => {
+        if (hideZero === 'all') return 'unset';
+        if (hideZero === 'show') return 'ignore-non-zero';
+        return 'ignore-zero';
+      })(),
     });
+    setItems(result);
+  }, [chain, currentAddress, denom, getChartItems, hideZero, transactionsLoaded]);
 
-    unique.sort((a: any, b: any) => {
-      if (b.balHistory.length === a.balHistory.length) {
-        if (b.balHistory.length === 0) {
-          return b.assetAddr - a.assetAddr;
-        }
-        return b.balHistory[b.balHistory.length - 1].balance - a.balHistory[a.balHistory.length - 1].balance;
-      }
-      return b.balHistory.length - a.balHistory.length;
-    });
+  useEffect(() => { getCurrentChartItems(); }, [getCurrentChartItems]);
 
-    return unique.filter((asset: AssetHistory) => {
-      if (asset.balHistory.length === 0) return false;
-      const show = hideZero === 'all'
-        || (hideZero === 'show' && asset.balHistory[asset.balHistory.length - 1].balance === 0)
-        || (hideZero === 'hide' && asset.balHistory[asset.balHistory.length - 1].balance > 0);
-      return show && (!hideNamed || !namesMap.get(asset.assetAddr));
-    });
-  }, [hideNamed, hideZero, namesMap, theData, denom]);
+  useEffect(() => {
+    if (transactionsFetchedByWorker > 0) {
+      getCurrentChartItems();
+    }
+  }, [getCurrentChartItems, transactionsFetchedByWorker]);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr' }}>
-      {uniqAssets.map((asset: AssetHistory, index: number) => {
+      {items.map((asset, index: number) => {
         const color = asset.assetSymbol === 'ETH'
           ? '#63b598'
-          : chartColors[Number(`0x${asset.assetAddr.substr(4, 3)}`) % chartColors.length];
+          : chartColors[Number(`0x${asset.assetAddress.substr(4, 3)}`) % chartColors.length];
         const columns: any[] = [
           addColumn({
             title: 'Date',
             dataIndex: 'date',
           }),
           addColumn({
-            title: asset.assetAddr,
-            dataIndex: asset.assetAddr,
+            title: asset.assetAddress,
+            dataIndex: asset.assetAddress,
           }),
         ];
 
-        const items = asset.balHistory.map((item: Balance) => ({
-          date: dayjs(item.date).format('YYYY-MM-DD'),
-          [asset.assetAddr]: item.balance,
-        }));
-
         return (
           <MyAreaChart
-            items={items}
+            items={asset.items}
             columns={columns}
-            key={asset.assetAddr}
-            index={asset.assetAddr}
+            key={asset.assetAddress}
+            index={asset.assetAddress}
             title={<ChartTitle asset={asset} index={index} />}
             table={false}
             color={color}
@@ -144,60 +124,63 @@ export function getLink(chain: Chain, type: string, addr1: string, addr2?: strin
   return url?.toString() || '';
 }
 
-const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) => {
-  const { namesMap } = useGlobalNames();
+const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult[0]; index: number }) => {
   const { currentAddress, chain } = useGlobalState();
+  const {
+    getNameFor,
+  } = useDatastore();
   const { apiProvider } = useGlobalState2();
   const generatePathWithAddress = usePathWithAddress();
+  const [assetName, setAssetName] = useState<Name>();
+
+  useEffect(() => {
+    (getNameFor({ address: asset.assetAddress }) as Promise<Name | undefined>)
+      .then((nameDetails) => setAssetName(nameDetails));
+  }, [asset.assetAddress, getNameFor]);
 
   const links = [];
   links.push(
     <Link to={
       ({ search }) => {
         const path = generatePathWithAddress(DashboardAccountsHistoryLocation);
-        return `${path}?${createWrapper(search).set('asset', asset.assetAddr)}`;
+        return `${path}?${createWrapper(search).set('asset', asset.assetAddress)}`;
       }
     }
     >
       History
     </Link>,
   );
-  if (!namesMap.get(asset.assetAddr)) {
+  if (!assetName) {
     links.push(
-      <a target='_blank' href={`${apiProvider}/names?chain=${chain}&autoname=${asset.assetAddr}`} rel='noreferrer'>
+      <a target='_blank' href={`${apiProvider}/names?chain=${chain}&autoname=${asset.assetAddress}`} rel='noreferrer'>
         Name
       </a>,
     );
   }
   if (asset.assetSymbol !== 'ETH') {
     links.push(
-      <a target='_blank' href={getLink(chain, 'holding', asset.assetAddr, currentAddress)} rel='noreferrer'>
+      <a target='_blank' href={getLink(chain, 'holding', asset.assetAddress, currentAddress)} rel='noreferrer'>
         Holdings
       </a>,
     );
   }
   links.push(
-    <a target='_blank' href={getLink(chain, 'token', asset.assetAddr, '')} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'token', asset.assetAddress, '')} rel='noreferrer'>
       Token
     </a>,
   );
   links.push(
-    <a target='_blank' href={getLink(chain, 'uni', asset.assetAddr, '')} rel='noreferrer'>
+    <a target='_blank' href={getLink(chain, 'uni', asset.assetAddress, '')} rel='noreferrer'>
       Uniswap
     </a>,
   );
 
-  // TODO: Comment from @dszlachta
-  // TODO: I think that it would be good to use useMemo here, so we don't have
-  // TODO: to perform the lookup when the component re-renders:
-  // TODO: const tokenSymbol = useMemo(() => /* lookupHere */, [deps]);
-  // TODO: You could then cache namesMap.get(asset.assetAddrs) and
-  // TODO: asset.assetSymbol.substr(0, 15) in variables
-  const tokenSymbol = namesMap.get(asset.assetAddr)
-    ? namesMap.get(asset.assetAddr)?.name?.substr(0, 15) + (asset.assetSymbol
+  const tokenSymbol = useMemo(() => (assetName
+    ? assetName.name?.substr(0, 15) + (asset.assetSymbol
       ? ` (${asset.assetSymbol.substr(0, 15)})`
       : '')
-    : asset.assetSymbol.substr(0, 15);
+    : asset.assetSymbol.substr(0, 15)),
+  [asset.assetSymbol, assetName]);
 
   return (
     <div key={`${index}d1`} style={{ overflowX: 'hidden' }}>
@@ -205,7 +188,7 @@ const ChartTitle = ({ index, asset }: { asset: AssetHistory; index: number }) =>
       <br />
       <small>
         (
-        {asset.balHistory.length}
+        {asset.items.length}
         {' '}
         txs)
         {' '}
