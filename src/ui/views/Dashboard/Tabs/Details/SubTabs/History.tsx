@@ -74,8 +74,8 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
     theData,
   }), [params, theData]);
   const recordCount = useMemo(
-    () => (filters.active ? filteredRecords : totalRecords),
-    [filteredRecords, filters.active, totalRecords],
+    () => (filters.active ? filteredRecords : transactionsFetchedByWorker),
+    [filteredRecords, filters.active, transactionsFetchedByWorker],
   );
   const [
     assetToFilterBy,
@@ -207,7 +207,6 @@ export const History = ({ params }: { params: Omit<AccountViewParams, 'theData'>
             loading={loading}
             extraData={currentAddress}
             totalRecords={recordCount}
-            showRowPlaceholder
             onSelectionChange={onSelectionChange}
             onPageChange={onTablePageChange}
           />
