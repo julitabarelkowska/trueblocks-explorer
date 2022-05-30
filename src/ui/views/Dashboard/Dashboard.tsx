@@ -162,6 +162,7 @@ export const DashboardView = () => {
     setTotalRecords(0);
   }, [setTransactions, chain, setTotalRecords]);
 
+  // TODO(tjayrush): Remove this Omit since theData is no longer part of AccountViewParams
   const params: Omit<AccountViewParams, 'theData'> = useMemo(() => ({
     loading,
     setLoading,

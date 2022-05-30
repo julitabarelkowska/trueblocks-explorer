@@ -31,7 +31,7 @@ export const Functions = ({ loading }: { loading: boolean }) => {
   const {
     getFunctionsItems,
   } = useDatastore();
-
+  // TODO(tjayrush): We could do this with a useEffect here
   const sendMessage = useCallback(async () => {
     if (!currentAddress) return;
 

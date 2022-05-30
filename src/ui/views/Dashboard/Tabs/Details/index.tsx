@@ -30,6 +30,7 @@ import {
   Neighbors,
 } from './SubTabs';
 
+// TODO(tjayrush): We can remove the Omit since theData is not part of AccountViewParams
 export const DetailsView = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const {
     filters,

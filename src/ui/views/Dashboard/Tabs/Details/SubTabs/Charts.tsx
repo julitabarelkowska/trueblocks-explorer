@@ -18,6 +18,7 @@ import { DashboardAccountsHistoryLocation } from '../../../../../Routes';
 import { chartColors } from '../../../../../Utilities';
 import { AccountViewParams } from '../../../Dashboard';
 
+// TODO(tjayrush): May be able to remove Omit
 export const Charts = ({ params }: { params: Omit<AccountViewParams, 'theData'> }) => {
   const {
     userPrefs,
