@@ -3650,6 +3650,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"comlink@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "comlink@npm:4.3.1"
+  checksum: 557360a6558708c55aff74a25f834bfb9bfca8a42444682c4d5aead57681534a0206202be2a2760b4de124c3ba6d485b08978b6d5469cb3d26bf1438ee28a4f1
+  languageName: node
+  linkType: hard
+
 "comma-separated-tokens@npm:^1.0.0":
   version: 1.0.8
   resolution: "comma-separated-tokens@npm:1.0.8"
@@ -12956,6 +12963,7 @@ resolve@^2.0.0-next.3:
     antd: ^4.14.0
     browserslist: ^4.19.1
     classnames: ^2.3.0
+    comlink: ^4.3.1
     concurrently: ^6.0.0
     css-loader: ^5.1.2
     cypress: ^6.6.0

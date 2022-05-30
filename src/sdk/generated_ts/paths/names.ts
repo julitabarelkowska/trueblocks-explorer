@@ -1,5 +1,5 @@
 import * as ApiCallers from "../lib/api_callers";
-import { Name, address } from "../types";
+import { Name } from "../types";
 
 export function getNames(
   parameters?: {
@@ -13,6 +13,9 @@ export function getNames(
     addr?: boolean,
     collections?: boolean,
     tags?: boolean,
+    delete?: boolean,
+    undelete?: boolean,
+    remove?: boolean,
     chain: string,
     noHeader?: boolean,
     fmt?: string,
@@ -29,22 +32,6 @@ export function getNames(
   return ApiCallers.fetch<Name[]>(
     {
       endpoint: '/names', method: 'get', parameters, options,
-    },
-  );
-}
-export function deleteNames(
-  parameters?: {
-    addrs: address[],
-    delete?: boolean,
-    undelete?: boolean,
-    remove?: boolean,
-    chain: string,
-  },
-  options?: RequestInit,
-) {
-  return ApiCallers.fetch<never>(
-    {
-      endpoint: '/names', method: 'delete', parameters, options,
     },
   );
 }

@@ -1,21 +1,16 @@
 import React, {
   useEffect, useMemo, useState,
 } from 'react';
-import { generatePath, useParams } from 'react-router-dom';
-
 import {
-  getExport, getList, ListStats, Transaction,
-} from '@sdk';
+  generatePath, useParams,
+} from 'react-router-dom';
+
+import { proxy } from 'comlink';
 import Mousetrap from 'mousetrap';
 
 import { BaseView } from '@components/BaseView';
-import { useSdk } from '@hooks/useSdk';
-import { CallStatus, isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
-import { createErrorNotification } from '@modules/error_notification';
-import {
-  createEmptyAccountname,
-  // Reconciliation,
-} from '@modules/types';
+import { useDatastore } from '@hooks/useDatastore';
+import { useSearchParams } from '@hooks/useSearchParams';
 
 import {
   DashboardAccountsAddressLocation,
@@ -35,10 +30,14 @@ import {
   DashboardMonitorsLocation,
   RootLocation,
 } from '../../Routes';
-import { useGlobalNames, useGlobalState } from '../../State';
+import { useGlobalState } from '../../State';
 import { Collections } from './Tabs/Collections';
 import { DetailsView } from './Tabs/Details';
 import { Monitors } from './Tabs/Monitors';
+
+const searchParamAsset = 'asset';
+const searchParamEvent = 'event';
+const searchParamFunction = 'function';
 
 export const DashboardView = () => {
   const [loading, setLoading] = useState(false);
@@ -50,17 +49,89 @@ export const DashboardView = () => {
   const [hideReconciled, setHideReconciled] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [period, setPeriod] = useState('by tx');
-  const [cancel, setCancel] = useState(false);
+  const [, setCancel] = useState(false);
 
   const { chain } = useGlobalState();
-  const { currentAddress, setCurrentAddress } = useGlobalState();
-  const { namesMap } = useGlobalNames();
-  const { totalRecords, setTotalRecords } = useGlobalState();
+  const { currentAddress, setCurrentAddress, setTransactionsLoaded } = useGlobalState();
   const {
-    transactions, meta: transactionsMeta, setTransactions, addTransactions,
+    totalRecords,
+    setTotalRecords,
+    setFilteredRecords,
+    setTransactionsFetchedByWorker,
+    meta: transactionsMeta,
+    setTransactions,
+    setFilters,
   } = useGlobalState();
-
+  const {
+    clearPerAccountStores,
+    loadTransactions,
+    getTransactionsTotal,
+    cancelLoadTransactions,
+    setActiveFilters,
+  } = useDatastore();
+  const searchParams = useSearchParams();
   const routeParams = useParams<{ address: string }>();
+
+  const addressParam = useMemo(() => routeParams.address, [routeParams.address]);
+
+  useEffect(() => {
+    const asset = searchParams.get(searchParamAsset) || '';
+    const event = searchParams.get(searchParamEvent) || '';
+    const functionName = searchParams.get(searchParamFunction) || '';
+
+    if (!currentAddress) return;
+
+    if (!asset && !event && !functionName) {
+      setFilters({ active: false });
+      return;
+    }
+
+    const filtersSet = { asset, event, function: functionName };
+
+    setActiveFilters({
+      chain: chain.chain,
+      address: currentAddress,
+      filters: filtersSet,
+    });
+    setFilters({ active: true, ...filtersSet });
+  }, [chain, currentAddress, searchParams, setActiveFilters, setFilters]);
+
+  useEffect(() => {
+    if (!currentAddress) return undefined;
+
+    setTransactionsLoaded(false);
+    getTransactionsTotal({ chain: chain.chain, addresses: [currentAddress] })
+      .then((stats) => {
+        setTotalRecords(stats[0].nRecords);
+      });
+
+    return () => {
+      clearPerAccountStores();
+    };
+  }, [chain, clearPerAccountStores, currentAddress, getTransactionsTotal, setTotalRecords, setTransactionsLoaded]);
+
+  useEffect(() => {
+    if (!currentAddress) return;
+
+    loadTransactions({
+      chain: chain.chain,
+      address: currentAddress,
+    },
+    proxy(({ total, filtered }) => {
+      setTransactionsFetchedByWorker(total);
+      setFilteredRecords(filtered);
+      setTransactionsLoaded(true);
+    }));
+  }, [
+    chain,
+    currentAddress,
+    getTransactionsTotal,
+    loadTransactions,
+    setTotalRecords,
+    setFilteredRecords,
+    setTransactionsFetchedByWorker,
+    setTransactionsLoaded,
+  ]);
 
   //----------------------
   // This adds (and cleans up) the escape key to allow quiting the transfer mid-way
@@ -74,29 +145,16 @@ export const DashboardView = () => {
   //----------------------
   // Fires when the address switches and kicks off the whole process of re-building the data
   useEffect(() => {
-    const { address } = routeParams;
+    const address = addressParam;
+
+    if (currentAddress && currentAddress !== address) {
+      cancelLoadTransactions({ chain: chain.chain, address: currentAddress });
+    }
+
     if (address) {
       setCurrentAddress(address);
     }
-  }, [routeParams, setCurrentAddress]);
-
-  //----------------------
-  // Fires when the address changes and builds the request transaction count
-  const listRequest = useSdk(() => getList({
-    chain,
-    count: true,
-    appearances: true,
-    addrs: [currentAddress as string],
-  }),
-  () => (currentAddress?.slice(0, 2) === '0x' && !!chain),
-  [currentAddress, chain]) as CallStatus<ListStats[]>;
-
-  //----------------------
-  // Fires when listRequest changes and sets the transaction count
-  useEffect(() => {
-    if (!isSuccessfulCall(listRequest)) return;
-    setTotalRecords(listRequest.data[0]?.nRecords);
-  }, [listRequest, listRequest.type, setTotalRecords]);
+  }, [cancelLoadTransactions, currentAddress, addressParam, setCurrentAddress, chain]);
 
   //----------------------
   useEffect(() => {
@@ -104,80 +162,12 @@ export const DashboardView = () => {
     setTotalRecords(0);
   }, [setTransactions, chain, setTotalRecords]);
 
-  //----------------------
-  // Fires when the number of records or the address changes, repeats until all transactions are fetched
-  const transactionsRequest = useSdk(() => getExport({
-    chain,
-    addrs: [currentAddress as string],
-    fmt: 'json',
-    cache: true,
-    cacheTraces: true,
-    staging: showStaging,
-    // unripe: showUnripe,
-    ether: true,
-    // dollars: false,
-    articulate: true,
-    accounting: true,
-    // reversed: false,
-    relevant: true,
-    // summarize_by: 'monthly',
-    firstRecord: transactions.length,
-    maxRecords: (() => {
-      if (transactions.length < 20) return 10;
-      if (transactions.length < 800) return 239;
-      return 639; /* an arbitrary number not too big, not too small, that appears not to repeat */
-    })(),
-  }),
-  () => Boolean(!cancel && currentAddress && totalRecords && transactions.length < totalRecords),
-  [totalRecords, transactions.length, currentAddress, showStaging]);
-
-  //----------------------
-  // Fires when there are new transactions, appends them to the growing array
-  useEffect(() => {
-    if (!isSuccessfulCall(transactionsRequest)) return;
-    addTransactions(transactionsRequest.data as Transaction[]);
-  }, [addTransactions, transactionsRequest]);
-
-  //----------------------
-  // First when new transactions are present, reports an error if any
-  useEffect(() => {
-    if (isFailedCall(transactionsRequest)) {
-      createErrorNotification({
-        description: 'Could not fetch transactions',
-      });
-    }
-  }, [transactionsRequest]);
-
-  //----------------------
-  // Enhance the data with some names and other data we need
-  const theData = useMemo(() => transactions
-    .map((transaction, index) => {
-      const id = String(index + 1);
-      const fromName = namesMap.get(transaction.from) || createEmptyAccountname();
-      const toName = namesMap.get(transaction.to) || createEmptyAccountname();
-      const staging = showStaging;
-      return {
-        ...transaction,
-        id,
-        fromName,
-        toName,
-        staging,
-        chain,
-      };
-    }), [namesMap, transactions, chain, showStaging]); // TODO: the staging data should come from the backend
-
-  //----------------------
-  // Sets and unsets the loading flag
-  useEffect(() => {
-    const stateToSet = !transactionsRequest.loading ? false : transactions.length < 10;
-    setLoading(stateToSet);
-  }, [transactions.length, transactionsRequest.loading]);
-
-  const params: AccountViewParams = {
+  // TODO(tjayrush): Remove this Omit since theData is no longer part of AccountViewParams
+  const params: Omit<AccountViewParams, 'theData'> = useMemo(() => ({
     loading,
     setLoading,
     totalRecords,
-    theData,
+    // theData,
     theMeta: transactionsMeta,
     userPrefs: {
       showReversed,
@@ -197,7 +187,7 @@ export const DashboardView = () => {
       period,
       setPeriod,
     },
-  };
+  }), [hideNamed, hideReconciled, hideZero, loading, period, showDetails, showReversed, showStaging, showUnripe, totalRecords, transactionsMeta]);
 
   const detailsPaths = useMemo(() => [
     DashboardAccountsAddressLocation,
@@ -209,7 +199,6 @@ export const DashboardView = () => {
     DashboardAccountsHistoryCustomLocation,
     DashboardAccountsNeighborsLocation,
     DashboardAccountsGasLocation,
-    // DashboardAccountsChartsLocation,
     DashboardAccountsFunctionsLocation,
     DashboardAccountsEventsLocation,
   ], []);

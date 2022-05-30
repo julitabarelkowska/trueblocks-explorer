@@ -32,7 +32,8 @@ export const GridTable = ({
   data: IndexCacheItem[];
 }) => {
   const [selected, setSelected] = useState(localStorage.getItem('grid-select') || '');
-  const meta = { max: 15000000, completed: 14100000 };
+  // TODO(tjayrush): This needs to pick up the actual last indexed block
+  const meta = { max: 15000000, completed: 14800000 };
   const largest = meta.max;
 
   const rows = Array(Math.ceil(largest / 1e6))

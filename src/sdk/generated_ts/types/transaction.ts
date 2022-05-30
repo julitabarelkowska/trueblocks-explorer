@@ -1,8 +1,8 @@
-import { hash, gas, blknum, uint64, timestamp, address, wei, bytes, Receipt, Reconciliation, Function } from "../types";
+import { gas, hash, blknum, uint64, timestamp, address, wei, bytes, Receipt, Reconciliation, Function, date } from "../types";
 
 export type Transaction = {
-  hash: hash
   gasPrice: gas
+  hash: hash
   blockHash: hash
   blockNumber: blknum
   transactionIndex: blknum
@@ -21,5 +21,5 @@ export type Transaction = {
   finalized: boolean
   extraData: string
   isError: boolean
-  date: string
+  date: date
 }

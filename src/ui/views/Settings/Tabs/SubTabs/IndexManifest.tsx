@@ -13,8 +13,8 @@ export const IndexManifest = () => {
   const { chain } = useGlobalState();
 
   const pinsCall = useSdk(() => getChunks({
-    chain,
-    extract: 'pins',
+    chain: chain.chain,
+    mode: 'pins',
   }));
 
   return (

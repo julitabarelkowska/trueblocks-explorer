@@ -7,9 +7,10 @@ import React, {
 } from 'react';
 import { ReactNode } from 'react-markdown';
 
-import { address as Address, Name, Transaction } from '@sdk';
+import { Chain, Transaction } from '@sdk';
 import Cookies from 'js-cookie';
 
+import { FiltersState } from '@modules/filters/transaction';
 import {
   getThemeByName, Theme, ThemeName,
 } from '@modules/themes';
@@ -17,7 +18,35 @@ import { createEmptyMeta, Meta } from '@modules/types/Meta';
 
 const THEME: ThemeName = Cookies.get('theme') as ThemeName || 'default';
 const ADDRESS = Cookies.get('address');
-const CHAIN = Cookies.get('chain') || process.env.CHAIN || 'mainnet';
+const [CHAIN, defaultChainLoaded]: readonly [Chain, boolean] = (() => {
+  const stringified = Cookies.get('chain');
+  const defaultValue: Chain = {
+    chain: 'mainnet',
+    chainId: 1,
+    symbol: 'ETH',
+    rpcProvider: '',
+    apiProvider: '',
+    remoteExplorer: 'http://trueblocks.io',
+    localExplorer: '',
+    pinGateway: '',
+  };
+
+  if (!stringified) return [defaultValue, true] as const;
+
+  try {
+    const parsed: Chain = JSON.parse(stringified);
+
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Incorrect value found in chain cookie');
+    }
+
+    return [parsed, false] as const;
+  } catch (error) {
+    console.error(error);
+    Cookies.set('chain', defaultValue);
+    return [defaultValue, true] as const;
+  }
+})();
 const DENOM = Cookies.get('denom') || 'ether';
 
 type NamesEditModalState = {
@@ -30,16 +59,20 @@ type NamesEditModalState = {
 
 type State = {
   theme: Theme,
-  chain: string,
+  chain: Chain,
+  chainLoaded: boolean,
   denom: string,
   currentAddress?: string,
-  namesMap: Map<Address, Name>
   namesEditModalVisible: boolean,
   namesEditModal: NamesEditModalState,
   transactions: Transaction[],
   meta: Meta
   totalRecords: number,
-}
+  filteredRecords: number,
+  transactionsLoaded: boolean,
+  transactionsFetchedByWorker: number,
+  filters: FiltersState,
+};
 
 const getDefaultNamesEditModalValue = () => ({
   address: '',
@@ -52,14 +85,18 @@ const getDefaultNamesEditModalValue = () => ({
 const initialState: State = {
   theme: getThemeByName(THEME),
   chain: CHAIN,
+  chainLoaded: !defaultChainLoaded,
   denom: DENOM,
   currentAddress: ADDRESS,
-  namesMap: new Map(),
   namesEditModalVisible: false,
   namesEditModal: getDefaultNamesEditModalValue(),
   transactions: [],
   meta: createEmptyMeta(),
   totalRecords: 0,
+  filteredRecords: 0,
+  transactionsLoaded: false,
+  transactionsFetchedByWorker: 0,
+  filters: { active: false },
 };
 
 type SetTheme = {
@@ -72,6 +109,11 @@ type SetChain = {
   chain: State['chain'],
 };
 
+type SetChainLoaded = {
+  type: 'SET_CHAIN_LOADED',
+  loaded: State['chainLoaded'],
+};
+
 type SetDenom = {
   type: 'SET_DENOM',
   denom: State['denom'],
@@ -80,11 +122,6 @@ type SetDenom = {
 type SetCurrentAddress = {
   type: 'SET_CURRENT_ADDRESS',
   address: State['currentAddress'],
-};
-
-type SetNamesMap = {
-  type: 'SET_NAMES_MAP',
-  namesMap: State['namesMap'],
 };
 
 type SetNamesEditModal = {
@@ -117,18 +154,42 @@ type SetTotalRecords = {
   records: State['totalRecords'],
 };
 
+type SetFilteredRecords = {
+  type: 'SET_FILTERED_RECORDS',
+  filteredRecords: State['filteredRecords'],
+};
+
+type SetTransactionsLoaded = {
+  type: 'SET_TRANSACTIONS_LOADED',
+  loaded: State['transactionsLoaded'],
+};
+
+type SetTransactionsFetchedByWorker = {
+  type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER',
+  fetched: State['transactionsFetchedByWorker'],
+};
+
+type SetFilters = {
+  type: 'SET_FILTERS',
+  filters: State['filters'],
+};
+
 type GlobalAction =
   | SetTheme
   | SetChain
+  | SetChainLoaded
   | SetDenom
   | SetCurrentAddress
-  | SetNamesMap
   | SetNamesEditModal
   | SetNamesEditModalVisible
   | SetTransactions
   | AddTransactions
   | SetMeta
-  | SetTotalRecords;
+  | SetTotalRecords
+  | SetFilteredRecords
+  | SetTransactionsLoaded
+  | SetTransactionsFetchedByWorker
+  | SetFilters;
 
 const GlobalStateContext = createContext<[
   typeof initialState,
@@ -144,10 +205,15 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         theme: action.theme,
       };
     case 'SET_CHAIN':
-      Cookies.set('chain', action.chain);
+      Cookies.set('chain', JSON.stringify(action.chain));
       return {
         ...state,
         chain: action.chain,
+      };
+    case 'SET_CHAIN_LOADED':
+      return {
+        ...state,
+        chainLoaded: action.loaded,
       };
     case 'SET_DENOM':
       // TODO(tjayrush): not sure why this doesn't work
@@ -167,11 +233,6 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         };
       }
       return state;
-    case 'SET_NAMES_MAP':
-      return {
-        ...state,
-        namesMap: action.namesMap,
-      };
     case 'SET_NAMES_EDIT_MODAL':
       return {
         ...state,
@@ -206,6 +267,26 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         ...state,
         totalRecords: action.records,
       };
+    case 'SET_FILTERED_RECORDS':
+      return {
+        ...state,
+        filteredRecords: action.filteredRecords,
+      };
+    case 'SET_TRANSACTIONS_LOADED':
+      return {
+        ...state,
+        transactionsLoaded: action.loaded,
+      };
+    case 'SET_TRANSACTIONS_FETCHED_BY_WORKER':
+      return {
+        ...state,
+        transactionsFetchedByWorker: action.fetched,
+      };
+    case 'SET_FILTERS':
+      return {
+        ...state,
+        filters: action.filters,
+      };
     default:
       return state;
   }
@@ -233,16 +314,16 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_CHAIN', chain });
   };
 
+  const setChainLoaded = (loaded: SetChainLoaded['loaded']) => {
+    dispatch({ type: 'SET_CHAIN_LOADED', loaded });
+  };
+
   const setDenom = (denom: SetDenom['denom']) => {
     dispatch({ type: 'SET_DENOM', denom });
   };
 
-  const setCurrentAddress = (address: SetCurrentAddress['address']) => {
+  const setCurrentAddress = useCallback((address: SetCurrentAddress['address']) => {
     dispatch({ type: 'SET_CURRENT_ADDRESS', address });
-  };
-
-  const setNamesMap = useCallback((namesMap: SetNamesMap['namesMap']) => {
-    dispatch({ type: 'SET_NAMES_MAP', namesMap });
   }, [dispatch]);
 
   const setNamesEditModal = (val: SetNamesEditModal['val']) => {
@@ -269,17 +350,33 @@ export const useGlobalState = () => {
     dispatch({ type: 'SET_TOTAL_RECORDS', records });
   }, [dispatch]);
 
+  const setFilteredRecords = useCallback((filteredRecords: SetFilteredRecords['filteredRecords']) => {
+    dispatch({ type: 'SET_FILTERED_RECORDS', filteredRecords });
+  }, [dispatch]);
+
+  const setTransactionsLoaded = useCallback((loaded: SetTransactionsLoaded['loaded']) => {
+    dispatch({ type: 'SET_TRANSACTIONS_LOADED', loaded });
+  }, [dispatch]);
+
+  const setTransactionsFetchedByWorker = useCallback((fetched: SetTransactionsFetchedByWorker['fetched']) => {
+    dispatch({ type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER', fetched });
+  }, [dispatch]);
+
+  const setFilters = useCallback((filters: SetFilters['filters']) => {
+    dispatch({ type: 'SET_FILTERS', filters });
+  }, [dispatch]);
+
   return {
     theme: state.theme,
     setTheme,
     chain: state.chain,
     setChain,
+    chainLoaded: state.chainLoaded,
+    setChainLoaded,
     denom: state.denom,
     setDenom,
     currentAddress: state.currentAddress,
     setCurrentAddress,
-    namesMap: state.namesMap,
-    setNamesMap,
     namesEditModal: state.namesEditModal,
     setNamesEditModal,
     namesEditModalVisible: state.namesEditModalVisible,
@@ -291,6 +388,14 @@ export const useGlobalState = () => {
     setMeta,
     totalRecords: state.totalRecords,
     setTotalRecords,
+    filteredRecords: state.filteredRecords,
+    setFilteredRecords,
+    transactionsLoaded: state.transactionsLoaded,
+    setTransactionsLoaded,
+    transactionsFetchedByWorker: state.transactionsFetchedByWorker,
+    setTransactionsFetchedByWorker,
+    filters: state.filters,
+    setFilters,
   };
 };
 
@@ -299,13 +404,4 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo((): [State, React.Dispatch<GlobalAction>] => [state, dispatch], [state]);
 
   return <GlobalStateContext.Provider value={value}>{children}</GlobalStateContext.Provider>;
-};
-
-export const useGlobalNames = () => {
-  const {
-    namesMap, setNamesMap,
-  } = useGlobalState();
-  return {
-    namesMap, setNamesMap,
-  };
 };

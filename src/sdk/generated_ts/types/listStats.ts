@@ -1,7 +1,7 @@
-import { address } from "../types";
+import { address, uint64 } from "../types";
 
 export type ListStats = {
   address: address
-  nRecords: number
-  fileSize: number
+  nRecords: uint64
+  fileSize: uint64
 }

@@ -13,7 +13,7 @@ export const Traces = () => {
     <RawDataTab
       name='logs'
       makeRequest={() => getTraces({
-        chain,
+        chain: chain.chain,
         transactions: ['12001001.0'],
         articulate: true,
       })}

@@ -17,7 +17,7 @@ export const Blocks = () => {
   const { chain } = useGlobalState();
 
   const blocksCall = useSdk(() => getBlocks({
-    chain,
+    chain: chain.chain,
     blocks: [],
     list: 0,
     listCount: 12,

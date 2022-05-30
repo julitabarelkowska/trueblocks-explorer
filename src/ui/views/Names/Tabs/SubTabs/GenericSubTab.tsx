@@ -17,7 +17,7 @@ type GenericSubTabProps = {
 export function GenericSubTab({ filterFunc, resourceName }: GenericSubTabProps) {
   const { chain } = useGlobalState();
   const dataCall = useSdk(() => getAbis({
-    chain,
+    chain: chain.chain,
     addrs: [],
     known: true,
     logLevel: 2,
