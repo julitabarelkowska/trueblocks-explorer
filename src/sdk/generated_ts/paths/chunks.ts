@@ -8,6 +8,7 @@ export function getChunks(
     addrs?: address[],
     check?: boolean,
     belongs?: boolean,
+    details?: boolean,
     chain: string,
     noHeader?: boolean,
     fmt?: string,
