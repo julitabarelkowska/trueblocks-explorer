@@ -3,8 +3,10 @@ import { address, Monitor } from "../types";
 
 export function getMonitors(
   parameters?: {
-    addrs: address[],
+    addrs?: address[],
     clean?: boolean,
+    watch?: boolean,
+    sleep?: number,
     delete?: boolean,
     undelete?: boolean,
     remove?: boolean,
