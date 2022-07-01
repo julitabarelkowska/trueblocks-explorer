@@ -1,10 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, {
+  useCallback, useMemo, useState,
+} from 'react';
 
 import { DownOutlined, SettingOutlined } from '@ant-design/icons';
+import { Transaction } from '@sdk';
 import {
   Badge,
   Button, Checkbox, Dropdown, Form, Menu, Select, Space,
 } from 'antd';
+
+import { useDatastore } from '@hooks/useDatastore';
 
 import { useGlobalState } from '../../../../../State';
 import { AccountViewParams } from '../../../Dashboard';
@@ -15,8 +20,11 @@ import {
 import './ViewOptions.css';
 
 export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
-  const { denom, setDenom } = useGlobalState();
+  const {
+    denom, setDenom, totalRecords, chain, currentAddress,
+  } = useGlobalState();
   const [optionsVisible, setOptionsVisible] = useState(false);
+  const { getPage } = useDatastore();
 
   const { userPrefs } = params;
 
@@ -45,6 +53,17 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
     userPrefs.showStaging,
   ]);
 
+  const fetchAndExport = useCallback(async (exportFn: (data: Transaction[]) => void) => {
+    const data = await getPage({
+      chain: chain.chain,
+      address: String(currentAddress),
+      page: 1,
+      pageSize: totalRecords,
+    });
+
+    exportFn(data.items);
+  }, [chain.chain, currentAddress, getPage, totalRecords]);
+
   const onEther = () => {
     setDenom('ether');
   };
@@ -64,16 +83,16 @@ export const ViewOptions = ({ params }: { params: AccountViewParams }) => {
   };
 
   const onExportCSV = () => {
-    exportToCsv(params.theData);
+    fetchAndExport(exportToCsv);
   };
   const onExportTXT = () => {
-    exportToTxt(params.theData);
+    fetchAndExport(exportToTxt);
   };
   const onExportOFX = () => {
-    exportToOfx(params.theData);
+    fetchAndExport(exportToOfx);
   };
   const onExportJson = () => {
-    exportToJson(params.theData);
+    fetchAndExport(exportToJson);
   };
 
   const exportOverlay = (
