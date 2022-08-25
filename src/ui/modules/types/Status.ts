@@ -12,7 +12,6 @@ export function createEmptyStatus(): Status {
     host: '',
     isTesting: false,
     isApi: false,
-    isDocker: false,
     isScraping: false,
     isArchive: false,
     isTracing: false,

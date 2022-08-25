@@ -11,7 +11,6 @@ export type Status = {
   host: string
   isTesting: boolean
   isApi: boolean
-  isDocker: boolean
   isScraping: boolean
   isArchive: boolean
   isTracing: boolean

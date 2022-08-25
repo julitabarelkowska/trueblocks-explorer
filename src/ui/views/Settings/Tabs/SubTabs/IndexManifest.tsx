@@ -14,7 +14,7 @@ export const IndexManifest = () => {
 
   const pinsCall = useSdk(() => getChunks({
     chain: chain.chain,
-    mode: 'pins',
+    mode: 'index',
   }));
 
   return (

@@ -8,5 +8,5 @@ export type Chain = {
   apiProvider: string
   remoteExplorer: string
   localExplorer: string
-  pinGateway: string
+  ipfsGateway: string
 }
