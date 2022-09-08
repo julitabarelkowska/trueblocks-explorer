@@ -85,16 +85,15 @@ function padLeft(num: number, size: number, char: string = '0') {
   return s;
 }
 
-// TODO: BOGUS - PinnedChunk used to have fields for firstApp and latestApp
-const renderBlockRange = (record: PinnedChunk, firstApp: number, latestApp: number) => (
+const renderBlockRange = (record: PinnedChunk) => (
   <div>
     <div>
-      {padLeft(firstApp, 9)}
+      {padLeft(record.firstApp, 9)}
       -
-      {padLeft(latestApp, 9)}
+      {padLeft(record.latestApp, 9)}
     </div>
     <i>
-      {Intl.NumberFormat().format(latestApp - firstApp + 1)}
+      {Intl.NumberFormat().format(record.latestApp - record.firstApp + 1)}
       {' '}
       blocks
     </i>
@@ -106,7 +105,7 @@ export const indexSchema: ColumnsType<PinnedChunk> = [
     title: 'Block Range',
     dataIndex: 'firstApp',
     configuration: {
-      render: (item, record) => renderBlockRange(record, 10, 100),
+      render: (item, record) => renderBlockRange(record),
       width: '200px',
     },
   }),
