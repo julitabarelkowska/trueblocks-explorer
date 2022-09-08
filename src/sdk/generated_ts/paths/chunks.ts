@@ -10,6 +10,7 @@ export function getChunks(
     publish?: boolean,
     remote?: boolean,
     belongs?: address[],
+    sleep?: number,
     chain: string,
     noHeader?: boolean,
     fmt?: string,
