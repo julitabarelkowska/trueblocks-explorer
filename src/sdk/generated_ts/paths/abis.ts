@@ -7,6 +7,7 @@ export function getAbis(
     known?: boolean,
     sol?: boolean,
     find?: string[],
+    hint?: string[],
     chain: string,
     noHeader?: boolean,
     fmt?: string,

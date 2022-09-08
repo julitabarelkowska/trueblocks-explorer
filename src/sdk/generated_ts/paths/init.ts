@@ -4,6 +4,7 @@ import { PinnedChunk, Manifest } from "../types";
 export function getInit(
   parameters?: {
     all?: boolean,
+    sleep?: number,
     chain: string,
     noHeader?: boolean,
     fmt?: string,
