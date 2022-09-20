@@ -4,6 +4,7 @@ import { PinnedChunk, Manifest } from "../types";
 export function getScrape(
   parameters?: {
     blockCnt?: number,
+    pin?: boolean,
     remote?: boolean,
     sleep?: number,
     chain: string,
