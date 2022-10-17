@@ -23,7 +23,6 @@ export function NamesEditModal({
 
   const [selectedNameName, setSelectedNameName] = useState(namesEditModal.name);
   const [selectedNameAddress, setSelectedNameAddress] = useState(namesEditModal.address);
-  const [selectedNameDescription, setSelectedNameDescription] = useState(namesEditModal.description);
   const [selectedNameSource, setSelectedNameSource] = useState(namesEditModal.source);
   const [selectedNameTags, setSelectedNameTags] = useState(namesEditModal.tags);
 
@@ -77,15 +76,6 @@ export function NamesEditModal({
                   placeholder='Name'
                   value={selectedNameName}
                   onChange={(e) => setSelectedNameName(e.target.value)}
-                />
-              </Form.Item>
-            </div>
-            <div style={{ marginTop: '16px' }}>
-              <Form.Item label={<div style={{ minWidth: '74px' }}>Description</div>} name='description'>
-                <Input
-                  placeholder='Description'
-                  value={selectedNameDescription}
-                  onChange={(e) => setSelectedNameDescription(e.target.value)}
                 />
               </Form.Item>
             </div>

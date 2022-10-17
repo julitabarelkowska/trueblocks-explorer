@@ -9,6 +9,7 @@ export function getBlocks(
     trace?: boolean,
     apps?: boolean,
     uniq?: boolean,
+    flow?: 'from' | 'to' | 'reward',
     logs?: boolean,
     emitter?: address[],
     topic?: topic[],

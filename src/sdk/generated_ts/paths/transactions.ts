@@ -7,6 +7,7 @@ export function getTransactions(
     articulate?: boolean,
     trace?: boolean,
     uniq?: boolean,
+    flow?: 'from' | 'to',
     reconcile?: string,
     cache?: boolean,
     chain: string,

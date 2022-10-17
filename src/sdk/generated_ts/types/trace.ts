@@ -1,8 +1,9 @@
-import { hash, blknum, uint64, TraceAction, TraceResult, Function } from "../types";
+import { hash, blknum, timestamp, uint64, TraceAction, TraceResult, Function } from "../types";
 
 export type Trace = {
   blockHash: hash
   blockNumber: blknum
+  timestamp: timestamp
   transactionHash: hash
   transactionIndex: blknum
   traceAddress: string[]

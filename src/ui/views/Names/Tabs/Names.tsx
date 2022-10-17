@@ -35,7 +35,6 @@ export const Names = () => {
   const searchInputRef = useRef(null);
   const { namesEditModal, setNamesEditModal, setNamesEditModalVisible } = useGlobalState();
   const [selectedNameName, setSelectedNameName] = useState(namesEditModal.name);
-  const [selectedNameDescription, setSelectedNameDescription] = useState(namesEditModal.description);
   const [selectedNameSource, setSelectedNameSource] = useState(namesEditModal.source);
   const [selectedNameTags, setSelectedNameTags] = useState(namesEditModal.tags);
   const [loadingEdit, setLoadingEdit] = useState(false);
@@ -138,7 +137,6 @@ export const Names = () => {
   useEffect(() => {
     if (namesEditModal) {
       setSelectedNameName(namesEditModal.name);
-      setSelectedNameDescription(namesEditModal.description);
       setSelectedNameSource(namesEditModal.source);
       setSelectedNameTags(namesEditModal.tags);
     }
@@ -158,7 +156,6 @@ export const Names = () => {
       referrerPolicy: 'no-referrer',
       body: JSON.stringify({
         address: namesEditModal.address,
-        description: selectedNameDescription,
         name: selectedNameName,
         source: selectedNameSource,
         tags: selectedNameTags,
@@ -173,7 +170,6 @@ export const Names = () => {
 
         newAddresses[foundAddressIndex] = {
           ...newAddresses[foundAddressIndex],
-          description: selectedNameDescription,
           name: selectedNameName,
           source: selectedNameSource,
           tags: selectedNameTags,
@@ -192,8 +188,6 @@ export const Names = () => {
         loadingEdit={loadingEdit}
         selectedNameName={selectedNameName}
         setSelectedNameName={setSelectedNameName}
-        selectedNameDescription={selectedNameDescription}
-        setSelectedNameDescription={setSelectedNameDescription}
         selectedNameSource={selectedNameSource}
         setSelectedNameSource={setSelectedNameSource}
         selectedNameTags={selectedNameTags}
@@ -216,8 +210,6 @@ const NameEditModal = ({
   loadingEdit,
   selectedNameName,
   setSelectedNameName,
-  selectedNameDescription,
-  setSelectedNameDescription,
   selectedNameSource,
   setSelectedNameSource,
   selectedNameTags,
@@ -229,8 +221,6 @@ const NameEditModal = ({
   loadingEdit: any;
   selectedNameName: any;
   setSelectedNameName: any;
-  selectedNameDescription: any;
-  setSelectedNameDescription: any;
   selectedNameSource: any;
   setSelectedNameSource: any;
   selectedNameTags: any;
@@ -244,9 +234,6 @@ const NameEditModal = ({
     },
     {
       name: 'Name', value: selectedNameName, type: '', onChange: setSelectedNameName,
-    },
-    {
-      name: 'Description', value: selectedNameDescription, type: '', onChange: setSelectedNameDescription,
     },
     {
       name: 'Source', value: selectedNameSource, type: '', onChange: setSelectedNameSource,
@@ -324,8 +311,8 @@ const addressSchema: ColumnsType<Name> = [
     dataIndex: 'decimals',
   }),
   addColumn({
-    title: 'Description',
-    dataIndex: 'description',
+    title: 'Petname',
+    dataIndex: 'petname',
   }),
   addTagsColumn(
     {

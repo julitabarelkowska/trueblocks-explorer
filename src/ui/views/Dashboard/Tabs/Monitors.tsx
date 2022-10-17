@@ -35,7 +35,6 @@ export const Monitors = () => {
   } = useGlobalState();
   const [selectedNameAddress] = useState('');
   const [selectedNameName] = useState('');
-  const [selectedNameDescription] = useState('');
   const [selectedNameSource] = useState('');
   const [selectedNameTags] = useState('');
   const [loadingEdit, setLoadingEdit] = useState(false);
@@ -114,7 +113,6 @@ export const Monitors = () => {
       referrerPolicy: 'no-referrer',
       body: JSON.stringify({
         address: selectedNameAddress,
-        description: selectedNameDescription,
         name: selectedNameName,
         source: selectedNameSource.length > 0 ? selectedNameSource : 'Etherscan.io',
         tags: selectedNameTags,
@@ -129,7 +127,6 @@ export const Monitors = () => {
         newAddresses.data[foundAddress] = {
           //@ts-ignore
           ...newAddresses.data[foundAddress],
-          description: selectedNameDescription,
           name: selectedNameName,
           source: selectedNameSource,
           tags: selectedNameTags,
