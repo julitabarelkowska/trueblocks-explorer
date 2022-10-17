@@ -3,12 +3,14 @@ import { blknum, address, PinnedChunk, Manifest } from "../types";
 
 export function getChunks(
   parameters?: {
-    mode: 'stats' | 'pins' | 'blooms' | 'index' | 'addresses' | 'appearances',
+    mode: 'status' | 'manifest' | 'index' | 'blooms' | 'addresses' | 'appearances' | 'stats',
     blocks?: blknum[],
-    addrs?: address[],
     check?: boolean,
-    belongs?: boolean,
-    details?: boolean,
+    pin?: boolean,
+    publish?: boolean,
+    remote?: boolean,
+    belongs?: address[],
+    sleep?: number,
     chain: string,
     noHeader?: boolean,
     fmt?: string,

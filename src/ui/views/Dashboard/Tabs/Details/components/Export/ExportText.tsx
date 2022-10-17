@@ -79,8 +79,8 @@ export const convertToText = (theData: Transaction[], delim: string) => {
         func,
         from,
         to,
-        fromName.name,
-        toName.name,
+        fromName?.name,
+        toName?.name,
         hash,
       ]);
 
@@ -100,8 +100,8 @@ export const convertToText = (theData: Transaction[], delim: string) => {
         func,
         from,
         to,
-        fromName.name,
-        toName.name,
+        fromName?.name,
+        toName?.name,
         hash,
       ]);
 

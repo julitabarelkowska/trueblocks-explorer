@@ -23,7 +23,7 @@ export function getExport(
     emitter?: address[],
     topic?: topic[],
     asset?: address[],
-    staging?: boolean,
+    flow?: 'in' | 'out' | 'zero',
     unripe?: boolean,
     firstBlock?: number,
     lastBlock?: number,

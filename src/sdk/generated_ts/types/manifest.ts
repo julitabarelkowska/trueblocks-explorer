@@ -1,9 +1,9 @@
-import { blknum, PinnedChunk } from "../types";
+import { ipfshash, PinnedChunk } from "../types";
 
 export type Manifest = {
-  indexFormat: string
-  bloomFormat: string
-  firstPin: blknum
-  lastPin: blknum
-  pins: PinnedChunk[]
+  version: string
+  chain: string
+  schemas: ipfshash
+  databases: ipfshash
+  chunks: PinnedChunk[]
 }

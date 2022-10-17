@@ -12,7 +12,6 @@ async function fetchTransactions(chain: string, addresses: Address[], loaded: nu
     fmt: 'json',
     cache: true,
     cacheTraces: true,
-    staging: false, // showStaging,
     // unripe: showUnripe,
     ether: true,
     // dollars: false,

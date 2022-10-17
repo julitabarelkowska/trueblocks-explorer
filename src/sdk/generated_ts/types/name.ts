@@ -7,7 +7,7 @@ export type Name = {
   symbol: string
   source: string
   decimals: uint64
-  description: string
+  petname: string
   deleted: boolean
   isCustom: boolean
   isPrefund: boolean

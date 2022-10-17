@@ -37,7 +37,7 @@ export const convertToOfx = (theData: any) => {
       date,
       checkNum: `${blockNumber}.${transactionIndex}`,
       refNum: `${hash}`,
-      memo: `${field} - ${toName.name} - ${to} - ${assetSymbol} - ${func}`,
+      memo: `${field} - ${toName?.name || 'unknown'} - ${to} - ${assetSymbol} - ${func}`,
     }));
 
     const outflows = outflowFields.map((field: any) => ({
@@ -47,7 +47,7 @@ export const convertToOfx = (theData: any) => {
       date,
       checkNum: `${blockNumber}.${transactionIndex}`,
       refNum: `${hash}`,
-      memo: `${field} - ${toName.name} - ${to} - ${assetSymbol} - ${func}`,
+      memo: `${field} - ${toName?.name || 'unknown'} - ${to} - ${assetSymbol} - ${func}`,
     }));
 
     return inflows
@@ -86,7 +86,7 @@ const templateString = `${header}
       <BANKACCTFROM>
         <BANKID>Crypto-Bankless
         <ACCTID>{{assetSymbol}}
-        <ACCTTYPE>Cyrpto
+        <ACCTTYPE>Crypto
       </BANKACCTFROM>
 
       <BANKTRANLIST>

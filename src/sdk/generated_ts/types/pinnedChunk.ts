@@ -1,7 +1,7 @@
 import { ipfshash, blknum } from "../types";
 
 export type PinnedChunk = {
-  fileName: string
+  range: string
   bloomHash: ipfshash
   indexHash: ipfshash
   firstApp: blknum

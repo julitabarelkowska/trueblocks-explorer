@@ -11,7 +11,6 @@ export function getNames(
     prefund?: boolean,
     named?: boolean,
     addr?: boolean,
-    collections?: boolean,
     tags?: boolean,
     delete?: boolean,
     undelete?: boolean,

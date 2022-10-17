@@ -28,7 +28,7 @@ const [CHAIN, defaultChainLoaded]: readonly [Chain, boolean] = (() => {
     apiProvider: '',
     remoteExplorer: 'http://trueblocks.io',
     localExplorer: '',
-    pinGateway: '',
+    ipfsGateway: '',
   };
 
   if (!stringified) return [defaultValue, true] as const;
