@@ -1,6 +1,7 @@
 export type hash = string;
 export type blknum = number;
 export type date = string;
+export type Datetime = string;
 export type address = string;
 export type timestamp = number;
 export type wei = string;

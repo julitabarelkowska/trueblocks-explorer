@@ -1,7 +1,6 @@
-import { gas, hash, blknum, uint64, timestamp, address, wei, bytes, Receipt, Reconciliation, Function, date } from "../types";
+import { hash, blknum, uint64, timestamp, address, wei, gas, bytes, Receipt, Reconciliation, Function, date } from "../types";
 
 export type Transaction = {
-  gasPrice: gas
   hash: hash
   blockHash: hash
   blockNumber: blknum
@@ -12,6 +11,7 @@ export type Transaction = {
   to: address
   value: wei
   gas: gas
+  gasPrice: gas
   input: bytes
   receipt: Receipt
   statements: Reconciliation[]
