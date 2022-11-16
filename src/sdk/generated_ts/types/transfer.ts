@@ -15,10 +15,5 @@ export type Transfer = {
   amount: uint256
   spotPrice: double
   priceSource: string
-  topic0: string
-  topic1: string
-  topic2: string
-  topic3: string
-  data: string
   encoding: string
 }
