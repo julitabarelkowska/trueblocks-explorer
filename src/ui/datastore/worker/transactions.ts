@@ -20,7 +20,7 @@ async function fetchTransactions(chain: string, addresses: Address[], loaded: nu
     // reversed: false,
     relevant: true,
     // summarize_by: 'monthly',
-    firstRecord: loaded,
+    firstRecord: loaded + 1,
     maxRecords: (() => {
       if (loaded < 20) return 10;
       if (loaded < 800) return 239;
@@ -286,7 +286,7 @@ export const getGas = (transactions: Transaction[] | undefined, getNameFor: (add
 
   const usesGas = transactions.filter((tx) => {
     if (!tx.statements) return false;
-    const stmts = tx.statements.filter((st) => st.gasCostOut);
+    const stmts = tx.statements.filter((st) => st.gasOut);
     return stmts.length > 0;
   });
 
@@ -301,7 +301,7 @@ export const getGas = (transactions: Transaction[] | undefined, getNameFor: (add
     toName: getNameFor(tx.to),
     isError: tx.isError,
     asset: st.assetSymbol,
-    gasCostOut: st.gasCostOut,
+    gasOut: st.gasOut,
   })));
 };
 

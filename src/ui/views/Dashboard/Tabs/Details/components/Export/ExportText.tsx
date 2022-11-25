@@ -48,7 +48,7 @@ export const incomeFields = [
 ];
 
 //-------------------------------------------------------------------------
-export const outflowFields = ['amountOut', 'internalOut', 'selfDestructOut', 'gasCostOut'];
+export const outflowFields = ['amountOut', 'internalOut', 'selfDestructOut', 'gasOut'];
 
 //-------------------------------------------------------------------------
 export const convertToText = (theData: Transaction[], delim: string) => {

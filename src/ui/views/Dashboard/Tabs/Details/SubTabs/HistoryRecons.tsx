@@ -107,14 +107,14 @@ const statementBody = (statement: Reconciliation, details: boolean, styles: any)
       {DividerRow(rowStyle)}
       {DetailRow(rowStyle, 'assetSymbol', statement.assetSymbol)}
       {DetailRow(rowStyle, 'decimals', statement.decimals)}
-      {DetailRow(rowStyle, 'prevBlk', statement.prevBlk.toString())}
+      {DetailRow(rowStyle, 'prevAppBlk', statement.prevAppBlk.toString())}
       {DetailRow(rowStyle, 'blockNumber', statement.blockNumber.toString())}
       {DetailRow(rowStyle, 'transactionIndex', statement.transactionIndex.toString())}
       {DetailRow(rowStyle, 'timestamp', statement.timestamp.toString())}
 
       {DividerRow(rowStyle)}
       {DetailRow(rowStyle, 'type', statement.reconciliationType)}
-      {DetailRow(rowStyle, 'prevBlkBal', statement.prevBlkBal)}
+      {DetailRow(rowStyle, 'prevBal', statement.prevBal)}
       {DetailRow(rowStyle, 'begBal', statement.begBal)}
       {DetailRow(rowStyle, 'begBalDiff', statement.begBalDiff)}
       {DetailRow(rowStyle, 'endBal', statement.endBal)}
@@ -146,7 +146,7 @@ const statementBody = (statement: Reconciliation, details: boolean, styles: any)
         {BodyRow(rowStyle, 'nephewReward', details, ...toNumberArguments(statement.minerNephewRewardIn), 0)}
         {BodyRow(rowStyle, 'uncleReward', details, ...toNumberArguments(statement.minerUncleRewardIn), 0)}
         {BodyRow(rowStyle, 'prefund', details, ...toNumberArguments(statement.prefundIn), 0)}
-        {BodyRow(rowStyle, 'gasCost', details, 0, ...toNumberArguments(statement.gasCostOut))}
+        {BodyRow(rowStyle, 'gasCost', details, 0, ...toNumberArguments(statement.gasOut))}
         {BodyRow(rowStyle, 'totalNet', details, 0, 0, ...toNumberArguments(statement.amountNet))}
         {BodyRow(rowStyle, 'endBal', details, 0, 0, ...toNumberArguments(statement.endBal, statement.endBalDiff))}
         {detailView}

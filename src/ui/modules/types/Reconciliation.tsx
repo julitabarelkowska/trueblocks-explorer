@@ -6,7 +6,7 @@ export const priceReconciliation = (statementIn: Reconciliation, denom: string) 
 
   const statement: Reconciliation = JSON.parse(JSON.stringify(statementIn));
   const properties: Array<keyof Reconciliation> = [
-    'prevBlkBal',
+    'prevBal',
     'begBal',
     'begBalDiff',
     'amountIn',
@@ -20,8 +20,8 @@ export const priceReconciliation = (statementIn: Reconciliation, denom: string) 
     'minerTxFeeIn',
     'minerUncleRewardIn',
     'prefundIn',
-    'gasCostOut',
-    'gasCostOut',
+    'gasOut',
+    'gasOut',
     'endBal',
     'endBalCalc',
     'endBalDiff',

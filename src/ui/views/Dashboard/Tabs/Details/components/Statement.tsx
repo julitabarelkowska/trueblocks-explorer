@@ -39,7 +39,7 @@ export const Statement = ({ statement }: { statement: Reconciliation }) => {
         {showValue(pricedRecon.totalOutLessGas.toString())}
       </td>
       <td key={`${k}-5`} className={style.col} style={{ width: '17%' }}>
-        {showValue(pricedRecon.gasCostOut.toString(), false, true)}
+        {showValue(pricedRecon.gasOut.toString(), false, true)}
       </td>
       <td key={`${k}-6`} className={style.col} style={{ width: '17%' }}>
         {showValue(pricedRecon.endBal.toString(), true)}
