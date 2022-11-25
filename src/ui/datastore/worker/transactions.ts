@@ -20,7 +20,7 @@ async function fetchTransactions(chain: string, addresses: Address[], loaded: nu
     // reversed: false,
     relevant: true,
     // summarize_by: 'monthly',
-    firstRecord: loaded,
+    firstRecord: loaded + 1,
     maxRecords: (() => {
       if (loaded < 20) return 10;
       if (loaded < 800) return 239;

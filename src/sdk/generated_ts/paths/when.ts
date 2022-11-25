@@ -7,7 +7,7 @@ export function getWhen(
     list?: boolean,
     timestamps?: boolean,
     count?: boolean,
-    repair?: number,
+    repair?: boolean,
     check?: boolean,
     chain: string,
     noHeader?: boolean,
