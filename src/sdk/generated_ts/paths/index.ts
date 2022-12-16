@@ -11,7 +11,7 @@ export * from './traces';
 export * from './when';
 export * from './state';
 export * from './tokens';
-export * from './status';
+export * from './config';
 export * from './scrape';
 export * from './chunks';
 export * from './init';
