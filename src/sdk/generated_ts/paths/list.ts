@@ -7,6 +7,7 @@ export function getList(
     count?: boolean,
     appearances?: boolean,
     silent?: boolean,
+    noZero?: boolean,
     firstRecord?: number,
     maxRecords?: number,
     firstBlock?: number,

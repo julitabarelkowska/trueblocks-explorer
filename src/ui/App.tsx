@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import {
   Chain,
-  getStatus, Status, SuccessResponse,
+  getConfig, Status, SuccessResponse,
 } from '@sdk';
 import {
   Layout,
@@ -95,7 +95,8 @@ export const App = () => {
 
   useEffect(() => {
     const fetchStatus = async () => {
-      const statusResponse = wrapResponse(await getStatus({
+      const statusResponse = wrapResponse(await getConfig({
+        modes: ['show'],
         chain: chain.chain,
         fmt: 'json',
       }));

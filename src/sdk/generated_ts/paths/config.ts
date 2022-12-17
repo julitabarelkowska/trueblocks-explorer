@@ -1,9 +1,10 @@
-import * as ApiCallers from '../lib/api_callers';
-import { Status } from '../types';
+import * as ApiCallers from "../lib/api_callers";
+import { Status } from "../types";
 
 export function getConfig(
   parameters?: {
     modes?: string[],
+    module?: string[],
     details?: boolean,
     terse?: boolean,
     chain: string,
@@ -21,7 +22,7 @@ export function getConfig(
 ) {
   return ApiCallers.fetch<Status[]>(
     {
-      endpoint: '/status', method: 'get', parameters, options,
+      endpoint: '/config', method: 'get', parameters, options,
     },
   );
 }

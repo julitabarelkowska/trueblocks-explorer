@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { getStatus, PinnedChunk } from '@sdk';
+import { getConfig, PinnedChunk } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 
 import { BaseView } from '@components/BaseView';
@@ -26,9 +26,10 @@ import { IndexTable } from './SubTabs/IndexTable';
 
 export const IndexesView = () => {
   const { chain } = useGlobalState();
-  const statusCall = useSdk(() => getStatus({
+  const statusCall = useSdk(() => getConfig({
     chain: chain.chain,
-    modes: ['index'],
+    modes: ['show'],
+    module: ['index'],
     details: true,
   }));
 

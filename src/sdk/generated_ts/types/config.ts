@@ -2,7 +2,7 @@ import {
   Cache, Chain, Key, timestamp,
 } from '.';
 
-export type Status = {
+export type Config = {
   clientVersion: string
   clientIds: string
   trueblocksVersion: string
