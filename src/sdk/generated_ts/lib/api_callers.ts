@@ -30,9 +30,7 @@ export function getBaseUrl() {
 }
 
 export function setFetch(
-  fetchToSet: (
-    input: RequestInfo, init?: RequestInit
-  ) => Promise<Response>,
+  fetchToSet: any
 ) {
   fetchToUse = fetchToSet;
 }

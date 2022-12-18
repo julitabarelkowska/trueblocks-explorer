@@ -20,6 +20,7 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { getVersion } from 'trueblocks-sdk';
 
 import { ChainSelect } from '@components/ChainSelect';
 import { Console } from '@components/Console';
@@ -163,6 +164,7 @@ export const App = () => {
 
   return (
     <Layout>
+      <div>{getVersion()}</div>
       <Header className='app-header'>
         <Title style={{ color: 'white' }} level={2}>
           {`TrueBlocks Account Explorer - ${chain.chain} chain`}
