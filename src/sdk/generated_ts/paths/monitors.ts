@@ -5,6 +5,7 @@ export function getMonitors(
   parameters?: {
     addrs?: address[],
     clean?: boolean,
+    list?: boolean,
     watch?: boolean,
     sleep?: number,
     delete?: boolean,

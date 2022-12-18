@@ -1,14 +1,12 @@
 import * as ApiCallers from "../lib/api_callers";
-import { DatedBlock } from "../types";
+import { Status } from "../types";
 
-export function getWhen(
+export function getConfig(
   parameters?: {
-    blocks?: string[],
-    list?: boolean,
-    timestamps?: boolean,
-    count?: boolean,
-    repair?: boolean,
-    check?: boolean,
+    modes?: string[],
+    module?: string[],
+    details?: boolean,
+    terse?: boolean,
     chain: string,
     noHeader?: boolean,
     fmt?: string,
@@ -22,9 +20,9 @@ export function getWhen(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<DatedBlock[]>(
+  return ApiCallers.fetch<Status[]>(
     {
-      endpoint: '/when', method: 'get', parameters, options,
+      endpoint: '/config', method: 'get', parameters, options,
     },
   );
 }

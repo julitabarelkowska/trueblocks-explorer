@@ -53,5 +53,6 @@ export function createEmptyStatus(): Status {
       },
     ],
     chains: [],
+    keys: [],
   };
 }

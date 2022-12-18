@@ -4,7 +4,7 @@ import React, {
 
 import { PlusCircleFilled, SearchOutlined } from '@ant-design/icons';
 import {
-  Chain, getStatus, Monitor, Status,
+  Chain, getConfig, Monitor, Status,
 } from '@sdk';
 import {
   Button, Input,
@@ -39,9 +39,10 @@ export const Monitors = () => {
   const [selectedNameTags] = useState('');
   const [loadingEdit, setLoadingEdit] = useState(false);
 
-  const monitorsCall = useSdk(() => getStatus({
+  const monitorsCall = useSdk(() => getConfig({
     chain: chain.chain,
-    modes: ['monitors'],
+    modes: ['show'],
+    module: ['monitors'],
     details: true,
   }), undefined, []) as CallStatus<Status[]>;
   if (isFailedCall(monitorsCall)) {

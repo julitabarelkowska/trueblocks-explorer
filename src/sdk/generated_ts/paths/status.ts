@@ -1,7 +1,7 @@
-import * as ApiCallers from "../lib/api_callers";
-import { Status } from "../types";
+import * as ApiCallers from '../lib/api_callers';
+import { Status } from '../types';
 
-export function getStatus(
+export function getConfig(
   parameters?: {
     modes?: string[],
     details?: boolean,

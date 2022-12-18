@@ -1,5 +1,5 @@
 import * as ApiCallers from "../lib/api_callers";
-import { tx_id, Transaction } from "../types";
+import { tx_id, Transaction, Transfer } from "../types";
 
 export function getTransactions(
   parameters?: {
@@ -8,7 +8,7 @@ export function getTransactions(
     trace?: boolean,
     uniq?: boolean,
     flow?: 'from' | 'to',
-    reconcile?: string,
+    accountFor?: string,
     cache?: boolean,
     chain: string,
     noHeader?: boolean,
@@ -23,7 +23,7 @@ export function getTransactions(
   },
   options?: RequestInit,
 ) {
-  return ApiCallers.fetch<Transaction[]>(
+  return ApiCallers.fetch<Transaction[] | Transfer[]>(
     {
       endpoint: '/transactions', method: 'get', parameters, options,
     },
