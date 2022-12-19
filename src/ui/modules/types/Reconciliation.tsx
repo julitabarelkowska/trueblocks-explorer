@@ -1,4 +1,4 @@
-import { Reconciliation } from '@sdk';
+import { Reconciliation } from 'trueblocks-sdk';
 
 //-----------------------------------------------------------------
 export const priceReconciliation = (statementIn: Reconciliation, denom: string) => {

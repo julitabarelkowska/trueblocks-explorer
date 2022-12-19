@@ -4,9 +4,9 @@ import React, {
 } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { Transaction } from '@sdk';
 import { Col, Row } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
+import { Transaction } from 'trueblocks-sdk';
 
 import { BaseView } from '@components/BaseView';
 import { FilterButton } from '@components/FilterButton';

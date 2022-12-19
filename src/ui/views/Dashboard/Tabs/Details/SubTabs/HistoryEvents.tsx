@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 import { CopyTwoTone } from '@ant-design/icons';
-import { Log, Name, Transaction } from '@sdk';
 import { Button, Card } from 'antd';
+import { Log, Name, Transaction } from 'trueblocks-sdk';
 
 import { Address } from '@components/Address';
 import { DataDisplay } from '@components/DataDisplay';

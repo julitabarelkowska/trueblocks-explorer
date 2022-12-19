@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { Status } from '@sdk';
 import { useGlobalState } from '@state';
 import { Select } from 'antd';
+import { Status } from 'trueblocks-sdk';
 
 export function ChainSelect({ status }: { status: Status }) {
   const history = useHistory();

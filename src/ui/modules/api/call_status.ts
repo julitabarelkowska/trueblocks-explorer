@@ -1,4 +1,4 @@
-import { AnyResponse, ErrorResponse, SuccessResponse } from '@sdk';
+import { AnyResponse, ErrorResponse, SuccessResponse } from 'trueblocks-sdk';
 
 // CallStatus<T> holds information about an API call: has it been initialized,
 // is pending, failed (if yes then the error is also present) or successful (and

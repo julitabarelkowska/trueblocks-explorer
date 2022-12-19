@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
   Transaction,
-} from '@sdk';
+} from 'trueblocks-sdk';
 
 import { useGlobalState } from '../../../../../State';
 

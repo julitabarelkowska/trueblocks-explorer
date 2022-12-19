@@ -1,6 +1,6 @@
 import {
   address as Address, AnyResponse, getExport, getList, ListStats, Name, Transaction,
-} from '@sdk';
+} from 'trueblocks-sdk';
 
 import { isFailedCall, wrapResponse } from '@modules/api/call_status';
 import { TransactionModel } from '@modules/types/models/Transaction';

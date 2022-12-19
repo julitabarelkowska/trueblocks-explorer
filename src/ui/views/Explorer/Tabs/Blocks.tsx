@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Block, getBlocks } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
+import { Block, getBlocks } from 'trueblocks-sdk';
 
 import {
   addColumn, addNumColumn, BaseTable,

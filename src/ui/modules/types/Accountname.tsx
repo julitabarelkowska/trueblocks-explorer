@@ -1,4 +1,4 @@
-import { Name } from '@sdk';
+import { Name } from 'trueblocks-sdk';
 
 export function createEmptyAccountname(): Name {
   return {

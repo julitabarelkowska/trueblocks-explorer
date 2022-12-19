@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { address, Name } from '@sdk';
+import { address, Name } from 'trueblocks-sdk';
 
 import { useDatastore } from './useDatastore';
 

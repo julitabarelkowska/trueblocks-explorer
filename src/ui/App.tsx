@@ -11,16 +11,15 @@ import {
   UnorderedListOutlined,
 } from '@ant-design/icons';
 import {
-  Chain,
-  getConfig, Status, SuccessResponse,
-} from '@sdk';
-import {
   Layout,
   Typography,
 } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-// import { getVersion } from 'trueblocks-sdk';
+import {
+  Chain,
+  getConfig, getVersion, Status, SuccessResponse,
+} from 'trueblocks-sdk';
 
 import { ChainSelect } from '@components/ChainSelect';
 import { Console } from '@components/Console';
@@ -164,7 +163,7 @@ export const App = () => {
 
   return (
     <Layout>
-      <div>{"getVersion()"}</div>
+      <div>{getVersion()}</div>
       <Header className='app-header'>
         <Title style={{ color: 'white' }} level={2}>
           {`TrueBlocks Account Explorer - ${chain.chain} chain`}

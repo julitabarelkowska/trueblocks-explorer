@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { getConfig, PinnedChunk } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
+import { getConfig, PinnedChunk } from 'trueblocks-sdk';
 
 import { BaseView } from '@components/BaseView';
 import { addColumn, addNumColumn } from '@components/Table';

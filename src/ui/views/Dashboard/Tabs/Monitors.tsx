@@ -4,12 +4,12 @@ import React, {
 
 import { PlusCircleFilled, SearchOutlined } from '@ant-design/icons';
 import {
-  Chain, getConfig, Monitor, Status,
-} from '@sdk';
-import {
   Button, Input,
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
+import {
+  Chain, getConfig, Monitor, Status,
+} from 'trueblocks-sdk';
 
 import { ClickableAddress } from '@components/ClickableAddress';
 import { NamesEditModal } from '@components/NameEditModal';

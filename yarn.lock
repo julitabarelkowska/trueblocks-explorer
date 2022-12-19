@@ -11187,15 +11187,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^18.2.0":
-  version: 18.2.0
-  resolution: "react@npm:18.2.0"
-  dependencies:
-    loose-envify: ^1.1.0
-  checksum: 88e38092da8839b830cda6feef2e8505dec8ace60579e46aa5490fc3dc9bba0bd50336507dc166f43e3afc1c42939c09fe33b25fae889d6f402721dcd78fca1b
-  languageName: node
-  linkType: hard
-
 "read-pkg-up@npm:^3.0.0":
   version: 3.0.0
   resolution: "read-pkg-up@npm:3.0.0"
@@ -13014,7 +13005,7 @@ resolve@^2.0.0-next.3:
     react-test-renderer: ^17.0.2
     recharts: ^2.0.9
     style-loader: ^2.0.0
-    trueblocks-sdk: ^0.45.15
+    trueblocks-sdk: ../trueblocks-sdk
     ts-jest: ^26.5.3
     ts-loader: ^8.0.18
     ts-morph: ^13.0.2
@@ -13025,13 +13016,12 @@ resolve@^2.0.0-next.3:
   languageName: unknown
   linkType: soft
 
-"trueblocks-sdk@npm:^0.45.15":
-  version: 0.45.15
-  resolution: "trueblocks-sdk@npm:0.45.15"
+"trueblocks-sdk@file:../trueblocks-sdk::locator=trueblocks-explorer%40workspace%3A.":
+  version: 0.45.0
+  resolution: "trueblocks-sdk@file:../trueblocks-sdk#../trueblocks-sdk::hash=5a1126&locator=trueblocks-explorer%40workspace%3A."
   dependencies:
-    react: ^18.2.0
     typescript: ^4.9.4
-  checksum: 10c09329ff3b0876da64c42a7f7b3180cc9431c172497ca330e2be32adc09450ab8603cc13724ea64ee1163cdfe02048ab07305079f779bcf678806385ed20aa
+  checksum: 1633f02b5eb858ccc685add8675c39f50f9e735b1c831151e432c7e224727a0dad0f1348cf6d11648c3ab72e618a768aeaf2eba4257de8319c270ac6c8b21618
   languageName: node
   linkType: hard
 

@@ -1,4 +1,4 @@
-import { Name, Transaction } from '@sdk';
+import { Name, Transaction } from 'trueblocks-sdk';
 
 export type TransactionModel =
   Transaction

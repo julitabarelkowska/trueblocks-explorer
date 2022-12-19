@@ -1,6 +1,6 @@
 import {
   Transaction,
-} from '@sdk';
+} from 'trueblocks-sdk';
 
 import { sendTheExport } from '../../../../../../Utilities';
 

@@ -1,9 +1,9 @@
 // import Handlebars from 'handlebars';
-import {
-  Transaction,
-} from '@sdk';
 import dayjs from 'dayjs';
 import Mustache from 'mustache';
+import {
+  Transaction,
+} from 'trueblocks-sdk';
 
 import { sendTheExport } from '../../../../../../Utilities';
 import { incomeFields, outflowFields } from './ExportText';

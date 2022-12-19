@@ -1,4 +1,4 @@
-import { address, Transaction } from '@sdk';
+import { address, Transaction } from 'trueblocks-sdk';
 
 export type FiltersState = FiltersOn | FiltersOff;
 export type FiltersOn = {

@@ -4,9 +4,9 @@ import { createUseStyles } from 'react-jss';
 import {
   ApiFilled, EyeFilled,
 } from '@ant-design/icons';
-import { Chain, Status, SuccessResponse } from '@sdk';
 import { Badge } from 'antd';
 import filesize from 'filesize';
+import { Chain, Status, SuccessResponse } from 'trueblocks-sdk';
 
 import { Loading } from '@components/Loading';
 import { createEmptyMeta } from '@modules/types/Meta';

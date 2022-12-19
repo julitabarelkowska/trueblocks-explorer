@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getTransactions } from '@sdk';
+import { getTransactions } from 'trueblocks-sdk';
 
 import { RawDataTab } from '@components/RawDataTab';
 
