@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import {
   Reconciliation,
-} from '@sdk';
+} from 'trueblocks-sdk';
 
 export const ReconIcon = ({ statement }: { statement: Reconciliation }) => {
   if (!statement) return <></>;

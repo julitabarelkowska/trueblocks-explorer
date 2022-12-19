@@ -1,4 +1,4 @@
-import { getNames, Name } from '@sdk';
+import { getNames, Name } from 'trueblocks-sdk';
 
 import {
   isFailedCall, wrapResponse,

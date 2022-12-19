@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-import { useGlobalState } from '../../State';
 import { addActionListener, removeListener } from '../../websockets';
 
 function getProgress(string: string) {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars, no-restricted-globals */
 
-import { address as Address, getNames, Name } from '@sdk';
 import { expose } from 'comlink';
+import { address as Address, getNames, Name } from 'trueblocks-sdk';
 
 import { applyTransactionFilters, TransactionFilters } from '@modules/filters/transaction';
 

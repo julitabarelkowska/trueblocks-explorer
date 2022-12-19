@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Reconciliation, Transaction } from '@sdk';
 import { useGlobalState } from '@state';
 import { Card, Space, Tag } from 'antd';
+import { Reconciliation, Transaction } from 'trueblocks-sdk';
 
 import {
   double, priceReconciliation,

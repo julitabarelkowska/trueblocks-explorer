@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Function, getAbis } from '@sdk';
+import { Function, getAbis } from 'trueblocks-sdk';
 
 import { ResourceTable } from '@components/ResourceTable';
 import { useSdk } from '@hooks/useSdk';

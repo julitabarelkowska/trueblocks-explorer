@@ -1,9 +1,9 @@
 import React from 'react';
 
+import { ColumnsType } from 'antd/lib/table';
 import {
   Function,
-} from '@sdk';
-import { ColumnsType } from 'antd/lib/table';
+} from 'trueblocks-sdk';
 
 import { BaseView } from '@components/BaseView';
 import { addActionsColumn, addColumn, TableActions } from '@components/Table';

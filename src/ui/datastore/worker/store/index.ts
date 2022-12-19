@@ -1,4 +1,4 @@
-import { address as Address, Name, Transaction } from '@sdk';
+import { address as Address, Name, Transaction } from 'trueblocks-sdk';
 
 import { TransactionFilters } from '@modules/filters/transaction';
 

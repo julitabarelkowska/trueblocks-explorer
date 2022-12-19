@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Block, getWhen } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
+import { Block, getWhen } from 'trueblocks-sdk';
 
 import { ResourceTable } from '@components/ResourceTable';
 import {

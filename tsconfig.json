@@ -18,9 +18,6 @@
             "@modules/*": [
                 "src/ui/modules/*"
             ],
-            "@sdk": [
-                "src/sdk/generated_ts/index"
-            ],
             "@state": [
                 "src/ui/State.tsx"
             ]

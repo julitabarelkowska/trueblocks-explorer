@@ -1,4 +1,4 @@
-import { Status } from '@sdk';
+import { Status } from 'trueblocks-sdk';
 
 export function createEmptyStatus(): Status {
   return {
@@ -53,5 +53,6 @@ export function createEmptyStatus(): Status {
       },
     ],
     chains: [],
+    keys: [],
   };
 }

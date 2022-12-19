@@ -1,4 +1,4 @@
-import { Name, Transaction } from '@sdk';
+import { Name, Transaction } from 'trueblocks-sdk';
 
 export type TransactionModel =
   Transaction
@@ -9,14 +9,3 @@ export type TransactionModel =
     staging: boolean,
     chain: string,
   }
-
-export type TransactionModelNew = {
-  raw: Transaction,
-  additionalData: {
-    id: string,
-    fromName: Name,
-    toName: Name,
-    staging: boolean,
-    chain: string,
-  }
-};

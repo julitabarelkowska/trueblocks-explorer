@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Transaction } from '@sdk';
 import { Card } from 'antd';
+import { Transaction } from 'trueblocks-sdk';
 
 import { headerStyle, useAcctStyles } from '..';
 import { FunctionDisplay } from '../components/FunctionDisplay';

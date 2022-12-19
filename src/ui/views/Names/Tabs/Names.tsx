@@ -3,12 +3,12 @@ import React, {
 } from 'react';
 
 import { SearchOutlined } from '@ant-design/icons';
-import { getNames, Name } from '@sdk';
 import {
   Button, Input, Space, Spin,
 } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
 import { ColumnsType } from 'antd/lib/table';
+import { getNames, Name } from 'trueblocks-sdk';
 
 import { ClickableAddress } from '@components/ClickableAddress';
 import {

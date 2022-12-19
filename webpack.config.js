@@ -20,7 +20,6 @@ module.exports = () => ({
       '@components': path.resolve(__dirname, 'src/ui/components/'),
       '@hooks': path.resolve(__dirname, 'src/ui/hooks'),
       '@modules': path.resolve(__dirname, 'src/ui/modules'),
-      '@sdk': path.resolve(__dirname, 'src/sdk/generated_ts'),
       '@state': path.resolve(__dirname, 'src/ui/State.tsx'),
     },
   },

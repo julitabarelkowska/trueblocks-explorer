@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { getConfig, PinnedChunk } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
+import { getConfig, IndexCacheItem, PinnedChunk } from 'trueblocks-sdk';
 
 import { BaseView } from '@components/BaseView';
 import { addColumn, addNumColumn } from '@components/Table';
@@ -10,7 +10,6 @@ import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
 import { createEmptyStatus } from '@modules/types/Status';
 
-import { IndexCacheItem } from '../../../../sdk/generated_ts/types/indexCacheItem';
 import {
   SettingsIndexesChartsLocation,
   SettingsIndexesGridLocation,

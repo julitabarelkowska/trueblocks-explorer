@@ -1,7 +1,7 @@
 import React from 'react';
 import { createUseStyles } from 'react-jss';
 
-import { Reconciliation, Transaction } from '@sdk';
+import { Reconciliation, Transaction } from 'trueblocks-sdk';
 
 import { Statement } from './Statement';
 

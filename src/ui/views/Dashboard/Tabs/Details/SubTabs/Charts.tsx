@@ -3,9 +3,9 @@ import React, {
 } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Chain, Name } from '@sdk';
 import { useGlobalState, useGlobalState2 } from '@state';
 import { GetChartItemsResult } from 'src/ui/datastore/messages';
+import { Chain, Name } from 'trueblocks-sdk';
 
 import { MyAreaChart } from '@components/MyAreaChart';
 import { addColumn } from '@components/Table';

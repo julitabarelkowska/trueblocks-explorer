@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { getChunks, Manifest } from '@sdk';
 import { ColumnsType } from 'antd/lib/table';
+import { getChunks, Manifest } from 'trueblocks-sdk';
 
 import { ResourceTable } from '@components/ResourceTable';
 import { addColumn } from '@components/Table';

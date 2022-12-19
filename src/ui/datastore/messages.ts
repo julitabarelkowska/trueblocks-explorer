@@ -1,6 +1,6 @@
 import {
   address, getNames, ListStats, Name,
-} from '@sdk';
+} from 'trueblocks-sdk';
 
 import { TransactionFilters } from '@modules/filters/transaction';
 
