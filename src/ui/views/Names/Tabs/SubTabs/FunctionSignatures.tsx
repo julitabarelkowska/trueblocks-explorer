@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Function } from '@sdk';
+import { Function } from 'trueblocks-sdk';
 
 import { GenericSubTab } from './GenericSubTab';
 

@@ -1,6 +1,6 @@
 import { DependencyList, useEffect, useState } from 'react';
 
-import { AnyResponse, ErrorResponse } from '@sdk';
+import { AnyResponse, ErrorResponse } from 'trueblocks-sdk';
 
 import { CallStatus, createPendingCall } from '@modules/api/call_status';
 

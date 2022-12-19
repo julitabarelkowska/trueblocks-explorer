@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { getReceipts } from '@sdk';
+import { getReceipts } from 'trueblocks-sdk';
 
 import { RawDataTab } from '@components/RawDataTab';
 

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { Function } from '@sdk';
 import { Space } from 'antd';
+import { Function } from 'trueblocks-sdk';
 
 import { Address } from '@components/Address';
 import { DataDisplay } from '@components/DataDisplay';

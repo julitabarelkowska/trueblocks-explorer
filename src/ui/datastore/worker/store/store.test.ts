@@ -1,4 +1,4 @@
-import { Transaction } from '@sdk';
+import { Transaction } from 'trueblocks-sdk';
 
 import * as Store from '.';
 

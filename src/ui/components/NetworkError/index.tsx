@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { getBaseUrl } from '@sdk';
 import { Empty } from 'antd';
+import { getBaseUrl } from 'trueblocks-sdk';
 
 import './NetworkError.css';
 

@@ -7,8 +7,8 @@ import React, {
 } from 'react';
 import { ReactNode } from 'react-markdown';
 
-import { Chain, Transaction } from '@sdk';
 import Cookies from 'js-cookie';
+import { Chain, Transaction } from 'trueblocks-sdk';
 
 import { FiltersState } from '@modules/filters/transaction';
 import {

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 
 import cx from 'classnames';
-
-import { IndexCacheItem } from '../../../../../sdk/generated_ts/types/indexCacheItem';
+import { IndexCacheItem } from 'trueblocks-sdk';
 
 export const IndexGrid = ({
   theData,

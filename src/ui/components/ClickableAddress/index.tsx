@@ -1,7 +1,7 @@
 import React from 'react';
 import { generatePath, Link } from 'react-router-dom';
 
-import { address as Address } from '@sdk';
+import { address as Address } from 'trueblocks-sdk';
 
 import { DashboardAccountsAddressLocation } from '../../Routes';
 

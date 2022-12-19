@@ -1,7 +1,7 @@
+import dayjs from 'dayjs';
 import {
   Transaction,
-} from '@sdk';
-import dayjs from 'dayjs';
+} from 'trueblocks-sdk';
 
 import { sendTheExport } from '../../../../../../Utilities';
 

@@ -3,11 +3,11 @@ import React, {
 } from 'react';
 
 import { DownOutlined, SettingOutlined } from '@ant-design/icons';
-import { Transaction } from '@sdk';
 import {
   Badge,
   Button, Checkbox, Dropdown, Form, Menu, Select, Space,
 } from 'antd';
+import { Transaction } from 'trueblocks-sdk';
 
 import { useDatastore } from '@hooks/useDatastore';
 
