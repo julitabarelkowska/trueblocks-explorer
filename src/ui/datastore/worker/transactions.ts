@@ -1,5 +1,5 @@
 import {
-  address as Address, AnyResponse, getExport, getList, ListStats, Name, Transaction,
+  address as Address, AnyResponse, AppearanceCount, getExport, getList, Name, Transaction,
 } from 'trueblocks-sdk';
 
 import { isFailedCall, wrapResponse } from '@modules/api/call_status';
@@ -37,14 +37,14 @@ async function fetchTransactions(chain: string, addresses: Address[], loaded: nu
   return transactions;
 }
 
-type GetTransactionsTotal = (chain: string, addresses: Address[]) => Promise<ListStats[]>;
+type GetTransactionsTotal = (chain: string, addresses: Address[]) => Promise<AppearanceCount[]>;
 export const getTransactionsTotal: GetTransactionsTotal = async (chain, addresses) => {
   const listCall = wrapResponse((await getList({
     chain,
     count: true,
     appearances: true,
     addrs: addresses,
-  }) as AnyResponse<ListStats[]>));
+  }) as AnyResponse<AppearanceCount[]>));
 
   if (isFailedCall(listCall)) {
     throw new Error(listCall.errors.join());

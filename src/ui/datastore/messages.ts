@@ -1,5 +1,5 @@
 import {
-  address, getNames, ListStats, Name,
+  address, AppearanceCount, getNames, Name,
 } from 'trueblocks-sdk';
 
 import { TransactionFilters } from '@modules/filters/transaction';
@@ -41,7 +41,7 @@ export type GetTransactionsTotal = {
   addresses: address[],
 }
 
-export type GetTransactionsTotalResult = ListStats[];
+export type GetTransactionsTotalResult = AppearanceCount[];
 
 export type GetPage = {
   chain: string,
