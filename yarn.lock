@@ -13018,10 +13018,10 @@ resolve@^2.0.0-next.3:
 
 "trueblocks-sdk@file:../trueblocks-sdk::locator=trueblocks-explorer%40workspace%3A.":
   version: 0.45.0
-  resolution: "trueblocks-sdk@file:../trueblocks-sdk#../trueblocks-sdk::hash=5a1126&locator=trueblocks-explorer%40workspace%3A."
+  resolution: "trueblocks-sdk@file:../trueblocks-sdk#../trueblocks-sdk::hash=fee6d2&locator=trueblocks-explorer%40workspace%3A."
   dependencies:
     typescript: ^4.9.4
-  checksum: 1633f02b5eb858ccc685add8675c39f50f9e735b1c831151e432c7e224727a0dad0f1348cf6d11648c3ab72e618a768aeaf2eba4257de8319c270ac6c8b21618
+  checksum: 8a0276535bb5d3d3b7593b0f9f582748ea772df8a4f6e45e33a480b6fafa00645a4697959d315320ae8bbb5d659a76ee1a4997c3bc39c1c5094df318ccc4c323
   languageName: node
   linkType: hard
 
