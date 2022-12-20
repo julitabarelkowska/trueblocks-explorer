@@ -42,7 +42,6 @@ export const getTransactionsTotal: GetTransactionsTotal = async (chain, addresse
   const listCall = wrapResponse((await getList({
     chain,
     count: true,
-    appearances: true,
     addrs: addresses,
   }) as AnyResponse<AppearanceCount[]>));
 
