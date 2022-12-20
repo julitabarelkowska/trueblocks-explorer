@@ -18,7 +18,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {
   Chain,
-  getConfig, getVersion, Status, SuccessResponse,
+  Config, getConfig, getVersion, SuccessResponse,
 } from 'trueblocks-sdk';
 
 import { ChainSelect } from '@components/ChainSelect';
@@ -32,8 +32,8 @@ import { useDatastore } from '@hooks/useDatastore';
 import {
   isFailedCall, isSuccessfulCall, wrapResponse,
 } from '@modules/api/call_status';
+import { createEmptyStatus } from '@modules/types/Config';
 import { createEmptyMeta } from '@modules/types/Meta';
-import { createEmptyStatus } from '@modules/types/Status';
 
 import {
   ExplorerLocation, NamesLocation, RootLocation, Routes, SettingsLocation, SupportLocation,
@@ -60,7 +60,7 @@ export const App = () => {
   dayjs.extend(relativeTime);
 
   const { location, action } = useHistory();
-  const [status, setStatus] = useState<Pick<SuccessResponse<Status>, 'data' | 'meta'>>({
+  const [status, setStatus] = useState<Pick<SuccessResponse<Config>, 'data' | 'meta'>>({
     data: createEmptyStatus(),
     meta: createEmptyMeta(),
   });
@@ -103,7 +103,7 @@ export const App = () => {
 
       if (isSuccessfulCall(statusResponse)) {
         setStatus({
-          data: statusResponse.data[0] as Status,
+          data: statusResponse.data[0] as Config,
           meta: statusResponse.meta,
         });
 

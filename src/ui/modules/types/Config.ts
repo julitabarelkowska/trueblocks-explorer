@@ -1,6 +1,6 @@
-import { Status } from 'trueblocks-sdk';
+import { Config } from 'trueblocks-sdk';
 
-export function createEmptyStatus(): Status {
+export function createEmptyStatus(): Config {
   return {
     clientVersion: '',
     clientIds: '',
