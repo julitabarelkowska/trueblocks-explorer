@@ -26,6 +26,7 @@ export function createEmptyStatus(): Config {
         nFiles: 0,
         nFolders: 0,
         sizeInBytes: 0,
+        isValid: false,
       },
       {
         items: [],
@@ -34,6 +35,7 @@ export function createEmptyStatus(): Config {
         nFiles: 0,
         nFolders: 0,
         sizeInBytes: 0,
+        isValid: false,
       },
       {
         items: [],
@@ -42,6 +44,7 @@ export function createEmptyStatus(): Config {
         nFiles: 0,
         nFolders: 0,
         sizeInBytes: 0,
+        isValid: false,
       },
       {
         items: [],
@@ -50,6 +53,7 @@ export function createEmptyStatus(): Config {
         nFiles: 0,
         nFolders: 0,
         sizeInBytes: 0,
+        isValid: false,
       },
     ],
     chains: [],

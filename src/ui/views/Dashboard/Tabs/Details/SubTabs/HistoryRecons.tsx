@@ -101,13 +101,14 @@ const statementHeader = (statement: Reconciliation, details: boolean, setShowDet
 
 //-----------------------------------------------------------------
 const statementBody = (statement: Reconciliation, details: boolean, styles: any) => {
+  const preAppBlkStr = statement.prevAppBlk === undefined ? '0' : statement.prevAppBlk.toString();
   const rowStyle = styles.tableRow;
   const detailView = !details ? <></> : (
     <>
       {DividerRow(rowStyle)}
       {DetailRow(rowStyle, 'assetSymbol', statement.assetSymbol)}
       {DetailRow(rowStyle, 'decimals', statement.decimals)}
-      {DetailRow(rowStyle, 'prevAppBlk', statement.prevAppBlk.toString())}
+      {DetailRow(rowStyle, 'prevAppBlk', preAppBlkStr)}
       {DetailRow(rowStyle, 'blockNumber', statement.blockNumber.toString())}
       {DetailRow(rowStyle, 'transactionIndex', statement.transactionIndex.toString())}
       {DetailRow(rowStyle, 'timestamp', statement.timestamp.toString())}
@@ -125,30 +126,38 @@ const statementBody = (statement: Reconciliation, details: boolean, styles: any)
     </>
   );
 
-  const toNumberArguments = (...strings: string[]): number[] => strings.map((someString) => (
-    someString === '' ? 0.0 : parseFloat(someString)));
+  const toNumberArguments2 = (v1: string|undefined, v2: string|undefined): number[] => {
+    const s1 = v1 === undefined ? '0.0' : v1;
+    const s2 = v2 === undefined ? '0.0' : v2;
+    return [parseFloat(s1), parseFloat(s2)];
+  };
+
+  const toNumberArguments1 = (v1: string|undefined): number[] => {
+    const s1 = v1 === undefined ? '0.0' : v1;
+    return [parseFloat(s1)];
+  };
 
   return (
     <table style={{ width: '100%', tableLayout: 'fixed' }}>
       <tbody>
         <HeaderRow />
-        {BodyRow(rowStyle, 'begBal', details, 0, 0, ...toNumberArguments(statement.begBal, statement.begBalDiff))}
-        {BodyRow(rowStyle, 'amount', details, ...toNumberArguments(statement.amountIn, statement.amountOut))}
-        {BodyRow(rowStyle, 'internal', details, ...toNumberArguments(statement.internalIn, statement.internalOut))}
+        {BodyRow(rowStyle, 'begBal', details, 0, 0, ...toNumberArguments2(statement.begBal, statement.begBalDiff))}
+        {BodyRow(rowStyle, 'amount', details, ...toNumberArguments2(statement.amountIn, statement.amountOut))}
+        {BodyRow(rowStyle, 'internal', details, ...toNumberArguments2(statement.internalIn, statement.internalOut))}
         {BodyRow(
           rowStyle,
           'selfDestruct',
           details,
-          ...toNumberArguments(statement.selfDestructIn, statement.selfDestructOut),
+          ...toNumberArguments2(statement.selfDestructIn, statement.selfDestructOut),
         )}
-        {BodyRow(rowStyle, 'baseReward', details, ...toNumberArguments(statement.minerBaseRewardIn), 0)}
-        {BodyRow(rowStyle, 'txFee', details, ...toNumberArguments(statement.minerTxFeeIn), 0)}
-        {BodyRow(rowStyle, 'nephewReward', details, ...toNumberArguments(statement.minerNephewRewardIn), 0)}
-        {BodyRow(rowStyle, 'uncleReward', details, ...toNumberArguments(statement.minerUncleRewardIn), 0)}
-        {BodyRow(rowStyle, 'prefund', details, ...toNumberArguments(statement.prefundIn), 0)}
-        {BodyRow(rowStyle, 'gasCost', details, 0, ...toNumberArguments(statement.gasOut))}
-        {BodyRow(rowStyle, 'totalNet', details, 0, 0, ...toNumberArguments(statement.amountNet))}
-        {BodyRow(rowStyle, 'endBal', details, 0, 0, ...toNumberArguments(statement.endBal, statement.endBalDiff))}
+        {BodyRow(rowStyle, 'baseReward', details, ...toNumberArguments1(statement.minerBaseRewardIn), 0)}
+        {BodyRow(rowStyle, 'txFee', details, ...toNumberArguments1(statement.minerTxFeeIn), 0)}
+        {BodyRow(rowStyle, 'nephewReward', details, ...toNumberArguments1(statement.minerNephewRewardIn), 0)}
+        {BodyRow(rowStyle, 'uncleReward', details, ...toNumberArguments1(statement.minerUncleRewardIn), 0)}
+        {BodyRow(rowStyle, 'prefund', details, ...toNumberArguments1(statement.prefundIn), 0)}
+        {BodyRow(rowStyle, 'gasCost', details, 0, ...toNumberArguments1(statement.gasOut))}
+        {BodyRow(rowStyle, 'totalNet', details, 0, 0, ...toNumberArguments1(statement.amountNet))}
+        {BodyRow(rowStyle, 'endBal', details, 0, 0, ...toNumberArguments2(statement.endBal, statement.endBalDiff))}
         {detailView}
       </tbody>
     </table>
@@ -211,12 +220,12 @@ const BodyRow = (
 };
 
 //-----------------------------------------------------------------
-const DetailRow = (style: string, name: string, value: double | string) => {
+const DetailRow = (style: string, name: string, value: double | string | undefined) => {
   const isErr: boolean = name?.includes('Diff') && value !== 0;
   const valueToDisplay = (() => {
     if (typeof value === 'number') return clip2(value);
 
-    const parsed = parseFloat(value);
+    const parsed = value ? parseFloat(value) : 0;
 
     if (Number.isNaN(parsed)) return value;
 
