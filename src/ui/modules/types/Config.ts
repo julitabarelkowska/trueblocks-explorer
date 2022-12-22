@@ -1,6 +1,6 @@
-import { Status } from 'trueblocks-sdk';
+import { Config } from 'trueblocks-sdk';
 
-export function createEmptyStatus(): Status {
+export function createEmptyStatus(): Config {
   return {
     clientVersion: '',
     clientIds: '',
@@ -26,6 +26,7 @@ export function createEmptyStatus(): Status {
         nFiles: 0,
         nFolders: 0,
         sizeInBytes: 0,
+        isValid: false,
       },
       {
         items: [],
@@ -34,6 +35,7 @@ export function createEmptyStatus(): Status {
         nFiles: 0,
         nFolders: 0,
         sizeInBytes: 0,
+        isValid: false,
       },
       {
         items: [],
@@ -42,6 +44,7 @@ export function createEmptyStatus(): Status {
         nFiles: 0,
         nFolders: 0,
         sizeInBytes: 0,
+        isValid: false,
       },
       {
         items: [],
@@ -50,6 +53,7 @@ export function createEmptyStatus(): Status {
         nFiles: 0,
         nFolders: 0,
         sizeInBytes: 0,
+        isValid: false,
       },
     ],
     chains: [],

@@ -8,7 +8,8 @@ import {
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import {
-  Chain, getConfig, Monitor, Status,
+  Chain, Config,
+  getConfig, Monitor,
 } from 'trueblocks-sdk';
 
 import { ClickableAddress } from '@components/ClickableAddress';
@@ -44,7 +45,7 @@ export const Monitors = () => {
     modes: ['show'],
     module: ['monitors'],
     details: true,
-  }), undefined, []) as CallStatus<Status[]>;
+  }), undefined, []) as CallStatus<Config[]>;
   if (isFailedCall(monitorsCall)) {
     createErrorNotification({
       description: 'Could not fetch monitors',

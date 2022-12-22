@@ -3,9 +3,9 @@ import { useHistory } from 'react-router-dom';
 
 import { useGlobalState } from '@state';
 import { Select } from 'antd';
-import { Status } from 'trueblocks-sdk';
+import { Config } from 'trueblocks-sdk';
 
-export function ChainSelect({ status }: { status: Status }) {
+export function ChainSelect({ status }: { status: Config }) {
   const history = useHistory();
   const { chain, setChain } = useGlobalState();
 

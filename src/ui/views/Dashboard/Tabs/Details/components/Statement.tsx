@@ -24,6 +24,7 @@ export const Statement = ({ statement }: { statement: Reconciliation }) => {
   }, [denom, statement.assetSymbol, statement.priceSource]);
 
   const pricedRecon = priceReconciliation(statement, denom);
+  const gasOutStr = pricedRecon.gasOut ? pricedRecon.gasOut.toString() : '0.00';
   return (
     <tr className={style.row} key={`${k}-row`}>
       <td key={`${k}-1`} className={style.col} style={{ width: '12%' }}>
@@ -39,7 +40,7 @@ export const Statement = ({ statement }: { statement: Reconciliation }) => {
         {showValue(pricedRecon.totalOutLessGas.toString())}
       </td>
       <td key={`${k}-5`} className={style.col} style={{ width: '17%' }}>
-        {showValue(pricedRecon.gasOut.toString(), false, true)}
+        {showValue(gasOutStr, false, true)}
       </td>
       <td key={`${k}-6`} className={style.col} style={{ width: '17%' }}>
         {showValue(pricedRecon.endBal.toString(), true)}

@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 import { Badge } from 'antd';
 import filesize from 'filesize';
-import { Chain, Status, SuccessResponse } from 'trueblocks-sdk';
+import { Chain, Config, SuccessResponse } from 'trueblocks-sdk';
 
 import { Loading } from '@components/Loading';
 import { createEmptyMeta } from '@modules/types/Meta';
@@ -16,7 +16,7 @@ import { useGlobalState2 } from '../../State';
 interface StatusPanelProps {
   // status is always a { data: ..., meta: ... } because of the way we fetch it in App.ts
   chain: string;
-  status: Pick<SuccessResponse<Status>, 'data' | 'meta'>;
+  status: Pick<SuccessResponse<Config>, 'data' | 'meta'>;
   error: boolean;
   loading: boolean;
 }

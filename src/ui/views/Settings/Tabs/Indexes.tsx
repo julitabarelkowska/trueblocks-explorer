@@ -8,7 +8,7 @@ import { addColumn, addNumColumn } from '@components/Table';
 import { useSdk } from '@hooks/useSdk';
 import { isFailedCall, isSuccessfulCall } from '@modules/api/call_status';
 import { createErrorNotification } from '@modules/error_notification';
-import { createEmptyStatus } from '@modules/types/Status';
+import { createEmptyStatus } from '@modules/types/Config';
 
 import {
   SettingsIndexesChartsLocation,
