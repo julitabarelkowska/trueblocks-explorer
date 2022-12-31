@@ -27,7 +27,7 @@ export function GenericSubTab({ filterFunc, resourceName }: GenericSubTabProps) 
     <ResourceTable
       resourceName={resourceName}
       call={dataCall}
-      onData={(items) => items.filter(filterFunc)}
+      onData={(items: any) => items.filter(filterFunc)}
       columns={abiSignature}
     />
   );

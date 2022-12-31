@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 
 import { ColumnsType } from 'antd/lib/table';
-import { getConfig, IndexCacheItem, PinnedChunk } from 'trueblocks-sdk';
+import {
+  Config, getConfig, IndexCacheItem, PinnedChunk,
+} from 'trueblocks-sdk';
 
 import { BaseView } from '@components/BaseView';
 import { addColumn, addNumColumn } from '@components/Table';
@@ -34,8 +36,9 @@ export const IndexesView = () => {
 
   const theGridData = useMemo(() => {
     if (isSuccessfulCall(statusCall)) {
+      const config = statusCall.data[0] as Config;
       if (statusCall.data) {
-        return statusCall.data[0].caches[0].items;
+        return config.caches[0].items;
       }
       return statusCall.data;
     }
