@@ -57,6 +57,5 @@ export function createEmptyStatus(): Config {
       },
     ],
     chains: [],
-    keys: [],
   };
 }
