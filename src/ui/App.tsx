@@ -108,9 +108,10 @@ export const App = () => {
         });
 
         if (chainLoaded) return;
+        const config = statusResponse.data[0] as Config;
 
         setChain(
-          statusResponse.data[0].chains.find(({ chain: chainName }) => chainName === chain.chain) as Chain,
+          config.chains.find(({ chain: chainName }) => chainName === chain.chain) as Chain,
         );
         setChainLoaded(true);
       }
