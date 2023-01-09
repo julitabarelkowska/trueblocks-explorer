@@ -16,11 +16,15 @@ export const HelpPanel = () => {
 
   const url = useMemo(
     () => {
-      if (!matchedRoute) { return 'https://docs.trueblocks.io/'; }
-      const parts = `docs/explorer${matchedRoute.path}`.split('/');
+      const ret = 'https://trueblocks.io/explorer/';
+      if (!matchedRoute) { return ret; }
+      const parts = `${matchedRoute.path}`.split('/');
       const tag = parts.pop();
+      let rr = String(new URL(`${parts.join('/')}#${tag}`, ret));
+      rr = rr.replace('https://trueblocks.io/explorer/#', 'https://trueblocks.io/');
+      rr = rr.replace('https://trueblocks.io/', 'https://trueblocks.io/explorer/');
       return (
-        String(new URL(`${parts.join('/')}#${tag}`, 'https://docs.trueblocks.io/'))
+        rr
       );
     },
     [matchedRoute],
