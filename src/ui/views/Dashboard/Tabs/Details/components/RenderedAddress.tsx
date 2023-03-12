@@ -5,7 +5,9 @@ import { TransactionModel } from '@modules/types/models/Transaction';
 export const RenderedAddress = ({ record, which }: {record: TransactionModel, which: string}) => {
   let address = which === 'from' ? record.from : record.to;
   const isCreation = address === '0x0';
-  if (isCreation) address = record.receipt.contractAddress; // may be empty
+  if (isCreation && record.receipt.contractAddress !== undefined) {
+    address = record.receipt.contractAddress; // may be empty
+  }
   const isSpecial = address === '0xPrefund' || address === '0xBlockReward' || address === '0xUncleReward';
 
   const acctFor = record.extraData;

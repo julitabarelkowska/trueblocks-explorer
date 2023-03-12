@@ -74,9 +74,9 @@ const blockListSchema: ColumnsType<BlockModel> = [
       render: (value, record) => (
         <div>
           <div>{value}</div>
-          <div style={{ fontStyle: 'italic' }}>
+          {/* <div style={{ fontStyle: 'italic' }}>
             {record.unclesCnt === null || record.unclesCnt === 0 ? '' : `${record.unclesCnt} uncle`}
-          </div>
+          </div> */}
         </div>
       ),
       width: 400,
