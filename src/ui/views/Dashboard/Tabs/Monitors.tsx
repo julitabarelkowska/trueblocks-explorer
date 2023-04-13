@@ -9,7 +9,7 @@ import {
 import { ColumnsType } from 'antd/lib/table';
 import {
   Chain, Config,
-  getConfig, Monitor,
+  getStatus, Monitor,
 } from 'trueblocks-sdk';
 
 import { ClickableAddress } from '@components/ClickableAddress';
@@ -40,11 +40,10 @@ export const Monitors = () => {
   const [selectedNameTags] = useState('');
   const [loadingEdit, setLoadingEdit] = useState(false);
 
-  const monitorsCall = useSdk(() => getConfig({
+  const monitorsCall = useSdk(() => getStatus({
     chain: chain.chain,
-    modes: ['show'],
-    module: ['monitors'],
-    details: true,
+    modes: ['monitors'],
+    verbose: true,
   }), undefined, []) as CallStatus<Config[]>;
   if (isFailedCall(monitorsCall)) {
     createErrorNotification({

@@ -18,7 +18,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {
   Chain,
-  Config, getConfig, getVersion, SuccessResponse,
+  Config, getStatus, getVersion, SuccessResponse,
 } from 'trueblocks-sdk';
 
 import { ChainSelect } from '@components/ChainSelect';
@@ -95,10 +95,11 @@ export const App = () => {
 
   useEffect(() => {
     const fetchStatus = async () => {
-      const statusResponse = wrapResponse(await getConfig({
-        modes: ['show'],
+      const statusResponse = wrapResponse(await getStatus({
+        modes: ["some"],
         chain: chain.chain,
         fmt: 'json',
+        verbose: true,
       }));
 
       if (isSuccessfulCall(statusResponse)) {

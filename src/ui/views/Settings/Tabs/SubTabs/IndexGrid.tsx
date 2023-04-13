@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 
 import cx from 'classnames';
-import { IndexCacheItem } from 'trueblocks-sdk';
+import { CacheRecordUp } from 'trueblocks-sdk';
 
 export const IndexGrid = ({
   theData,
   title,
   loading,
 }: {
-  theData: IndexCacheItem[];
+  theData: CacheRecordUp[];
   title: string | JSX.Element,
   loading: boolean
 }) => (
@@ -28,7 +28,7 @@ const cols = Array(10)
 export const GridTable = ({
   data,
 }: {
-  data: IndexCacheItem[];
+  data: CacheRecordUp[];
 }) => {
   const [selected, setSelected] = useState(localStorage.getItem('grid-select') || '');
   // TODO(tjayrush): This needs to pick up the actual last indexed block
@@ -142,7 +142,7 @@ export const DetailTable = ({
   cellStart,
   cellSpan,
 }: {
-  data: IndexCacheItem[];
+  data: CacheRecordUp[];
   cellStart: any;
   cellSpan: any;
 }) => {
@@ -171,7 +171,7 @@ export const DetailTable = ({
   }
 
   const range = { start: cellStart, end: cellStart + cellSpan };
-  const filteredData = data.filter((item: IndexCacheItem) => item.firstApp >= range.start && item.firstApp < range.end);
+  const filteredData = data.filter((item: CacheRecordUp) => item.firstApp >= range.start && item.firstApp < range.end);
   if (filteredData.length > 200 || cellSpan > 100000) {
     return (
       <div
@@ -232,10 +232,10 @@ export const DetailTable = ({
               gridGap: '4px',
             }}
           >
-            {filteredData.map((record: IndexCacheItem) => (
+            {filteredData.map((record: CacheRecordUp) => (
               <div key={record.firstApp} style={{ padding: '2px', border: '1px solid grey' }}>
                 <div style={{ fontWeight: 600, backgroundColor: 'lightgrey' }}>
-                  {record.filename.replace(/.bin/, '')}
+                  {record.filename.replace(/^.*[\\\/]/, '').replace(/.bin/, '')}
                 </div>
                 {details.map((field) => {
                   let val = <></>;
