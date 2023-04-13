@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 
 import { ColumnsType } from 'antd/lib/table';
 import {
-  Config, getConfig, IndexCacheItem, PinnedChunk,
+  Config, getStatus, CacheRecordUp,
 } from 'trueblocks-sdk';
 
 import { BaseView } from '@components/BaseView';
@@ -27,11 +27,10 @@ import { IndexTable } from './SubTabs/IndexTable';
 
 export const IndexesView = () => {
   const { chain } = useGlobalState();
-  const statusCall = useSdk(() => getConfig({
+  const statusCall = useSdk(() => getStatus({
     chain: chain.chain,
-    modes: ['show'],
-    module: ['index'],
-    details: true,
+    modes: ['index'],
+    verbose: true,
   }));
 
   const theGridData = useMemo(() => {
@@ -43,7 +42,7 @@ export const IndexesView = () => {
       return statusCall.data;
     }
     return [createEmptyStatus()];
-  }, [statusCall]) as any as IndexCacheItem[];
+  }, [statusCall]) as any as CacheRecordUp[];
 
   useEffect(() => {
     if (isFailedCall(statusCall)) {
@@ -88,7 +87,7 @@ function padLeft(num: number, size: number, char: string = '0') {
   return s;
 }
 
-const renderBlockRange = (record: PinnedChunk) => (
+const renderBlockRange = (record: CacheRecordUp) => (
   <div>
     <div>
       {padLeft(record.firstApp, 9)}
@@ -103,7 +102,7 @@ const renderBlockRange = (record: PinnedChunk) => (
   </div>
 );
 
-export const indexSchema: ColumnsType<PinnedChunk> = [
+export const indexSchema: ColumnsType<CacheRecordUp> = [
   addColumn({
     title: 'Block Range',
     dataIndex: 'firstApp',
