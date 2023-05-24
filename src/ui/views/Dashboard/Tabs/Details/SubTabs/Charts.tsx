@@ -153,7 +153,11 @@ const ChartTitle = ({ index, asset }: { asset: GetChartItemsResult[0]; index: nu
   );
   if (!assetName) {
     links.push(
-      <a target='_blank' href={`${apiProvider}/names?chain=${chain}&autoname=${asset.assetAddress}`} rel='noreferrer'>
+      <a
+        target='_blank'
+        href={`${apiProvider}/names?chain=${chain.chain}&autoname=${asset.assetAddress}`}
+        rel='noreferrer'
+      >
         Name
       </a>,
     );
