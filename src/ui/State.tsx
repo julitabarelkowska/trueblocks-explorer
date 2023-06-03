@@ -296,10 +296,12 @@ export const useGlobalState2 = () => {
   const apiProvider = new URL(process.env.CORE_URL || 'http://localhost:8080');
   const host = apiProvider.hostname;
   const port = parseInt(apiProvider.port, 10);
+
   return ({
     host,
     port,
-    apiProvider: apiProvider.href,
+    // Remove trailing slash if any
+    apiProvider: apiProvider.href.replace(/\/$/, ''),
   });
 };
 
