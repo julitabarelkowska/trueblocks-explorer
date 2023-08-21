@@ -18,7 +18,7 @@ async function fetchTransactions(chain: string, addresses: Address[], loaded: nu
     articulate: true,
     accounting: true,
     // reversed: false,
-    relevant: true,
+    // relevant: true,
     // summarize_by: 'monthly',
     firstRecord: loaded + 1,
     maxRecords: (() => {

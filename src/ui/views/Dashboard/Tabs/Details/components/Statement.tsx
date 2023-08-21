@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 
 import { useGlobalState } from '@state';
-import { Reconciliation } from 'trueblocks-sdk';
+import { Statement } from 'trueblocks-sdk';
 
 import {
   priceReconciliation,
@@ -10,7 +10,7 @@ import {
 
 import { ReconIcon } from './ReconIcon';
 
-export const Statement = ({ statement }: { statement: Reconciliation }) => {
+export const Statement12 = ({ statement }: { statement: Statement }) => {
   const style = useStyles();
   const k = statement.assetAddr;
   const { denom } = useGlobalState();

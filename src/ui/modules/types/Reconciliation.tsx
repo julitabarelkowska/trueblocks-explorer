@@ -1,11 +1,11 @@
-import { Reconciliation } from 'trueblocks-sdk';
+import { Statement } from 'trueblocks-sdk';
 
 //-----------------------------------------------------------------
-export const priceReconciliation = (statementIn: Reconciliation, denom: string) => {
+export const priceReconciliation = (statementIn: Statement, denom: string) => {
   if (denom === 'ether') { return statementIn; }
 
-  const statement: Reconciliation = JSON.parse(JSON.stringify(statementIn));
-  const properties: Array<keyof Reconciliation> = [
+  const statement: Statement = JSON.parse(JSON.stringify(statementIn));
+  const properties: Array<keyof Statement> = [
     'prevBal',
     'begBal',
     'begBalDiff',

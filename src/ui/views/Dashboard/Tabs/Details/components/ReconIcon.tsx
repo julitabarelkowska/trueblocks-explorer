@@ -8,10 +8,10 @@ import {
   UpCircleFilled,
 } from '@ant-design/icons';
 import {
-  Reconciliation,
+  Statement,
 } from 'trueblocks-sdk';
 
-export const ReconIcon = ({ statement }: { statement: Reconciliation }) => {
+export const ReconIcon = ({ statement }: { statement: Statement }) => {
   if (!statement) return <></>;
   let icon = <></>;
   if (statement.reconciled) {
