@@ -13663,7 +13663,7 @@ resolve@^2.0.0-next.3:
     react-test-renderer: ^17.0.2
     recharts: ^2.0.9
     style-loader: ^2.0.0
-    trueblocks-sdk: ^0.62.9
+    trueblocks-sdk: ^0.64.0
     ts-jest: ^26.5.3
     ts-loader: ^8.0.18
     ts-morph: ^13.0.2
@@ -13674,13 +13674,13 @@ resolve@^2.0.0-next.3:
   languageName: unknown
   linkType: soft
 
-"trueblocks-sdk@npm:^0.62.9":
-  version: 0.62.9
-  resolution: "trueblocks-sdk@npm:0.62.9"
+"trueblocks-sdk@npm:^0.64.0":
+  version: 0.64.0
+  resolution: "trueblocks-sdk@npm:0.64.0"
   dependencies:
     typescript: ^4.9.4
     vitest: ^0.29.2
-  checksum: a5201074c9940b9742c39f8d29ecbf25ec0a5d85d5d9f9b85b106c3da02271f5ca1a0776157795c744f54da616c8adf1cbfdc18f4e0f5b1e13f664014553cc1a
+  checksum: 82ded280f8cfb6e68e089e1fbeb64b56b514d9c050ffbfd5d34d2eec40f9a81a3b600754465d32372eb30ecc4f36f4f2a7d52aa4d898f932524187db87eb1a29
   languageName: node
   linkType: hard
 
