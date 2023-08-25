@@ -1,9 +1,9 @@
 import React from 'react';
 import { createUseStyles } from 'react-jss';
 
-import { Reconciliation, Transaction } from 'trueblocks-sdk';
+import { Statement, Transaction } from 'trueblocks-sdk';
 
-import { Statement } from './Statement';
+import { StatementComponent } from './StatementComponent';
 
 export const StatementDisplay = ({ record }: { record: Transaction}) => {
   const style = useStyles();
@@ -20,8 +20,8 @@ export const StatementDisplay = ({ record }: { record: Transaction}) => {
       <div>
         <table>
           <tbody>
-            {(record.statements as unknown as Reconciliation[])?.map((statement, i) => (
-              <Statement
+            {(record.statements as unknown as Statement[])?.map((statement, i) => (
+              <StatementComponent
                 key={`statement.assetAddr + ${i.toString()}`}
                 statement={statement}
               />

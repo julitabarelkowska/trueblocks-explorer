@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useGlobalState } from '@state';
 import { Card, Space, Tag } from 'antd';
-import { Reconciliation, Transaction } from 'trueblocks-sdk';
+import { Statement, Transaction } from 'trueblocks-sdk';
 
 import {
   double, priceReconciliation,
@@ -22,7 +22,7 @@ export const HistoryRecons = ({ record, params }: { record: Transaction; params:
   return (
     <div key={key} className={styles.container}>
       <div key={key} className={styles.cardHolder}>
-        {(record?.statements as unknown as Reconciliation[])?.map((statement: Reconciliation, index: number) => {
+        {(record?.statements as unknown as Statement[])?.map((statement: Statement, index: number) => {
           const statementIn = priceReconciliation(statement, denom);
           return oneStatement(statementIn, index, userPrefs.showDetails, userPrefs.setShowDetails, styles, key);
         })}
@@ -34,7 +34,7 @@ export const HistoryRecons = ({ record, params }: { record: Transaction; params:
 
 declare type stateSetter<Type> = React.Dispatch<React.SetStateAction<Type>>;
 const oneStatement = (
-  statement: Reconciliation,
+  statement: Statement,
   index: number,
   details: boolean,
   setShowDetails: stateSetter<boolean>,
@@ -82,7 +82,7 @@ const oneStatement = (
 );
 
 //-----------------------------------------------------------------
-const statementHeader = (statement: Reconciliation, details: boolean, setShowDetails: any) => {
+const statementHeader = (statement: Statement, details: boolean, setShowDetails: any) => {
   const title = `${statement.assetSymbol} reconciliation`;
   return (
     <div style={{
@@ -100,7 +100,7 @@ const statementHeader = (statement: Reconciliation, details: boolean, setShowDet
 };
 
 //-----------------------------------------------------------------
-const statementBody = (statement: Reconciliation, details: boolean, styles: any) => {
+const statementBody = (statement: Statement, details: boolean, styles: any) => {
   const preAppBlkStr = statement.prevAppBlk === undefined ? '0' : statement.prevAppBlk.toString();
   const rowStyle = styles.tableRow;
   const detailView = !details ? <></> : (

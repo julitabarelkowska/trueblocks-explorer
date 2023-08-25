@@ -6,7 +6,7 @@ import { TransactionModel } from '@modules/types/models/Transaction';
 export const Pills = ({ record } : {record: TransactionModel}) => {
   const style = useStyles();
   const isErr = record.isError;
-  const isInt = record.to !== record.extraData && record.from !== record.extraData;
+  const isInt = false; // record.to !== record.extraData && record.from !== record.extraData;
   const isCon = record.to === '0x0';
   const is20 = record.toName?.isErc20 || (record?.statements?.length || 0) > 1;
   const is721 = record.toName?.isErc721;

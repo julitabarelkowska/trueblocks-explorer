@@ -10,7 +10,7 @@ export const RenderedAddress = ({ record, which }: {record: TransactionModel, wh
   }
   const isSpecial = address === '0xPrefund' || address === '0xBlockReward' || address === '0xUncleReward';
 
-  const acctFor = record.extraData;
+  const acctFor = "UNKNOW"; // record.extraData;
   const isCurrent = address === acctFor;
 
   const nameSource = which === 'from' ? 'fromName' : 'toName';

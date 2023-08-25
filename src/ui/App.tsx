@@ -100,6 +100,7 @@ export const App = () => {
         chain: chain.chain,
         fmt: 'json',
         verbose: true,
+        chains: true,
       }));
 
       if (isSuccessfulCall(statusResponse)) {

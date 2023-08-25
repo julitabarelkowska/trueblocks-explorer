@@ -31,6 +31,7 @@ export const IndexesView = () => {
     chain: chain.chain,
     modes: ['index'],
     verbose: true,
+    chains: true,
   }));
 
   const theGridData = useMemo(() => {

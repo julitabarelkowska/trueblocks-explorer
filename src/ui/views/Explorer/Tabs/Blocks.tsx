@@ -19,8 +19,8 @@ export const Blocks = () => {
   const blocksCall = useSdk(() => getBlocks({
     chain: chain.chain,
     blocks: [],
-    list: 0,
-    listCount: 12,
+    // list: 0,
+    // listCount: 12,
     cache: true,
   }));
 

@@ -20,7 +20,7 @@ export function GenericSubTab({ filterFunc, resourceName }: GenericSubTabProps) 
     chain: chain.chain,
     addrs: [],
     known: true,
-    logLevel: 2,
+    // verbose: 2,
   }));
 
   return (

@@ -16,5 +16,5 @@ export * from '@modules/types/Accountname';
 export * from '@modules/types/AssetHistory';
 export * from '@modules/types/Balance';
 export * from '@modules/types/ItemCounter';
-export * from '@modules/types/Reconciliation';
+export * from '@modules/types/Statement';
 export * from '@modules/types/Tag';

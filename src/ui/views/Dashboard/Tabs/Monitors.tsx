@@ -44,6 +44,7 @@ export const Monitors = () => {
     chain: chain.chain,
     modes: ['monitors'],
     verbose: true,
+    chains: true,
   }), undefined, []) as CallStatus<Config[]>;
   if (isFailedCall(monitorsCall)) {
     createErrorNotification({
