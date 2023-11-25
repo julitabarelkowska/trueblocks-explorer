@@ -8,4 +8,5 @@ export type TransactionModel =
     toName?: Name,
     staging: boolean,
     chain: string,
+    extraData?: string,
   }
