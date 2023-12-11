@@ -3,21 +3,17 @@ import { Config } from 'trueblocks-sdk';
 export function createEmptyStatus(): Config {
   return {
     clientVersion: '',
-    clientIds: '',
-    trueblocksVersion: '',
+    version: '',
     rpcProvider: '',
-    configPath: '',
     cachePath: '',
     indexPath: '',
-    host: '',
     isTesting: false,
     isApi: false,
     isScraping: false,
     isArchive: false,
     isTracing: false,
-    hasEskey: false,
-    hasPinkey: false,
-    ts: 0,
+    hasEsKey: false,
+    hasPinKey: false,
     caches: [
       {
         items: [],
