@@ -4,28 +4,28 @@ import React, {
   useContext,
   useMemo,
   useReducer,
-} from "react";
-import { ReactNode } from "react-markdown";
+} from 'react';
+import { ReactNode } from 'react-markdown';
 
-import Cookies from "js-cookie";
-import { Chain, Transaction } from "trueblocks-sdk";
+import Cookies from 'js-cookie';
+import { Chain, Transaction } from 'trueblocks-sdk';
 
-import { FiltersState } from "@modules/filters/transaction";
-import { getThemeByName, Theme, ThemeName } from "@modules/themes";
-import { createEmptyMeta, Meta } from "@modules/types/Meta";
+import { FiltersState } from '@modules/filters/transaction';
+import { getThemeByName, Theme, ThemeName } from '@modules/themes';
+import { createEmptyMeta, Meta } from '@modules/types/Meta';
 
-const THEME: ThemeName = (Cookies.get("theme") as ThemeName) || "default";
-const ADDRESS = Cookies.get("address");
+const THEME: ThemeName = (Cookies.get('theme') as ThemeName) || 'default';
+const ADDRESS = Cookies.get('address');
 const [CHAIN, defaultChainLoaded]: readonly [Chain, boolean] = (() => {
-  const stringified = Cookies.get("chain");
+  const stringified = Cookies.get('chain');
   const defaultValue: Chain = {
-    chain: "mainnet",
+    chain: 'mainnet',
     chainId: 1,
-    symbol: "ETH",
-    rpcProvider: "",
-    remoteExplorer: "http://trueblocks.io",
-    localExplorer: "",
-    ipfsGateway: "",
+    symbol: 'ETH',
+    rpcProvider: '',
+    remoteExplorer: 'http://trueblocks.io',
+    localExplorer: '',
+    ipfsGateway: '',
   };
 
   if (!stringified) return [defaultValue, true] as const;
@@ -33,18 +33,18 @@ const [CHAIN, defaultChainLoaded]: readonly [Chain, boolean] = (() => {
   try {
     const parsed: Chain = JSON.parse(stringified);
 
-    if (!parsed || typeof parsed !== "object") {
-      throw new Error("Incorrect value found in chain cookie");
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Incorrect value found in chain cookie');
     }
 
     return [parsed, false] as const;
   } catch (error) {
     console.error(error);
-    Cookies.set("chain", defaultValue);
+    Cookies.set('chain', defaultValue);
     return [defaultValue, true] as const;
   }
 })();
-const DENOM = Cookies.get("denom") || "ether";
+const DENOM = Cookies.get('denom') || 'ether';
 
 type NamesEditModalState = {
   address: string;
@@ -72,11 +72,11 @@ type State = {
 };
 
 const getDefaultNamesEditModalValue = () => ({
-  address: "",
-  name: "",
-  description: "",
-  source: "",
-  tags: "",
+  address: '',
+  name: '',
+  description: '',
+  source: '',
+  tags: '',
 });
 
 const initialState: State = {
@@ -97,78 +97,78 @@ const initialState: State = {
 };
 
 type SetTheme = {
-  type: "SET_THEME";
-  theme: State["theme"];
+  type: 'SET_THEME';
+  theme: State['theme'];
 };
 
 type SetChain = {
-  type: "SET_CHAIN";
-  chain: State["chain"];
+  type: 'SET_CHAIN';
+  chain: State['chain'];
 };
 
 type SetChainLoaded = {
-  type: "SET_CHAIN_LOADED";
-  loaded: State["chainLoaded"];
+  type: 'SET_CHAIN_LOADED';
+  loaded: State['chainLoaded'];
 };
 
 type SetDenom = {
-  type: "SET_DENOM";
-  denom: State["denom"];
+  type: 'SET_DENOM';
+  denom: State['denom'];
 };
 
 type SetCurrentAddress = {
-  type: "SET_CURRENT_ADDRESS";
-  address: State["currentAddress"];
+  type: 'SET_CURRENT_ADDRESS';
+  address: State['currentAddress'];
 };
 
 type SetNamesEditModal = {
-  type: "SET_NAMES_EDIT_MODAL";
-  val: State["namesEditModal"];
+  type: 'SET_NAMES_EDIT_MODAL';
+  val: State['namesEditModal'];
 };
 
 type SetNamesEditModalVisible = {
-  type: "SET_NAMES_EDIT_MODAL_VISIBLE";
-  visible: State["namesEditModalVisible"];
+  type: 'SET_NAMES_EDIT_MODAL_VISIBLE';
+  visible: State['namesEditModalVisible'];
 };
 
 type SetTransactions = {
-  type: "SET_TRANSACTIONS";
-  transactions: State["transactions"];
+  type: 'SET_TRANSACTIONS';
+  transactions: State['transactions'];
 };
 
 type AddTransactions = {
-  type: "ADD_TRANSACTIONS";
-  transactions: State["transactions"];
+  type: 'ADD_TRANSACTIONS';
+  transactions: State['transactions'];
 };
 
 type SetMeta = {
-  type: "SET_META";
-  meta: State["meta"];
+  type: 'SET_META';
+  meta: State['meta'];
 };
 
 type SetTotalRecords = {
-  type: "SET_TOTAL_RECORDS";
-  records: State["totalRecords"];
+  type: 'SET_TOTAL_RECORDS';
+  records: State['totalRecords'];
 };
 
 type SetFilteredRecords = {
-  type: "SET_FILTERED_RECORDS";
-  filteredRecords: State["filteredRecords"];
+  type: 'SET_FILTERED_RECORDS';
+  filteredRecords: State['filteredRecords'];
 };
 
 type SetTransactionsLoaded = {
-  type: "SET_TRANSACTIONS_LOADED";
-  loaded: State["transactionsLoaded"];
+  type: 'SET_TRANSACTIONS_LOADED';
+  loaded: State['transactionsLoaded'];
 };
 
 type SetTransactionsFetchedByWorker = {
-  type: "SET_TRANSACTIONS_FETCHED_BY_WORKER";
-  fetched: State["transactionsFetchedByWorker"];
+  type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER';
+  fetched: State['transactionsFetchedByWorker'];
 };
 
 type SetFilters = {
-  type: "SET_FILTERS";
-  filters: State["filters"];
+  type: 'SET_FILTERS';
+  filters: State['filters'];
 };
 
 type GlobalAction =
@@ -194,32 +194,32 @@ const GlobalStateContext = createContext<
 
 const GlobalStateReducer = (state: State, action: GlobalAction) => {
   switch (action.type) {
-    case "SET_THEME":
-      Cookies.set("theme", action.theme.name);
+    case 'SET_THEME':
+      Cookies.set('theme', action.theme.name);
       return {
         ...state,
         theme: action.theme,
       };
-    case "SET_CHAIN":
-      Cookies.set("chain", JSON.stringify(action.chain));
+    case 'SET_CHAIN':
+      Cookies.set('chain', JSON.stringify(action.chain));
       return {
         ...state,
         chain: action.chain,
       };
-    case "SET_CHAIN_LOADED":
+    case 'SET_CHAIN_LOADED':
       return {
         ...state,
         chainLoaded: action.loaded,
       };
-    case "SET_DENOM":
+    case 'SET_DENOM':
       // TODO(tjayrush): not sure why this doesn't work
       // Cookies.set('denom', action.denom);
       return {
         ...state,
         denom: action.denom,
       };
-    case "SET_CURRENT_ADDRESS":
-      Cookies.set("address", action.address || "");
+    case 'SET_CURRENT_ADDRESS':
+      Cookies.set('address', action.address || '');
       if (action.address !== state.currentAddress) {
         return {
           ...state,
@@ -229,53 +229,53 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
         };
       }
       return state;
-    case "SET_NAMES_EDIT_MODAL":
+    case 'SET_NAMES_EDIT_MODAL':
       return {
         ...state,
         namesEditModal: action.val,
       };
-    case "SET_NAMES_EDIT_MODAL_VISIBLE":
+    case 'SET_NAMES_EDIT_MODAL_VISIBLE':
       return {
         ...state,
         namesEditModalVisible: action.visible,
       };
-    case "SET_TRANSACTIONS":
+    case 'SET_TRANSACTIONS':
       return {
         ...state,
         transactions: action.transactions,
       };
-    case "ADD_TRANSACTIONS": {
+    case 'ADD_TRANSACTIONS': {
       return {
         ...state,
         transactions: [...state.transactions, ...action.transactions],
       };
     }
-    case "SET_META":
+    case 'SET_META':
       return {
         ...state,
         meta: action.meta,
       };
-    case "SET_TOTAL_RECORDS":
+    case 'SET_TOTAL_RECORDS':
       return {
         ...state,
         totalRecords: action.records,
       };
-    case "SET_FILTERED_RECORDS":
+    case 'SET_FILTERED_RECORDS':
       return {
         ...state,
         filteredRecords: action.filteredRecords,
       };
-    case "SET_TRANSACTIONS_LOADED":
+    case 'SET_TRANSACTIONS_LOADED':
       return {
         ...state,
         transactionsLoaded: action.loaded,
       };
-    case "SET_TRANSACTIONS_FETCHED_BY_WORKER":
+    case 'SET_TRANSACTIONS_FETCHED_BY_WORKER':
       return {
         ...state,
         transactionsFetchedByWorker: action.fetched,
       };
-    case "SET_FILTERS":
+    case 'SET_FILTERS':
       return {
         ...state,
         filters: action.filters,
@@ -286,7 +286,7 @@ const GlobalStateReducer = (state: State, action: GlobalAction) => {
 };
 
 export const useGlobalState2 = () => {
-  const apiProvider = new URL(process.env.CORE_URL || "http://localhost:8080");
+  const apiProvider = new URL(process.env.CORE_URL || 'http://localhost:8080');
   const host = apiProvider.hostname;
   const port = parseInt(apiProvider.port, 10);
 
@@ -294,98 +294,98 @@ export const useGlobalState2 = () => {
     host,
     port,
     // Remove trailing slash if any
-    apiProvider: apiProvider.href.replace(/\/$/, ""),
+    apiProvider: apiProvider.href.replace(/\/$/, ''),
   };
 };
 
 export const useGlobalState = () => {
   const [state, dispatch] = useContext(GlobalStateContext);
 
-  const setTheme = (theme: SetTheme["theme"]) => {
-    dispatch({ type: "SET_THEME", theme });
+  const setTheme = (theme: SetTheme['theme']) => {
+    dispatch({ type: 'SET_THEME', theme });
   };
 
-  const setChain = (chain: SetChain["chain"]) => {
-    dispatch({ type: "SET_CHAIN", chain });
+  const setChain = (chain: SetChain['chain']) => {
+    dispatch({ type: 'SET_CHAIN', chain });
   };
 
-  const setChainLoaded = (loaded: SetChainLoaded["loaded"]) => {
-    dispatch({ type: "SET_CHAIN_LOADED", loaded });
+  const setChainLoaded = (loaded: SetChainLoaded['loaded']) => {
+    dispatch({ type: 'SET_CHAIN_LOADED', loaded });
   };
 
-  const setDenom = (denom: SetDenom["denom"]) => {
-    dispatch({ type: "SET_DENOM", denom });
+  const setDenom = (denom: SetDenom['denom']) => {
+    dispatch({ type: 'SET_DENOM', denom });
   };
 
   const setCurrentAddress = useCallback(
-    (address: SetCurrentAddress["address"]) => {
-      dispatch({ type: "SET_CURRENT_ADDRESS", address });
+    (address: SetCurrentAddress['address']) => {
+      dispatch({ type: 'SET_CURRENT_ADDRESS', address });
     },
     [dispatch]
   );
 
-  const setNamesEditModal = (val: SetNamesEditModal["val"]) => {
-    dispatch({ type: "SET_NAMES_EDIT_MODAL", val });
+  const setNamesEditModal = (val: SetNamesEditModal['val']) => {
+    dispatch({ type: 'SET_NAMES_EDIT_MODAL', val });
   };
 
   const setNamesEditModalVisible = (
-    visible: SetNamesEditModalVisible["visible"]
+    visible: SetNamesEditModalVisible['visible']
   ) => {
-    dispatch({ type: "SET_NAMES_EDIT_MODAL_VISIBLE", visible });
+    dispatch({ type: 'SET_NAMES_EDIT_MODAL_VISIBLE', visible });
   };
 
   const setTransactions = useCallback(
-    (transactions: SetTransactions["transactions"]) => {
-      dispatch({ type: "SET_TRANSACTIONS", transactions });
+    (transactions: SetTransactions['transactions']) => {
+      dispatch({ type: 'SET_TRANSACTIONS', transactions });
     },
     [dispatch]
   );
 
   const addTransactions = useCallback(
-    (transactions: AddTransactions["transactions"]) => {
-      dispatch({ type: "ADD_TRANSACTIONS", transactions });
+    (transactions: AddTransactions['transactions']) => {
+      dispatch({ type: 'ADD_TRANSACTIONS', transactions });
     },
     [dispatch]
   );
 
   const setMeta = useCallback(
-    (meta: SetMeta["meta"]) => {
-      dispatch({ type: "SET_META", meta });
+    (meta: SetMeta['meta']) => {
+      dispatch({ type: 'SET_META', meta });
     },
     [dispatch]
   );
 
   const setTotalRecords = useCallback(
-    (records: SetTotalRecords["records"]) => {
-      dispatch({ type: "SET_TOTAL_RECORDS", records });
+    (records: SetTotalRecords['records']) => {
+      dispatch({ type: 'SET_TOTAL_RECORDS', records });
     },
     [dispatch]
   );
 
   const setFilteredRecords = useCallback(
-    (filteredRecords: SetFilteredRecords["filteredRecords"]) => {
-      dispatch({ type: "SET_FILTERED_RECORDS", filteredRecords });
+    (filteredRecords: SetFilteredRecords['filteredRecords']) => {
+      dispatch({ type: 'SET_FILTERED_RECORDS', filteredRecords });
     },
     [dispatch]
   );
 
   const setTransactionsLoaded = useCallback(
-    (loaded: SetTransactionsLoaded["loaded"]) => {
-      dispatch({ type: "SET_TRANSACTIONS_LOADED", loaded });
+    (loaded: SetTransactionsLoaded['loaded']) => {
+      dispatch({ type: 'SET_TRANSACTIONS_LOADED', loaded });
     },
     [dispatch]
   );
 
   const setTransactionsFetchedByWorker = useCallback(
-    (fetched: SetTransactionsFetchedByWorker["fetched"]) => {
-      dispatch({ type: "SET_TRANSACTIONS_FETCHED_BY_WORKER", fetched });
+    (fetched: SetTransactionsFetchedByWorker['fetched']) => {
+      dispatch({ type: 'SET_TRANSACTIONS_FETCHED_BY_WORKER', fetched });
     },
     [dispatch]
   );
 
   const setFilters = useCallback(
-    (filters: SetFilters["filters"]) => {
-      dispatch({ type: "SET_FILTERS", filters });
+    (filters: SetFilters['filters']) => {
+      dispatch({ type: 'SET_FILTERS', filters });
     },
     [dispatch]
   );
