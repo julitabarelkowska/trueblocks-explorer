@@ -65,7 +65,7 @@
     "@types/react-highlight-words": "^0.16.2",
     "@types/react-router-dom": "^5.1.7",
     "antd": "^4.14.0",
-    "browserslist": "^4.19.1",
+    "browserslist": "^4.23.0",
     "classnames": "^2.3.0",
     "comlink": "^4.3.1",
     "dayjs": "^1.10.6",
