@@ -5053,16 +5053,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:^16.0.6":
-  version: 16.0.6
-  resolution: "electron@npm:16.0.6"
+"electron@npm:^16.2.8":
+  version: 16.2.8
+  resolution: "electron@npm:16.2.8"
   dependencies:
     "@electron/get": ^1.13.0
     "@types/node": ^14.6.2
     extract-zip: ^1.0.3
   bin:
     electron: cli.js
-  checksum: 0b0c7e109c871ced64493bdf7a39b334b732909228375d4bdb268f97de5a487f5e34fe763f72b9ab5be4ba35de861b3bd76efb1417207729b6146877f644fc81
+  checksum: 05177c7a798ff43d4a9df333cc5537e46235a14560b4400e9a9993972abb2e599e22e59a0c0b385bc4090ef665719ce0e90179b652d295fb1fea79bbb0fd786b
   languageName: node
   linkType: hard
 
@@ -13629,7 +13629,7 @@ resolve@^2.0.0-next.3:
     dotenv: ^8.2.0
     dotenv-safe: ^8.2.0
     dotenv-webpack: ^7.0.2
-    electron: ^16.0.6
+    electron: ^16.2.8
     electron-is-dev: ^2.0.0
     electron-store: ^7.0.2
     eslint: ^7.21.0
