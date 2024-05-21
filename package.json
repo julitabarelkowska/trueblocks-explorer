@@ -92,7 +92,7 @@
     "react-router-dom": "^5.2.0",
     "react-syntax-highlighter": "^15.4.3",
     "react-test-renderer": "^17.0.2",
-    "recharts": "^2.0.9",
+    "recharts": "^2.12.6",
     "trueblocks-sdk": "^2.5.5",
     "ts-morph": "^13.0.2"
   }
