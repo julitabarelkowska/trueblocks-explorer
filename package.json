@@ -64,7 +64,7 @@
     "@types/mustache": "^4.1.2",
     "@types/react-highlight-words": "^0.16.2",
     "@types/react-router-dom": "^5.1.7",
-    "antd": "^4.14.0",
+    "antd": "^4.24.16",
     "browserslist": "^4.19.1",
     "classnames": "^2.3.0",
     "comlink": "^4.3.1",
